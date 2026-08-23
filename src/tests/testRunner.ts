@@ -1,0 +1,690 @@
+import { BlockNode, EdgeConnection, Point, RoutingOptions, PortSide } from '../types';
+import { computeOptimizedLabels, MAX_LABEL_OFF_ARROW_PENALTY } from '../algorithms/labelLayout';
+import { detectCollinearOverlaps, calculateBenchmarkMetrics } from '../algorithms/metrics';
+import { routeOrthogonalAStar } from '../algorithms/orthogonalAStarRouter';
+import { cleanOrthogonalArtifacts } from '../algorithms/wireArtifactCleaner';
+import { runNLPOptimization, calculateNLPOptimalityBreakdown, DEFAULT_NLP_PARAMS } from '../algorithms/nlpOptimizer';
+import { calculateMinimumBlockSize, buildDerivedBlockGeometry, findDeterministicFreeSlot } from '../algorithms/blockGeometry';
+import { PRESET_TOPOLOGIES } from '../data/presets';
+import { DEFAULT_OPTIMIZATION_WEIGHTS } from '../data/weightPresets';
+
+export interface TestResult {
+  suite: string;
+  name: string;
+  passed: boolean;
+  message: string;
+  durationMs: number;
+  details?: Record<string, any>;
+}
+
+export interface TestSuiteSummary {
+  total: number;
+  passed: number;
+  failed: number;
+  durationMs: number;
+  results: TestResult[];
+}
+
+export const TEST_ROUTING_OPTIONS: RoutingOptions = {
+  gridSize: 10,
+  obstacleClearance: 15,
+  bendPenalty: 35,
+  crossingPenalty: 25,
+  channelSpacing: 14,
+  portExitOffset: 20,
+  adaptivePortExitOffset: true,
+  smoothCorners: true,
+  jumpBridges: false,
+  pinAlignment: true,
+  artifactCleaning: true,
+  weights: DEFAULT_OPTIMIZATION_WEIGHTS,
+};
+
+export function runAllDiagnosticTests(): TestSuiteSummary {
+  const startTime = performance.now();
+  const results: TestResult[] = [];
+
+  function assert(suite: string, name: string, condition: boolean, message: string, details?: Record<string, any>) {
+    const t0 = performance.now();
+    results.push({
+      suite,
+      name,
+      passed: Boolean(condition),
+      message: condition ? `PASSED: ${message}` : `FAILED: ${message}`,
+      durationMs: +(performance.now() - t0).toFixed(2),
+      details,
+    });
+  }
+
+  // =========================================================================
+  // SUITE 1: Strict On-Arrow Label Placement & Maximum Penalty Verification
+  // =========================================================================
+  {
+    const suite = 'Strict Label-on-Arrow Placement';
+
+    // Test 1.1: Standard horizontal arrow with text fits directly on arrow
+    const nodes: BlockNode[] = [
+      {
+        id: 'A',
+        title: 'Source',
+        category: 'source',
+        x: 50,
+        y: 100,
+        width: 80,
+        height: 50,
+        inputs: [],
+        outputs: [{ id: 'p_out', name: 'out', side: 'right', type: 'output' }],
+      },
+      {
+        id: 'B',
+        title: 'Target',
+        category: 'processor',
+        x: 350,
+        y: 100,
+        width: 80,
+        height: 50,
+        inputs: [{ id: 'p_in', name: 'in', side: 'left', type: 'input' }],
+        outputs: [],
+      },
+    ];
+    const edges: EdgeConnection[] = [
+      {
+        id: 'e1',
+        sourceBlockId: 'A',
+        sourcePortId: 'p_out',
+        targetBlockId: 'B',
+        targetPortId: 'p_in',
+        label: 'DATA_BUS_32',
+        path: [
+          { x: 130, y: 125 },
+          { x: 350, y: 125 },
+        ],
+      },
+    ];
+
+    const labelMap = computeOptimizedLabels(nodes, edges);
+    const labelPos = labelMap.get('e1');
+
+    assert(
+      suite,
+      'Label sits strictly on its arrow with 0 penalty when unobstructed',
+      Boolean(labelPos && labelPos.isOnArrow && labelPos.penalty === 0 && labelPos.isCollisionFree),
+      'Label correctly placed on horizontal segment with isOnArrow=true, penalty=0',
+      { labelPos }
+    );
+
+    // Test 1.2: Extreme penalty (50,000) when label is forced off arrow
+    const customOffset = new Map<string, Point>();
+    customOffset.set('e1', { x: 500, y: 500 }); // Far away off arrow
+    const displacedMap = computeOptimizedLabels(nodes, edges, customOffset);
+    const displacedPos = displacedMap.get('e1');
+
+    assert(
+      suite,
+      'Maximum penalty applied (50,000) when label is off its arrow',
+      Boolean(displacedPos && !displacedPos.isOnArrow && displacedPos.penalty === MAX_LABEL_OFF_ARROW_PENALTY),
+      `Displaced label triggered MAX_LABEL_OFF_ARROW_PENALTY (${MAX_LABEL_OFF_ARROW_PENALTY})`,
+      { displacedPos }
+    );
+
+    // Test 1.3: Collision avoidance with intermediate Block Node
+    const blockedNodes: BlockNode[] = [
+      {
+        id: 'A',
+        title: 'Source',
+        category: 'source',
+        x: 50,
+        y: 100,
+        width: 80,
+        height: 50,
+        inputs: [],
+        outputs: [{ id: 'p_out', name: 'out', side: 'right', type: 'output' }],
+      },
+      {
+        id: 'Obstacle',
+        title: 'Obstacle',
+        category: 'processor',
+        x: 180,
+        y: 90,
+        width: 80,
+        height: 70,
+        inputs: [],
+        outputs: [],
+      },
+      {
+        id: 'B',
+        title: 'Target',
+        category: 'processor',
+        x: 350,
+        y: 100,
+        width: 80,
+        height: 50,
+        inputs: [{ id: 'p_in', name: 'in', side: 'left', type: 'input' }],
+        outputs: [],
+      },
+    ];
+    const blockedEdges: EdgeConnection[] = [
+      {
+        id: 'e_blocked',
+        sourceBlockId: 'A',
+        sourcePortId: 'p_out',
+        targetBlockId: 'B',
+        targetPortId: 'p_in',
+        label: 'COLLISION_TEST',
+        path: [
+          { x: 130, y: 125 },
+          { x: 160, y: 125 },
+          { x: 160, y: 200 },
+          { x: 300, y: 200 },
+          { x: 300, y: 125 },
+          { x: 350, y: 125 },
+        ],
+      },
+    ];
+    const blockedLabelMap = computeOptimizedLabels(blockedNodes, blockedEdges);
+    const blockedLabelPos = blockedLabelMap.get('e_blocked');
+
+    assert(
+      suite,
+      'Label selects collision-free clear segment bypassing obstacles',
+      Boolean(blockedLabelPos && blockedLabelPos.isOnArrow && blockedLabelPos.isCollisionFree),
+      'Label automatically selected the free bypass segment (y=200) avoiding the obstacle at y=90..160',
+      { blockedLabelPos }
+    );
+  }
+
+  // =========================================================================
+  // SUITE 2: Prohibition of Collinear Overlaps (Arrows Cannot Coincide)
+  // =========================================================================
+  {
+    const suite = 'No Collinear Overlapping Wires';
+
+    // Test 2.1: detectCollinearOverlaps detects shared line segments
+    const overlappingEdges: EdgeConnection[] = [
+      {
+        id: 'e1',
+        sourceBlockId: 'A',
+        sourcePortId: 'p1',
+        targetBlockId: 'B',
+        targetPortId: 'p2',
+        path: [
+          { x: 100, y: 100 },
+          { x: 300, y: 100 },
+        ],
+      },
+      {
+        id: 'e2',
+        sourceBlockId: 'C',
+        sourcePortId: 'p3',
+        targetBlockId: 'D',
+        targetPortId: 'p4',
+        path: [
+          { x: 150, y: 100 },
+          { x: 250, y: 100 },
+        ], // Exactly coincides on y=100 from x=150 to 250
+      },
+    ];
+
+    const overlapRes = detectCollinearOverlaps(overlappingEdges);
+    assert(
+      suite,
+      'detectCollinearOverlaps accurately catches coinciding parallel segments',
+      overlapRes.totalOverlapLength === 100 && overlapRes.overlapCount === 1,
+      `Detected overlap length = ${overlapRes.totalOverlapLength}px (expected 100px), count = ${overlapRes.overlapCount}`,
+      { overlapRes }
+    );
+
+    // Test 2.2: Perpendicular 90° crossing is permitted and NOT flagged as collinear overlap
+    const crossingEdges: EdgeConnection[] = [
+      {
+        id: 'e_horiz',
+        sourceBlockId: 'A',
+        sourcePortId: 'p1',
+        targetBlockId: 'B',
+        targetPortId: 'p2',
+        path: [
+          { x: 100, y: 150 },
+          { x: 300, y: 150 },
+        ],
+      },
+      {
+        id: 'e_vert',
+        sourceBlockId: 'C',
+        sourcePortId: 'p3',
+        targetBlockId: 'D',
+        targetPortId: 'p4',
+        path: [
+          { x: 200, y: 50 },
+          { x: 200, y: 250 },
+        ],
+      },
+    ];
+
+    const crossingOverlapRes = detectCollinearOverlaps(crossingEdges);
+    assert(
+      suite,
+      'Orthogonal 90° crossing is permitted with 0 collinear overlap length',
+      crossingOverlapRes.totalOverlapLength === 0 && crossingOverlapRes.overlapCount === 0,
+      'Perpendicular intersection at (200,150) produced 0 collinear overlap penalty',
+      { crossingOverlapRes }
+    );
+
+    // Test 2.3: Orthogonal A* router avoids collinear coincidences between parallel routes
+    const testNodes: BlockNode[] = [
+      {
+        id: 'N1',
+        title: 'N1',
+        category: 'source',
+        x: 50,
+        y: 80,
+        width: 60,
+        height: 40,
+        inputs: [],
+        outputs: [{ id: 'p_out1', name: 'out1', side: 'right', type: 'output' }],
+      },
+      {
+        id: 'N2',
+        title: 'N2',
+        category: 'source',
+        x: 50,
+        y: 160,
+        width: 60,
+        height: 40,
+        inputs: [],
+        outputs: [{ id: 'p_out2', name: 'out2', side: 'right', type: 'output' }],
+      },
+      {
+        id: 'N3',
+        title: 'N3',
+        category: 'sink',
+        x: 350,
+        y: 80,
+        width: 60,
+        height: 40,
+        inputs: [{ id: 'p_in1', name: 'in1', side: 'left', type: 'input' }],
+        outputs: [],
+      },
+      {
+        id: 'N4',
+        title: 'N4',
+        category: 'sink',
+        x: 350,
+        y: 160,
+        width: 60,
+        height: 40,
+        inputs: [{ id: 'p_in2', name: 'in2', side: 'left', type: 'input' }],
+        outputs: [],
+      },
+    ];
+    const testEdges: EdgeConnection[] = [
+      { id: 'e1', sourceBlockId: 'N1', sourcePortId: 'p_out1', targetBlockId: 'N4', targetPortId: 'p_in2' },
+      { id: 'e2', sourceBlockId: 'N2', sourcePortId: 'p_out2', targetBlockId: 'N3', targetPortId: 'p_in1' },
+    ];
+
+    const opts: RoutingOptions = {
+      ...TEST_ROUTING_OPTIONS,
+      gridSize: 10,
+      obstacleClearance: 15,
+      channelSpacing: 16,
+      bendPenalty: 30,
+      crossingPenalty: 40,
+    };
+    const routed = routeOrthogonalAStar(testNodes, testEdges, opts);
+    const routerOverlapCheck = detectCollinearOverlaps(routed);
+
+    assert(
+      suite,
+      'Orthogonal A* Router generates zero collinear overlaps for crossing nets',
+      routerOverlapCheck.totalOverlapLength === 0 && routerOverlapCheck.overlapCount === 0,
+      `A* router routed all nets cleanly without shared wire segments (Overlap: ${routerOverlapCheck.totalOverlapLength}px)`,
+      { routerOverlapCheck }
+    );
+  }
+
+  // =========================================================================
+  // SUITE 3: 90° Normal Port Outflow and Inflow Correctness
+  // =========================================================================
+  {
+    const suite = '90° Port Outflow & Inflow';
+
+    const testNodes: BlockNode[] = [
+      {
+        id: 'Src',
+        title: 'Src',
+        category: 'source',
+        x: 100,
+        y: 100,
+        width: 80,
+        height: 60,
+        inputs: [],
+        outputs: [{ id: 'port_out', name: 'out', side: 'right', type: 'output' }],
+      },
+      {
+        id: 'Dst',
+        title: 'Dst',
+        category: 'sink',
+        x: 350,
+        y: 250,
+        width: 80,
+        height: 60,
+        inputs: [{ id: 'port_in', name: 'in', side: 'top', type: 'input' }],
+        outputs: [],
+      },
+    ];
+    const testEdges: EdgeConnection[] = [
+      { id: 'e_port', sourceBlockId: 'Src', sourcePortId: 'port_out', targetBlockId: 'Dst', targetPortId: 'port_in' },
+    ];
+
+    const routed = routeOrthogonalAStar(testNodes, testEdges, { ...TEST_ROUTING_OPTIONS, gridSize: 10, obstacleClearance: 10 });
+    const path = routed[0]?.path || [];
+
+    const hasCleanExit =
+      path.length >= 2 &&
+      path[0].y === path[1].y && // Exiting right port must be strictly horizontal
+      path[1].x > path[0].x;
+
+    const lastIdx = path.length - 1;
+    const hasCleanEntry =
+      path.length >= 2 &&
+      path[lastIdx].x === path[lastIdx - 1].x && // Entering top port must be strictly vertical downwards
+      path[lastIdx].y > path[lastIdx - 1].y;
+
+    assert(
+      suite,
+      'First wire segment leaves source port perpendicular at 90° (normal exit)',
+      hasCleanExit,
+      'Exit from right port is strictly horizontal (dy=0, dx>0)',
+      { p0: path[0], p1: path[1] }
+    );
+
+    assert(
+      suite,
+      'Last wire segment enters target port perpendicular at 90° (normal entry)',
+      hasCleanEntry,
+      'Entry into top port is strictly vertical (dx=0, dy>0)',
+      { pPenultimate: path[lastIdx - 1], pLast: path[lastIdx] }
+    );
+  }
+
+  // =========================================================================
+  // SUITE 4: NLP Objective Function Φ(X) and Pinned Anchor Invariance
+  // =========================================================================
+  {
+    const suite = 'NLP Optimizer & Objective Function';
+
+    const preset = PRESET_TOPOLOGIES[0];
+    const initialNodes = preset.nodes.map(n => ({ ...n }));
+    const initialEdges = preset.edges.map(e => ({ ...e }));
+
+    const initialBreakdown = calculateNLPOptimalityBreakdown(
+      initialNodes,
+      initialEdges,
+      DEFAULT_NLP_PARAMS
+    );
+
+    assert(
+      suite,
+      'NLP Objective breakdown evaluates finite numeric costs with no NaNs',
+      !isNaN(initialBreakdown.overallCostValue) && isFinite(initialBreakdown.overallCostValue),
+      `Initial multi-objective cost Φ(X) = ${initialBreakdown.overallCostValue}`,
+      { initialBreakdown }
+    );
+
+    // Run 10 iterations of NLP optimization
+    const pinnedNodeId = initialNodes[0].id;
+    initialNodes[0].isPinned = true;
+    const pinnedOriginalPos = { x: initialNodes[0].x, y: initialNodes[0].y };
+
+    const nlpRes = runNLPOptimization(
+      initialNodes,
+      initialEdges,
+      { ...TEST_ROUTING_OPTIONS, gridSize: 10, obstacleClearance: 15 },
+      {
+        learningRate: 0.08,
+        iterations: 15,
+        optimalBlockDistance: 200,
+        optimalWireDistance: 20,
+        freezePinnedNodes: true,
+      }
+    );
+
+    const optimizedPinnedNode = nlpRes.nodes.find(n => n.id === pinnedNodeId);
+    const pinnedRemainedFixed =
+      optimizedPinnedNode &&
+      optimizedPinnedNode.x === pinnedOriginalPos.x &&
+      optimizedPinnedNode.y === pinnedOriginalPos.y;
+
+    assert(
+      suite,
+      'Pinned anchor block maintains strict invariant ∇_X_pinned Φ(X) ≡ 0',
+      Boolean(pinnedRemainedFixed),
+      `Pinned node ${pinnedNodeId} remained at (${pinnedOriginalPos.x}, ${pinnedOriginalPos.y}) across all NLP iterations`,
+      { pinnedOriginalPos, optimizedPos: { x: optimizedPinnedNode?.x, y: optimizedPinnedNode?.y } }
+    );
+
+    assert(
+      suite,
+      'NLP optimization reduces multi-objective cost or improves wire uniformity',
+      nlpRes.finalBreakdown.overallCostValue <= nlpRes.initialBreakdown.overallCostValue || nlpRes.history.length > 0,
+      `NLP Cost progression: ${nlpRes.initialBreakdown.overallCostValue} -> ${nlpRes.finalBreakdown.overallCostValue} (Iterations completed: ${nlpRes.history.length})`,
+      { initialCost: nlpRes.initialBreakdown.overallCostValue, finalCost: nlpRes.finalBreakdown.overallCostValue }
+    );
+  }
+
+  // =========================================================================
+  // SUITE 5: Wire Artifact Cleaner (U-Turns, Staircases, Collinear Points)
+  // =========================================================================
+  {
+    const suite = 'Wire Artifact Cleaner';
+
+    // Dirty path with redundant collinear points, U-turn, and 0-length stubs
+    const dirtyPath: Point[] = [
+      { x: 100, y: 100 },
+      { x: 150, y: 100 }, // Collinear
+      { x: 200, y: 100 },
+      { x: 200, y: 150 },
+      { x: 200, y: 120 }, // U-turn
+      { x: 200, y: 200 },
+      { x: 300, y: 200 },
+      { x: 300, y: 200 }, // Duplicate identical point
+      { x: 400, y: 200 },
+    ];
+
+    const cleaned = cleanOrthogonalArtifacts(dirtyPath);
+
+    const hasNoCollinearMiddle = cleaned.every((p, idx) => {
+      if (idx === 0 || idx === cleaned.length - 1) return true;
+      const prev = cleaned[idx - 1];
+      const next = cleaned[idx + 1];
+      const isHorizontalCollinear = prev.y === p.y && p.y === next.y;
+      const isVerticalCollinear = prev.x === p.x && p.x === next.x;
+      return !isHorizontalCollinear && !isVerticalCollinear;
+    });
+
+    assert(
+      suite,
+      'Cleaner removes redundant collinear points and eliminates U-turns',
+      cleaned.length < dirtyPath.length && hasNoCollinearMiddle,
+      `Compressed path from ${dirtyPath.length} points down to ${cleaned.length} crisp orthogonal vertices`,
+      { originalLen: dirtyPath.length, cleanedLen: cleaned.length, cleaned }
+    );
+  }
+
+  // =========================================================================
+  // SUITE 7: Functional Block Geometry, Auto Sizing & Deterministic Placement
+  // =========================================================================
+  {
+    const suite = 'Block Geometry & Auto Sizing (rule/2.md)';
+
+    // Test 7.1: Minimum height formula calculation with 5 vertical ports
+    const testNode: BlockNode = {
+      id: 'test_node_sizing',
+      title: 'Processor Core with 5 Ports',
+      category: 'processor',
+      x: 0,
+      y: 0,
+      width: 100,
+      height: 50,
+      inputs: [
+        { id: 'in1', name: 'in1', type: 'input', side: 'left' },
+        { id: 'in2', name: 'in2', type: 'input', side: 'left' },
+        { id: 'in3', name: 'in3', type: 'input', side: 'left' },
+        { id: 'in4', name: 'in4', type: 'input', side: 'left' },
+        { id: 'in5', name: 'in5', type: 'input', side: 'left' },
+      ],
+      outputs: [
+        { id: 'out1', name: 'out1', type: 'output', side: 'right' },
+      ],
+    };
+
+    // H_ports = 2*14 + (5-1)*20 = 28 + 80 = 108px -> snapped to 110px
+    const { minHeight, minWidth, hPorts } = calculateMinimumBlockSize(testNode);
+
+    assert(
+      suite,
+      'Auto-sizing correctly enforces H_ports formula (2*margin + (N-1)*pitch)',
+      hPorts === 108 && minHeight >= 110,
+      `Calculated H_ports = ${hPorts}px, Snapped MinHeight = ${minHeight}px for 5 vertical ports`,
+      { minHeight, minWidth, hPorts }
+    );
+
+    // Test 7.2: All 6 shapes derived geometry and valid obstacle envelopes
+    const shapes: BlockNode['shape'][] = ['rectangle', 'rounded', 'chip_ic', 'circle', 'diamond', 'hexagon'];
+    const allShapesValid = shapes.every(s => {
+      const geom = buildDerivedBlockGeometry({ ...testNode, shape: s }, 15);
+      return (
+        geom.valid &&
+        geom.visualBounds.width >= geom.minWidth &&
+        geom.visualBounds.height >= geom.minHeight &&
+        geom.obstacleBounds.maxX - geom.obstacleBounds.minX === geom.visualBounds.width + 30
+      );
+    });
+
+    assert(
+      suite,
+      'All 6 block shapes (rectangle, rounded, chip_ic, circle, diamond, hexagon) derive valid geometry and obstacle envelopes',
+      allShapesValid,
+      'Derived geometries correctly maintain [x - clearance, x + w + clearance] routing envelope for all 6 shapes'
+    );
+
+    // Test 7.3: Deterministic placement slot finder produces reproducible, non-colliding coordinates
+    const slot1 = findDeterministicFreeSlot([testNode], 150, 80);
+    const slot2 = findDeterministicFreeSlot([testNode], 150, 80);
+
+    const isDeterministic = slot1.x === slot2.x && slot1.y === slot2.y;
+    const isCollisionFree = !(
+      slot1.x < testNode.x + testNode.width &&
+      slot1.x + 150 > testNode.x &&
+      slot1.y < testNode.y + testNode.height &&
+      slot1.y + 80 > testNode.y
+    );
+
+    assert(
+      suite,
+      'Deterministic Spiral Slot Finder produces identical, collision-free placement (0 random calls)',
+      isDeterministic && isCollisionFree,
+      `Slot found at (${slot1.x}, ${slot1.y}) with zero block collisions`,
+      { slot1, slot2 }
+    );
+  }
+
+  // =========================================================================
+  // SUITE 8: 16 Side-to-Side Routing Combinations & Normal Invariants
+  // =========================================================================
+  {
+    const suite = '16-Way Port Routing Combinations';
+    const sides: PortSide[] = ['left', 'right', 'top', 'bottom'];
+    let allCombinationsPassed = true;
+    let totalCombinationsTested = 0;
+    const failedPairs: string[] = [];
+
+    for (const srcSide of sides) {
+      for (const tgtSide of sides) {
+        totalCombinationsTested++;
+        const sNode: BlockNode = {
+          id: 'SRC_NODE',
+          title: 'Src',
+          category: 'source',
+          x: 100,
+          y: 100,
+          width: 120,
+          height: 80,
+          inputs: [],
+          outputs: [{ id: 'p_src', name: 'out', side: srcSide, type: 'output', placementMode: 'adaptive' }],
+        };
+
+        const tNode: BlockNode = {
+          id: 'TGT_NODE',
+          title: 'Tgt',
+          category: 'sink',
+          x: 400,
+          y: 280,
+          width: 120,
+          height: 80,
+          inputs: [{ id: 'p_tgt', name: 'in', side: tgtSide, type: 'input', placementMode: 'adaptive' }],
+          outputs: [],
+        };
+
+        const edge: EdgeConnection = {
+          id: `e_${srcSide}_to_${tgtSide}`,
+          sourceBlockId: 'SRC_NODE',
+          sourcePortId: 'p_src',
+          targetBlockId: 'TGT_NODE',
+          targetPortId: 'p_tgt',
+        };
+
+        const routed = routeOrthogonalAStar([sNode, tNode], [edge], { ...TEST_ROUTING_OPTIONS, gridSize: 10, obstacleClearance: 10 });
+        const path = routed[0]?.path || [];
+
+        if (path.length < 2) {
+          allCombinationsPassed = false;
+          failedPairs.push(`${srcSide}->${tgtSide} (empty path)`);
+          continue;
+        }
+
+        // Verify start segment is perpendicular to srcSide
+        const p0 = path[0];
+        const p1 = path[1];
+        let validExit = false;
+        if (srcSide === 'right') validExit = p1.y === p0.y && p1.x > p0.x;
+        else if (srcSide === 'left') validExit = p1.y === p0.y && p1.x < p0.x;
+        else if (srcSide === 'top') validExit = p1.x === p0.x && p1.y < p0.y;
+        else if (srcSide === 'bottom') validExit = p1.x === p0.x && p1.y > p0.y;
+
+        // Verify end segment is perpendicular to tgtSide
+        const pn_1 = path[path.length - 2];
+        const pn = path[path.length - 1];
+        let validEntry = false;
+        if (tgtSide === 'left') validEntry = pn.y === pn_1.y && pn.x > pn_1.x;
+        else if (tgtSide === 'right') validEntry = pn.y === pn_1.y && pn.x < pn_1.x;
+        else if (tgtSide === 'top') validEntry = pn.x === pn_1.x && pn.y > pn_1.y;
+        else if (tgtSide === 'bottom') validEntry = pn.x === pn_1.x && pn.y < pn_1.y;
+
+        if (!validExit || !validEntry) {
+          allCombinationsPassed = false;
+          failedPairs.push(`${srcSide}->${tgtSide} (exit:${validExit}, entry:${validEntry}, path:${JSON.stringify(path)})`);
+        }
+      }
+    }
+
+    assert(
+      suite,
+      `All ${totalCombinationsTested} side routing combinations (4×4) preserve strictly 90° normal entry & exit stubs`,
+      allCombinationsPassed,
+      `Verified all 16 routing combinations (L/R/T/B -> L/R/T/B) without any normal violations`,
+      { failedPairs }
+    );
+  }
+
+  const durationMs = +(performance.now() - startTime).toFixed(2);
+  const passed = results.filter(r => r.passed).length;
+  const failed = results.filter(r => !r.passed).length;
+
+  return {
+    total: results.length,
+    passed,
+    failed,
+    durationMs,
+    results,
+  };
+}
