@@ -1,0 +1,24 @@
+name: Go engine
+
+on:
+  push:
+    branches: [main]
+    paths: ["go_engine/**", ".github/workflows/go-engine.yml"]
+  pull_request:
+    paths: ["go_engine/**", ".github/workflows/go-engine.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22.x'
+      - run: cd go_engine && go test ./...
+      - run: cd go_engine && go vet ./...
+      - name: WASM compile
+        run: cd go_engine && GOOS=js GOARCH=wasm go build -o /tmp/autotrace.wasm .
