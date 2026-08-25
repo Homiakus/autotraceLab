@@ -2,12 +2,15 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 
 	core "github.com/Homiakus/autotraceLab/go_engine/core"
 )
 
 const graphProtocolVersion = core.ContractVersion
+
+var graphSceneEngine = core.NewEngine()
 
 type graphProtocolRequest struct {
 	Protocol  int             `json:"protocol"`
@@ -34,12 +37,16 @@ type graphProtocolError struct {
 type graphLayoutPayload = core.RouteRequest
 
 type graphLayoutValue struct {
-	GraphID     string                `json:"graphId"`
-	Edges       []core.EdgeConnection `json:"edges"`
-	Metrics     core.BenchmarkMetrics `json:"metrics"`
-	DurationMs  float64               `json:"durationMs"`
-	Engine      string                `json:"engine"`
-	Protocol    int                   `json:"protocol"`
+	GraphID    string                `json:"graphId"`
+	Edges      []core.EdgeConnection `json:"edges"`
+	Metrics    core.BenchmarkMetrics `json:"metrics"`
+	DurationMs float64               `json:"durationMs"`
+	Engine     string                `json:"engine"`
+	Protocol   int                   `json:"protocol"`
+}
+
+type graphSceneRefPayload struct {
+	GraphID string `json:"graphId"`
 }
 
 func handleGraphProtocol(raw []byte) (out []byte) {
@@ -70,6 +77,9 @@ func handleGraphProtocol(raw []byte) (out []byte) {
 				"orthogonalRouting": true,
 				"metrics": true,
 				"labels": true,
+				"incrementalScenes": true,
+				"scenePatch": true,
+				"strictRevisions": true,
 				"nlpOptimization": false,
 			},
 		}
@@ -81,15 +91,74 @@ func handleGraphProtocol(raw []byte) (out []byte) {
 		}
 		value, err := core.Route(payload)
 		if err != nil {
-			res.Error = &graphProtocolError{Code: "AUTOTRACE_INVALID_GRAPH", Message: err.Error()}
+			res.Error = graphErrorFrom(err)
 			break
 		}
 		res.OK = true
-		res.Value = graphLayoutValue{GraphID:value.GraphID,Edges:value.Edges,Metrics:value.Metrics,DurationMs:value.DurationMs,Engine:value.Engine,Protocol:graphProtocolVersion}
+		res.Value = graphLayoutValue{GraphID: value.GraphID, Edges: value.Edges, Metrics: value.Metrics, DurationMs: value.DurationMs, Engine: value.Engine, Protocol: graphProtocolVersion}
+	case "scene.open":
+		var payload core.SceneOpenRequest
+		if err := json.Unmarshal(req.Payload, &payload); err != nil {
+			res.Error = &graphProtocolError{Code: "AUTOTRACE_INVALID_PAYLOAD", Message: err.Error()}
+			break
+		}
+		value, err := graphSceneEngine.Open(payload)
+		if err != nil { res.Error = graphErrorFrom(err); break }
+		res.OK = true
+		res.Value = value
+	case "scene.patch":
+		var payload core.ScenePatchRequest
+		if err := json.Unmarshal(req.Payload, &payload); err != nil {
+			res.Error = &graphProtocolError{Code: "AUTOTRACE_INVALID_PAYLOAD", Message: err.Error()}
+			break
+		}
+		value, err := graphSceneEngine.Patch(payload)
+		if err != nil { res.Error = graphErrorFrom(err); break }
+		res.OK = true
+		res.Value = value
+	case "scene.snapshot":
+		var payload graphSceneRefPayload
+		if err := json.Unmarshal(req.Payload, &payload); err != nil {
+			res.Error = &graphProtocolError{Code: "AUTOTRACE_INVALID_PAYLOAD", Message: err.Error()}
+			break
+		}
+		value, err := graphSceneEngine.Snapshot(payload.GraphID)
+		if err != nil { res.Error = graphErrorFrom(err); break }
+		res.OK = true
+		res.Value = value
+	case "scene.close":
+		var payload graphSceneRefPayload
+		if err := json.Unmarshal(req.Payload, &payload); err != nil {
+			res.Error = &graphProtocolError{Code: "AUTOTRACE_INVALID_PAYLOAD", Message: err.Error()}
+			break
+		}
+		if !graphSceneEngine.Close(payload.GraphID) {
+			res.Error = &graphProtocolError{Code: "AUTOTRACE_SCENE_NOT_FOUND", Message: fmt.Sprintf("scene %q does not exist", payload.GraphID)}
+			break
+		}
+		res.OK = true
+		res.Value = map[string]any{"graphId": payload.GraphID, "closed": true}
 	default:
 		res.Error = &graphProtocolError{Code: "AUTOTRACE_UNSUPPORTED_OPERATION", Message: fmt.Sprintf("operation %q is unsupported", req.Operation)}
 	}
 	return marshalGraphResponse(res)
+}
+
+func graphErrorFrom(err error) *graphProtocolError {
+	if err == nil { return nil }
+	var conflict *core.RevisionConflictError
+	if errors.As(err, &conflict) {
+		return &graphProtocolError{
+			Code: "AUTOTRACE_REVISION_CONFLICT",
+			Message: err.Error(),
+			Retryable: true,
+			Details: map[string]any{"graphId": conflict.GraphID, "expectedBaseRevision": conflict.Expected, "actualRevision": conflict.Actual},
+		}
+	}
+	if errors.Is(err, core.ErrSceneNotFound) {
+		return &graphProtocolError{Code: "AUTOTRACE_SCENE_NOT_FOUND", Message: err.Error()}
+	}
+	return &graphProtocolError{Code: "AUTOTRACE_INVALID_GRAPH", Message: err.Error()}
 }
 
 func validateGraphPayload(payload graphLayoutPayload) error {
