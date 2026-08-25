@@ -28,7 +28,9 @@ func main() {
 }
 
 func goBusinessOSAutoTraceRequest(this js.Value, args []js.Value) any {
-	if len(args) != 1 { return string(marshalGraphResponse(graphProtocolResponse{Protocol: graphProtocolVersion, OK: false, Error: &graphProtocolError{Code: "AUTOTRACE_ARGUMENT", Message: "one JSON request argument is required"}})) }
+	if len(args) != 1 {
+		return string(marshalGraphResponse(graphProtocolResponse{Protocol: graphProtocolVersion, OK: false, Error: &graphProtocolError{Code: "AUTOTRACE_ARGUMENT", Message: "one JSON request argument is required"}}))
+	}
 	return string(handleGraphProtocol([]byte(args[0].String())))
 }
 
@@ -40,7 +42,9 @@ func goAutoTraceRoute(this js.Value, args []js.Value) any {
 	if err := json.Unmarshal([]byte(args[0].String()), &nodes); err != nil { return "[]" }
 	if err := json.Unmarshal([]byte(args[1].String()), &edges); err != nil { return "[]" }
 	if err := json.Unmarshal([]byte(args[2].String()), &options); err != nil { return "[]" }
-	if err := validateGraphPayload(graphLayoutPayload{Nodes:nodes,Edges:edges,Options:options}); err != nil { return "[]" }
+	// This compatibility endpoint intentionally stays on the legacy root types.
+	// New production consumers use businessOSAutoTraceRequest, which validates
+	// against the importable core contract before routing.
 	routed := RouteOrthogonalAStar(nodes, edges, options)
 	bytes, err := json.Marshal(routed); if err != nil { return "[]" }; return string(bytes)
 }
