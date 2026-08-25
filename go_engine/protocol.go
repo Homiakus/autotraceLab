@@ -37,12 +37,13 @@ type graphProtocolError struct {
 type graphLayoutPayload = core.RouteRequest
 
 type graphLayoutValue struct {
-	GraphID    string                `json:"graphId"`
-	Edges      []core.EdgeConnection `json:"edges"`
-	Metrics    core.BenchmarkMetrics `json:"metrics"`
-	DurationMs float64               `json:"durationMs"`
-	Engine     string                `json:"engine"`
-	Protocol   int                   `json:"protocol"`
+	GraphID         string                `json:"graphId"`
+	Edges           []core.EdgeConnection `json:"edges"`
+	Metrics         core.BenchmarkMetrics `json:"metrics"`
+	DurationMs      float64               `json:"durationMs"`
+	Engine          string                `json:"engine"`
+	Protocol        int                   `json:"protocol"`
+	ContractVersion int                   `json:"contractVersion"`
 }
 
 type graphSceneRefPayload struct {
@@ -95,7 +96,15 @@ func handleGraphProtocol(raw []byte) (out []byte) {
 			break
 		}
 		res.OK = true
-		res.Value = graphLayoutValue{GraphID: value.GraphID, Edges: value.Edges, Metrics: value.Metrics, DurationMs: value.DurationMs, Engine: value.Engine, Protocol: graphProtocolVersion}
+		res.Value = graphLayoutValue{
+			GraphID: value.GraphID,
+			Edges: value.Edges,
+			Metrics: value.Metrics,
+			DurationMs: value.DurationMs,
+			Engine: value.Engine,
+			Protocol: graphProtocolVersion,
+			ContractVersion: value.ContractVersion,
+		}
 	case "scene.open":
 		var payload core.SceneOpenRequest
 		if err := json.Unmarshal(req.Payload, &payload); err != nil {

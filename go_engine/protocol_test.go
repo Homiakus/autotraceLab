@@ -43,6 +43,12 @@ func TestGraphProtocolRoutesSimpleGraph(t *testing.T) {
 	if len(envelope.Value.Edges) != 1 || len(envelope.Value.Edges[0].Path) < 2 {
 		t.Fatalf("unexpected routed result: %#v", envelope.Value.Edges)
 	}
+	if envelope.Value.ContractVersion != core.ContractVersion {
+		t.Fatalf("contractVersion = %d, want %d", envelope.Value.ContractVersion, core.ContractVersion)
+	}
+	if envelope.Value.Protocol != graphProtocolVersion {
+		t.Fatalf("protocol = %d, want %d", envelope.Value.Protocol, graphProtocolVersion)
+	}
 }
 
 func TestGraphProtocolRejectsDanglingEdge(t *testing.T) {
