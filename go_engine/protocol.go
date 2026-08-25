@@ -3,10 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"time"
+
+	core "github.com/Homiakus/autotraceLab/go_engine/core"
 )
 
-const graphProtocolVersion = 1
+const graphProtocolVersion = core.ContractVersion
 
 type graphProtocolRequest struct {
 	Protocol  int             `json:"protocol"`
@@ -30,20 +31,15 @@ type graphProtocolError struct {
 	Details   map[string]any `json:"details,omitempty"`
 }
 
-type graphLayoutPayload struct {
-	GraphID string           `json:"graphId"`
-	Nodes   []BlockNode      `json:"nodes"`
-	Edges   []EdgeConnection `json:"edges"`
-	Options RoutingOptions   `json:"options"`
-}
+type graphLayoutPayload = core.RouteRequest
 
 type graphLayoutValue struct {
-	GraphID     string           `json:"graphId"`
-	Edges       []EdgeConnection `json:"edges"`
-	Metrics     BenchmarkMetrics `json:"metrics"`
-	DurationMs  float64          `json:"durationMs"`
-	Engine      string           `json:"engine"`
-	Protocol    int              `json:"protocol"`
+	GraphID     string                `json:"graphId"`
+	Edges       []core.EdgeConnection `json:"edges"`
+	Metrics     core.BenchmarkMetrics `json:"metrics"`
+	DurationMs  float64               `json:"durationMs"`
+	Engine      string                `json:"engine"`
+	Protocol    int                   `json:"protocol"`
 }
 
 func handleGraphProtocol(raw []byte) (out []byte) {
@@ -66,13 +62,15 @@ func handleGraphProtocol(raw []byte) (out []byte) {
 		res.OK = true
 		res.Value = map[string]any{
 			"service": "autotrace-lab",
+			"engine": core.EngineID,
 			"capabilities": map[string]any{
 				"runtime": "go-wasm",
 				"protocolVersion": graphProtocolVersion,
+				"importableCore": true,
 				"orthogonalRouting": true,
 				"metrics": true,
 				"labels": true,
-				"nlpOptimization": true,
+				"nlpOptimization": false,
 			},
 		}
 	case "layout":
@@ -81,16 +79,13 @@ func handleGraphProtocol(raw []byte) (out []byte) {
 			res.Error = &graphProtocolError{Code: "AUTOTRACE_INVALID_PAYLOAD", Message: err.Error()}
 			break
 		}
-		if err := validateGraphPayload(payload); err != nil {
+		value, err := core.Route(payload)
+		if err != nil {
 			res.Error = &graphProtocolError{Code: "AUTOTRACE_INVALID_GRAPH", Message: err.Error()}
 			break
 		}
-		started := time.Now()
-		routed := RouteOrthogonalAStar(payload.Nodes, payload.Edges, payload.Options)
-		duration := float64(time.Since(started).Microseconds()) / 1000.0
-		metrics := CalculateBenchmarkMetrics(payload.Nodes, routed, duration, "businessos", "orthogonal-a-star")
 		res.OK = true
-		res.Value = graphLayoutValue{GraphID: payload.GraphID, Edges: routed, Metrics: metrics, DurationMs: duration, Engine: "autotrace-go", Protocol: graphProtocolVersion}
+		res.Value = graphLayoutValue{GraphID:value.GraphID,Edges:value.Edges,Metrics:value.Metrics,DurationMs:value.DurationMs,Engine:value.Engine,Protocol:graphProtocolVersion}
 	default:
 		res.Error = &graphProtocolError{Code: "AUTOTRACE_UNSUPPORTED_OPERATION", Message: fmt.Sprintf("operation %q is unsupported", req.Operation)}
 	}
@@ -98,18 +93,7 @@ func handleGraphProtocol(raw []byte) (out []byte) {
 }
 
 func validateGraphPayload(payload graphLayoutPayload) error {
-	ids := make(map[string]struct{}, len(payload.Nodes))
-	for _, node := range payload.Nodes {
-		if node.ID == "" { return fmt.Errorf("node id is required") }
-		if _, exists := ids[node.ID]; exists { return fmt.Errorf("duplicate node id %q", node.ID) }
-		ids[node.ID] = struct{}{}
-	}
-	for _, edge := range payload.Edges {
-		if edge.ID == "" { return fmt.Errorf("edge id is required") }
-		if _, ok := ids[edge.SourceBlockID]; !ok { return fmt.Errorf("edge %q source %q does not exist", edge.ID, edge.SourceBlockID) }
-		if _, ok := ids[edge.TargetBlockID]; !ok { return fmt.Errorf("edge %q target %q does not exist", edge.ID, edge.TargetBlockID) }
-	}
-	return nil
+	return core.ValidateScene(payload.Nodes, payload.Edges)
 }
 
 func marshalGraphResponse(res graphProtocolResponse) []byte {
