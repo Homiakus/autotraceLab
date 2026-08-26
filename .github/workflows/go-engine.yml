@@ -8,7 +8,7 @@ on:
     paths: ["go_engine/**", ".github/workflows/go-engine.yml"]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   test:
@@ -58,3 +58,25 @@ jobs:
           path: dist/autotrace/
           if-no-files-found: error
           retention-days: 30
+
+      - name: Publish immutable engine release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          tag="engine-${GITHUB_SHA}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists"
+            exit 0
+          fi
+          gh release create "$tag" \
+            dist/autotrace/autotrace-core.wasm \
+            dist/autotrace/wasm_exec.js \
+            dist/autotrace/engine-manifest.json \
+            dist/autotrace/SHA256SUMS \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "AutoTrace Engine ${GITHUB_SHA:0:12}" \
+            --notes "Immutable AutoTrace Go/WASM engine artifact for commit ${GITHUB_SHA}. Consumers must pin this exact commit and verify SHA256SUMS before vendoring." \
+            --latest=false
