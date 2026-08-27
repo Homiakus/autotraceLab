@@ -684,16 +684,16 @@ This replaces the old independent M0–M9 and M0–M16 sequences.
 
 ## MP0 — Governance and baseline freeze [BLOCKING]
 
-- [ ] Create `MATHEMATICAL_CONTRACT.md`.
-- [ ] Create `PARITY_MATRIX.md`.
-- [ ] Record source commit for every TS oracle fixture.
-- [ ] Freeze current protocol-v1 fixtures.
-- [ ] Freeze representative scene/type fixtures.
-- [ ] Record TS and Go benchmark/QualityVector baselines separately.
-- [ ] Define epsilon, canonical rounding and deterministic tie-break policies.
-- [ ] Define metric/quality contract version.
+- [x] Create `MATHEMATICAL_CONTRACT.md`.
+- [x] Create `PARITY_MATRIX.md`.
+- [x] Record source commit for every TS oracle fixture.
+- [x] Freeze current protocol-v1 fixtures.
+- [x] Freeze representative scene/type fixtures.
+- [x] Record TS and Go benchmark/QualityVector baselines separately.
+- [x] Define epsilon, canonical rounding and deterministic tie-break policies.
+- [x] Define metric/quality contract version.
 
-Exit: every later behavioral change is measurable against a frozen reference.
+Exit: every later behavioral change is measurable against a frozen reference. [COMPLETED]
 
 ## MP1 — Cross-language contract semantics [BLOCKING]
 
@@ -1237,18 +1237,18 @@ Rules for parallel work:
 
 These waves turn the milestones into practical commit-sized work.
 
-## Wave A — prove the ground truth
+## Wave A — prove the ground truth [COMPLETED]
 
-A01 create mathematical contract skeleton.  
-A02 create parity matrix covering every current TS algorithm file/export.  
-A03 define canonical numeric tolerance/rounding.  
-A04 define deterministic tie-break policy.  
-A05 add TS headless scenario runner.  
-A06 add canonical fixture serializer.  
-A07 commit initial geometry/routing/layout/label/metric fixtures.  
-A08 add Go fixture decoder/runner.  
-A09 add TS↔Go differential script.  
-A10 add first parity CI report.
+A01 create mathematical contract skeleton. [COMPLETED]  
+A02 create parity matrix covering every current TS algorithm file/export. [COMPLETED]  
+A03 define canonical numeric tolerance/rounding. [COMPLETED]  
+A04 define deterministic tie-break policy. [COMPLETED]  
+A05 add TS headless scenario runner. [COMPLETED]  
+A06 add canonical fixture serializer. [COMPLETED]  
+A07 commit initial geometry/routing/layout/label/metric fixtures. [COMPLETED]  
+A08 add Go fixture decoder/runner. [COMPLETED]  
+A09 add TS↔Go differential script. [COMPLETED]  
+A10 add first parity CI report. [COMPLETED]
 
 ## Wave B — fix representation before algorithms
 

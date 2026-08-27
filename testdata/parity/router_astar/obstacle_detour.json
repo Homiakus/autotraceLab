@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-08-27T05:45:52.791Z",
+  "generator": "scripts/exportParityFixtures.ts (TS Oracle)",
+  "oracleCommit": "371cbc0935c3168babb58c755cae17bb76860dff",
+  "nodes": [
+    {
+      "id": "srcNode",
+      "title": "Source",
+      "category": "source",
+      "shape": "rectangle",
+      "x": 100,
+      "y": 100,
+      "width": 120,
+      "height": 80,
+      "inputs": [],
+      "outputs": [
+        {
+          "id": "p_out",
+          "name": "Out",
+          "side": "right",
+          "type": "output",
+          "order": 0
+        }
+      ]
+    },
+    {
+      "id": "obstacleNode",
+      "title": "Obstacle",
+      "category": "processor",
+      "shape": "rectangle",
+      "x": 260,
+      "y": 80,
+      "width": 80,
+      "height": 120,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "id": "tgtNode",
+      "title": "Target",
+      "category": "sink",
+      "shape": "rectangle",
+      "x": 400,
+      "y": 100,
+      "width": 120,
+      "height": 80,
+      "inputs": [
+        {
+          "id": "p_in",
+          "name": "In",
+          "side": "left",
+          "type": "input",
+          "order": 0
+        }
+      ],
+      "outputs": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "sourceBlockId": "srcNode",
+      "sourcePortId": "p_out",
+      "targetBlockId": "tgtNode",
+      "targetPortId": "p_in"
+    }
+  ],
+  "options": {
+    "gridSize": 10,
+    "obstacleClearance": 10,
+    "bendPenalty": 35,
+    "crossingPenalty": 50,
+    "channelSpacing": 16,
+    "portExitOffset": 24,
+    "adaptivePortExitOffset": true,
+    "smoothCorners": false,
+    "jumpBridges": false,
+    "artifactCleaning": true,
+    "weights": {
+      "crossingWeight": 95,
+      "straightnessWeight": 90,
+      "g1SplineWeight": 65,
+      "portAlignmentWeight": 80,
+      "clearanceWeight": 90,
+      "wirelengthWeight": 15,
+      "bendWeight": 25,
+      "labelOverlapWeight": 75
+    }
+  },
+  "expectedPath": [
+    {
+      "x": 220,
+      "y": 140
+    },
+    {
+      "x": 244,
+      "y": 140
+    },
+    {
+      "x": 244,
+      "y": 60
+    },
+    {
+      "x": 380,
+      "y": 60
+    },
+    {
+      "x": 380,
+      "y": 130
+    },
+    {
+      "x": 376,
+      "y": 130
+    },
+    {
+      "x": 376,
+      "y": 140
+    },
+    {
+      "x": 400,
+      "y": 140
+    }
+  ]
+}

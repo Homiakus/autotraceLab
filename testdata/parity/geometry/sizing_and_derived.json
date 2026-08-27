@@ -1,0 +1,1262 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-08-27T05:45:52.784Z",
+  "generator": "scripts/exportParityFixtures.ts (TS Oracle)",
+  "oracleCommit": "371cbc0935c3168babb58c755cae17bb76860dff",
+  "testCases": [
+    {
+      "shape": "rectangle",
+      "inputNode": {
+        "id": "node_rectangle",
+        "title": "Node rectangle",
+        "subtitle": "Processor Unit",
+        "category": "processor",
+        "shape": "rectangle",
+        "x": 100,
+        "y": 100,
+        "width": 140,
+        "height": 80,
+        "inputs": [
+          {
+            "id": "p1",
+            "name": "In1",
+            "side": "left",
+            "type": "input",
+            "order": 0
+          },
+          {
+            "id": "p2",
+            "name": "In2",
+            "side": "left",
+            "type": "input",
+            "order": 1
+          },
+          {
+            "id": "p3",
+            "name": "In3",
+            "side": "left",
+            "type": "input",
+            "order": 2
+          }
+        ],
+        "outputs": [
+          {
+            "id": "p4",
+            "name": "Out1",
+            "side": "right",
+            "type": "output",
+            "order": 0
+          },
+          {
+            "id": "p5",
+            "name": "Out2",
+            "side": "right",
+            "type": "output",
+            "order": 1
+          }
+        ]
+      },
+      "expectedMinSize": {
+        "minWidth": 160,
+        "minHeight": 80,
+        "wPorts": 28,
+        "hPorts": 68
+      },
+      "derivedGeometry": {
+        "visualBounds": {
+          "x": 100,
+          "y": 100,
+          "width": 160,
+          "height": 80
+        },
+        "obstacleBounds": {
+          "minX": 85,
+          "maxX": 275,
+          "minY": 85,
+          "maxY": 195
+        },
+        "contentBounds": {
+          "x": 112,
+          "y": 136,
+          "width": 136,
+          "height": 32
+        },
+        "headerBounds": {
+          "x": 100,
+          "y": 100,
+          "width": 160,
+          "height": 24
+        },
+        "portAnchors": [
+          {
+            "x": 100,
+            "y": 120,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p1",
+              "name": "In1",
+              "side": "left",
+              "type": "input",
+              "order": 0
+            }
+          },
+          {
+            "x": 100,
+            "y": 140,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p2",
+              "name": "In2",
+              "side": "left",
+              "type": "input",
+              "order": 1
+            }
+          },
+          {
+            "x": 100,
+            "y": 160,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p3",
+              "name": "In3",
+              "side": "left",
+              "type": "input",
+              "order": 2
+            }
+          },
+          {
+            "x": 260,
+            "y": 127,
+            "normal": {
+              "dx": 1,
+              "dy": 0
+            },
+            "side": "right",
+            "port": {
+              "id": "p4",
+              "name": "Out1",
+              "side": "right",
+              "type": "output",
+              "order": 0
+            }
+          },
+          {
+            "x": 260,
+            "y": 153,
+            "normal": {
+              "dx": 1,
+              "dy": 0
+            },
+            "side": "right",
+            "port": {
+              "id": "p5",
+              "name": "Out2",
+              "side": "right",
+              "type": "output",
+              "order": 1
+            }
+          }
+        ]
+      },
+      "portCoordinates": [
+        {
+          "portId": "p1",
+          "side": "left",
+          "point": {
+            "x": 100,
+            "y": 120
+          }
+        },
+        {
+          "portId": "p2",
+          "side": "left",
+          "point": {
+            "x": 100,
+            "y": 140
+          }
+        },
+        {
+          "portId": "p3",
+          "side": "left",
+          "point": {
+            "x": 100,
+            "y": 160
+          }
+        },
+        {
+          "portId": "p4",
+          "side": "right",
+          "point": {
+            "x": 260,
+            "y": 127
+          }
+        },
+        {
+          "portId": "p5",
+          "side": "right",
+          "point": {
+            "x": 260,
+            "y": 153
+          }
+        }
+      ]
+    },
+    {
+      "shape": "rounded",
+      "inputNode": {
+        "id": "node_rounded",
+        "title": "Node rounded",
+        "subtitle": "Processor Unit",
+        "category": "processor",
+        "shape": "rounded",
+        "x": 100,
+        "y": 100,
+        "width": 140,
+        "height": 80,
+        "inputs": [
+          {
+            "id": "p1",
+            "name": "In1",
+            "side": "left",
+            "type": "input",
+            "order": 0
+          },
+          {
+            "id": "p2",
+            "name": "In2",
+            "side": "left",
+            "type": "input",
+            "order": 1
+          },
+          {
+            "id": "p3",
+            "name": "In3",
+            "side": "left",
+            "type": "input",
+            "order": 2
+          }
+        ],
+        "outputs": [
+          {
+            "id": "p4",
+            "name": "Out1",
+            "side": "right",
+            "type": "output",
+            "order": 0
+          },
+          {
+            "id": "p5",
+            "name": "Out2",
+            "side": "right",
+            "type": "output",
+            "order": 1
+          }
+        ]
+      },
+      "expectedMinSize": {
+        "minWidth": 140,
+        "minHeight": 80,
+        "wPorts": 28,
+        "hPorts": 68
+      },
+      "derivedGeometry": {
+        "visualBounds": {
+          "x": 100,
+          "y": 100,
+          "width": 140,
+          "height": 80
+        },
+        "obstacleBounds": {
+          "minX": 85,
+          "maxX": 255,
+          "minY": 85,
+          "maxY": 195
+        },
+        "contentBounds": {
+          "x": 112,
+          "y": 136,
+          "width": 116,
+          "height": 32
+        },
+        "headerBounds": {
+          "x": 100,
+          "y": 100,
+          "width": 140,
+          "height": 24
+        },
+        "portAnchors": [
+          {
+            "x": 100,
+            "y": 120,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p1",
+              "name": "In1",
+              "side": "left",
+              "type": "input",
+              "order": 0
+            }
+          },
+          {
+            "x": 100,
+            "y": 140,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p2",
+              "name": "In2",
+              "side": "left",
+              "type": "input",
+              "order": 1
+            }
+          },
+          {
+            "x": 100,
+            "y": 160,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p3",
+              "name": "In3",
+              "side": "left",
+              "type": "input",
+              "order": 2
+            }
+          },
+          {
+            "x": 240,
+            "y": 127,
+            "normal": {
+              "dx": 1,
+              "dy": 0
+            },
+            "side": "right",
+            "port": {
+              "id": "p4",
+              "name": "Out1",
+              "side": "right",
+              "type": "output",
+              "order": 0
+            }
+          },
+          {
+            "x": 240,
+            "y": 153,
+            "normal": {
+              "dx": 1,
+              "dy": 0
+            },
+            "side": "right",
+            "port": {
+              "id": "p5",
+              "name": "Out2",
+              "side": "right",
+              "type": "output",
+              "order": 1
+            }
+          }
+        ]
+      },
+      "portCoordinates": [
+        {
+          "portId": "p1",
+          "side": "left",
+          "point": {
+            "x": 100,
+            "y": 120
+          }
+        },
+        {
+          "portId": "p2",
+          "side": "left",
+          "point": {
+            "x": 100,
+            "y": 140
+          }
+        },
+        {
+          "portId": "p3",
+          "side": "left",
+          "point": {
+            "x": 100,
+            "y": 160
+          }
+        },
+        {
+          "portId": "p4",
+          "side": "right",
+          "point": {
+            "x": 240,
+            "y": 127
+          }
+        },
+        {
+          "portId": "p5",
+          "side": "right",
+          "point": {
+            "x": 240,
+            "y": 153
+          }
+        }
+      ]
+    },
+    {
+      "shape": "chip_ic",
+      "inputNode": {
+        "id": "node_chip_ic",
+        "title": "Node chip_ic",
+        "subtitle": "Processor Unit",
+        "category": "processor",
+        "shape": "chip_ic",
+        "x": 100,
+        "y": 100,
+        "width": 140,
+        "height": 80,
+        "inputs": [
+          {
+            "id": "p1",
+            "name": "In1",
+            "side": "left",
+            "type": "input",
+            "order": 0
+          },
+          {
+            "id": "p2",
+            "name": "In2",
+            "side": "left",
+            "type": "input",
+            "order": 1
+          },
+          {
+            "id": "p3",
+            "name": "In3",
+            "side": "left",
+            "type": "input",
+            "order": 2
+          }
+        ],
+        "outputs": [
+          {
+            "id": "p4",
+            "name": "Out1",
+            "side": "right",
+            "type": "output",
+            "order": 0
+          },
+          {
+            "id": "p5",
+            "name": "Out2",
+            "side": "right",
+            "type": "output",
+            "order": 1
+          }
+        ]
+      },
+      "expectedMinSize": {
+        "minWidth": 140,
+        "minHeight": 80,
+        "wPorts": 28,
+        "hPorts": 68
+      },
+      "derivedGeometry": {
+        "visualBounds": {
+          "x": 100,
+          "y": 100,
+          "width": 140,
+          "height": 80
+        },
+        "obstacleBounds": {
+          "minX": 85,
+          "maxX": 255,
+          "minY": 85,
+          "maxY": 195
+        },
+        "contentBounds": {
+          "x": 112,
+          "y": 136,
+          "width": 116,
+          "height": 32
+        },
+        "headerBounds": {
+          "x": 100,
+          "y": 100,
+          "width": 140,
+          "height": 24
+        },
+        "portAnchors": [
+          {
+            "x": 100,
+            "y": 120,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p1",
+              "name": "In1",
+              "side": "left",
+              "type": "input",
+              "order": 0
+            }
+          },
+          {
+            "x": 100,
+            "y": 140,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p2",
+              "name": "In2",
+              "side": "left",
+              "type": "input",
+              "order": 1
+            }
+          },
+          {
+            "x": 100,
+            "y": 160,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p3",
+              "name": "In3",
+              "side": "left",
+              "type": "input",
+              "order": 2
+            }
+          },
+          {
+            "x": 240,
+            "y": 127,
+            "normal": {
+              "dx": 1,
+              "dy": 0
+            },
+            "side": "right",
+            "port": {
+              "id": "p4",
+              "name": "Out1",
+              "side": "right",
+              "type": "output",
+              "order": 0
+            }
+          },
+          {
+            "x": 240,
+            "y": 153,
+            "normal": {
+              "dx": 1,
+              "dy": 0
+            },
+            "side": "right",
+            "port": {
+              "id": "p5",
+              "name": "Out2",
+              "side": "right",
+              "type": "output",
+              "order": 1
+            }
+          }
+        ]
+      },
+      "portCoordinates": [
+        {
+          "portId": "p1",
+          "side": "left",
+          "point": {
+            "x": 100,
+            "y": 120
+          }
+        },
+        {
+          "portId": "p2",
+          "side": "left",
+          "point": {
+            "x": 100,
+            "y": 140
+          }
+        },
+        {
+          "portId": "p3",
+          "side": "left",
+          "point": {
+            "x": 100,
+            "y": 160
+          }
+        },
+        {
+          "portId": "p4",
+          "side": "right",
+          "point": {
+            "x": 240,
+            "y": 127
+          }
+        },
+        {
+          "portId": "p5",
+          "side": "right",
+          "point": {
+            "x": 240,
+            "y": 153
+          }
+        }
+      ]
+    },
+    {
+      "shape": "circle",
+      "inputNode": {
+        "id": "node_circle",
+        "title": "Node circle",
+        "subtitle": "Processor Unit",
+        "category": "processor",
+        "shape": "circle",
+        "x": 100,
+        "y": 100,
+        "width": 140,
+        "height": 80,
+        "inputs": [
+          {
+            "id": "p1",
+            "name": "In1",
+            "side": "left",
+            "type": "input",
+            "order": 0
+          },
+          {
+            "id": "p2",
+            "name": "In2",
+            "side": "left",
+            "type": "input",
+            "order": 1
+          },
+          {
+            "id": "p3",
+            "name": "In3",
+            "side": "left",
+            "type": "input",
+            "order": 2
+          }
+        ],
+        "outputs": [
+          {
+            "id": "p4",
+            "name": "Out1",
+            "side": "right",
+            "type": "output",
+            "order": 0
+          },
+          {
+            "id": "p5",
+            "name": "Out2",
+            "side": "right",
+            "type": "output",
+            "order": 1
+          }
+        ]
+      },
+      "expectedMinSize": {
+        "minWidth": 140,
+        "minHeight": 80,
+        "wPorts": 28,
+        "hPorts": 68
+      },
+      "derivedGeometry": {
+        "visualBounds": {
+          "x": 100,
+          "y": 100,
+          "width": 140,
+          "height": 80
+        },
+        "obstacleBounds": {
+          "minX": 85,
+          "maxX": 255,
+          "minY": 85,
+          "maxY": 195
+        },
+        "contentBounds": {
+          "x": 112,
+          "y": 136,
+          "width": 116,
+          "height": 32
+        },
+        "headerBounds": {
+          "x": 100,
+          "y": 100,
+          "width": 140,
+          "height": 24
+        },
+        "portAnchors": [
+          {
+            "x": 133,
+            "y": 155.3,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p1",
+              "name": "In1",
+              "side": "left",
+              "type": "input",
+              "order": 0
+            }
+          },
+          {
+            "x": 130,
+            "y": 140,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p2",
+              "name": "In2",
+              "side": "left",
+              "type": "input",
+              "order": 1
+            }
+          },
+          {
+            "x": 133,
+            "y": 124.7,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p3",
+              "name": "In3",
+              "side": "left",
+              "type": "input",
+              "order": 2
+            }
+          },
+          {
+            "x": 208.7,
+            "y": 129.9,
+            "normal": {
+              "dx": 1,
+              "dy": 0
+            },
+            "side": "right",
+            "port": {
+              "id": "p4",
+              "name": "Out1",
+              "side": "right",
+              "type": "output",
+              "order": 0
+            }
+          },
+          {
+            "x": 208.7,
+            "y": 150.1,
+            "normal": {
+              "dx": 1,
+              "dy": 0
+            },
+            "side": "right",
+            "port": {
+              "id": "p5",
+              "name": "Out2",
+              "side": "right",
+              "type": "output",
+              "order": 1
+            }
+          }
+        ]
+      },
+      "portCoordinates": [
+        {
+          "portId": "p1",
+          "side": "left",
+          "point": {
+            "x": 133,
+            "y": 155.3
+          }
+        },
+        {
+          "portId": "p2",
+          "side": "left",
+          "point": {
+            "x": 130,
+            "y": 140
+          }
+        },
+        {
+          "portId": "p3",
+          "side": "left",
+          "point": {
+            "x": 133,
+            "y": 124.7
+          }
+        },
+        {
+          "portId": "p4",
+          "side": "right",
+          "point": {
+            "x": 208.7,
+            "y": 129.9
+          }
+        },
+        {
+          "portId": "p5",
+          "side": "right",
+          "point": {
+            "x": 208.7,
+            "y": 150.1
+          }
+        }
+      ]
+    },
+    {
+      "shape": "diamond",
+      "inputNode": {
+        "id": "node_diamond",
+        "title": "Node diamond",
+        "subtitle": "Processor Unit",
+        "category": "processor",
+        "shape": "diamond",
+        "x": 100,
+        "y": 100,
+        "width": 140,
+        "height": 80,
+        "inputs": [
+          {
+            "id": "p1",
+            "name": "In1",
+            "side": "left",
+            "type": "input",
+            "order": 0
+          },
+          {
+            "id": "p2",
+            "name": "In2",
+            "side": "left",
+            "type": "input",
+            "order": 1
+          },
+          {
+            "id": "p3",
+            "name": "In3",
+            "side": "left",
+            "type": "input",
+            "order": 2
+          }
+        ],
+        "outputs": [
+          {
+            "id": "p4",
+            "name": "Out1",
+            "side": "right",
+            "type": "output",
+            "order": 0
+          },
+          {
+            "id": "p5",
+            "name": "Out2",
+            "side": "right",
+            "type": "output",
+            "order": 1
+          }
+        ]
+      },
+      "expectedMinSize": {
+        "minWidth": 140,
+        "minHeight": 80,
+        "wPorts": 28,
+        "hPorts": 68
+      },
+      "derivedGeometry": {
+        "visualBounds": {
+          "x": 100,
+          "y": 100,
+          "width": 140,
+          "height": 80
+        },
+        "obstacleBounds": {
+          "minX": 85,
+          "maxX": 255,
+          "minY": 85,
+          "maxY": 195
+        },
+        "contentBounds": {
+          "x": 112,
+          "y": 136,
+          "width": 116,
+          "height": 32
+        },
+        "headerBounds": {
+          "x": 100,
+          "y": 100,
+          "width": 140,
+          "height": 24
+        },
+        "portAnchors": [
+          {
+            "x": 135,
+            "y": 120,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p1",
+              "name": "In1",
+              "side": "left",
+              "type": "input",
+              "order": 0
+            }
+          },
+          {
+            "x": 100,
+            "y": 140,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p2",
+              "name": "In2",
+              "side": "left",
+              "type": "input",
+              "order": 1
+            }
+          },
+          {
+            "x": 135,
+            "y": 160,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p3",
+              "name": "In3",
+              "side": "left",
+              "type": "input",
+              "order": 2
+            }
+          },
+          {
+            "x": 217.3,
+            "y": 127,
+            "normal": {
+              "dx": 1,
+              "dy": 0
+            },
+            "side": "right",
+            "port": {
+              "id": "p4",
+              "name": "Out1",
+              "side": "right",
+              "type": "output",
+              "order": 0
+            }
+          },
+          {
+            "x": 217.3,
+            "y": 153,
+            "normal": {
+              "dx": 1,
+              "dy": 0
+            },
+            "side": "right",
+            "port": {
+              "id": "p5",
+              "name": "Out2",
+              "side": "right",
+              "type": "output",
+              "order": 1
+            }
+          }
+        ]
+      },
+      "portCoordinates": [
+        {
+          "portId": "p1",
+          "side": "left",
+          "point": {
+            "x": 135,
+            "y": 120
+          }
+        },
+        {
+          "portId": "p2",
+          "side": "left",
+          "point": {
+            "x": 100,
+            "y": 140
+          }
+        },
+        {
+          "portId": "p3",
+          "side": "left",
+          "point": {
+            "x": 135,
+            "y": 160
+          }
+        },
+        {
+          "portId": "p4",
+          "side": "right",
+          "point": {
+            "x": 217.3,
+            "y": 127
+          }
+        },
+        {
+          "portId": "p5",
+          "side": "right",
+          "point": {
+            "x": 217.3,
+            "y": 153
+          }
+        }
+      ]
+    },
+    {
+      "shape": "hexagon",
+      "inputNode": {
+        "id": "node_hexagon",
+        "title": "Node hexagon",
+        "subtitle": "Processor Unit",
+        "category": "processor",
+        "shape": "hexagon",
+        "x": 100,
+        "y": 100,
+        "width": 140,
+        "height": 80,
+        "inputs": [
+          {
+            "id": "p1",
+            "name": "In1",
+            "side": "left",
+            "type": "input",
+            "order": 0
+          },
+          {
+            "id": "p2",
+            "name": "In2",
+            "side": "left",
+            "type": "input",
+            "order": 1
+          },
+          {
+            "id": "p3",
+            "name": "In3",
+            "side": "left",
+            "type": "input",
+            "order": 2
+          }
+        ],
+        "outputs": [
+          {
+            "id": "p4",
+            "name": "Out1",
+            "side": "right",
+            "type": "output",
+            "order": 0
+          },
+          {
+            "id": "p5",
+            "name": "Out2",
+            "side": "right",
+            "type": "output",
+            "order": 1
+          }
+        ]
+      },
+      "expectedMinSize": {
+        "minWidth": 140,
+        "minHeight": 80,
+        "wPorts": 28,
+        "hPorts": 68
+      },
+      "derivedGeometry": {
+        "visualBounds": {
+          "x": 100,
+          "y": 100,
+          "width": 140,
+          "height": 80
+        },
+        "obstacleBounds": {
+          "minX": 85,
+          "maxX": 255,
+          "minY": 85,
+          "maxY": 195
+        },
+        "contentBounds": {
+          "x": 112,
+          "y": 136,
+          "width": 116,
+          "height": 32
+        },
+        "headerBounds": {
+          "x": 100,
+          "y": 100,
+          "width": 140,
+          "height": 24
+        },
+        "portAnchors": [
+          {
+            "x": 111.2,
+            "y": 120,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p1",
+              "name": "In1",
+              "side": "left",
+              "type": "input",
+              "order": 0
+            }
+          },
+          {
+            "x": 100,
+            "y": 140,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p2",
+              "name": "In2",
+              "side": "left",
+              "type": "input",
+              "order": 1
+            }
+          },
+          {
+            "x": 111.2,
+            "y": 160,
+            "normal": {
+              "dx": -1,
+              "dy": 0
+            },
+            "side": "left",
+            "port": {
+              "id": "p3",
+              "name": "In3",
+              "side": "left",
+              "type": "input",
+              "order": 2
+            }
+          },
+          {
+            "x": 232.7,
+            "y": 127,
+            "normal": {
+              "dx": 1,
+              "dy": 0
+            },
+            "side": "right",
+            "port": {
+              "id": "p4",
+              "name": "Out1",
+              "side": "right",
+              "type": "output",
+              "order": 0
+            }
+          },
+          {
+            "x": 232.7,
+            "y": 153,
+            "normal": {
+              "dx": 1,
+              "dy": 0
+            },
+            "side": "right",
+            "port": {
+              "id": "p5",
+              "name": "Out2",
+              "side": "right",
+              "type": "output",
+              "order": 1
+            }
+          }
+        ]
+      },
+      "portCoordinates": [
+        {
+          "portId": "p1",
+          "side": "left",
+          "point": {
+            "x": 111.2,
+            "y": 120
+          }
+        },
+        {
+          "portId": "p2",
+          "side": "left",
+          "point": {
+            "x": 100,
+            "y": 140
+          }
+        },
+        {
+          "portId": "p3",
+          "side": "left",
+          "point": {
+            "x": 111.2,
+            "y": 160
+          }
+        },
+        {
+          "portId": "p4",
+          "side": "right",
+          "point": {
+            "x": 232.7,
+            "y": 127
+          }
+        },
+        {
+          "portId": "p5",
+          "side": "right",
+          "point": {
+            "x": 232.7,
+            "y": 153
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -58,6 +58,7 @@ type BlockNode struct {
 	Height            float64       `json:"height"`
 	Inputs            []Port        `json:"inputs"`
 	Outputs           []Port        `json:"outputs"`
+	Ports             []Port        `json:"ports,omitempty"`
 	IsPinned          bool          `json:"isPinned,omitempty"`
 	Layer             int           `json:"layer,omitempty"`
 	Order             int           `json:"order,omitempty"`

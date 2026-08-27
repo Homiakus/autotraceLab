@@ -24,6 +24,7 @@ func CalculateMinimumBlockSize(node BlockNode, cornerMargin, portPitch float64) 
 	var allPorts []Port
 	allPorts = append(allPorts, node.Inputs...)
 	allPorts = append(allPorts, node.Outputs...)
+	allPorts = append(allPorts, node.Ports...)
 	nLeft, nRight, nTop, nBottom := 0, 0, 0, 0
 	for _, p := range allPorts {
 		side := p.Side
@@ -62,7 +63,9 @@ func SortPortsDeterministically(ports []Port) []Port {
 
 func GetPortCoordinatesAccurate(node BlockNode, portID string, isOutputHint bool) PortCoordinates {
 	var allPorts []Port
-	allPorts=append(allPorts,node.Inputs...); allPorts=append(allPorts,node.Outputs...)
+	allPorts=append(allPorts,node.Inputs...)
+	allPorts=append(allPorts,node.Outputs...)
+	allPorts=append(allPorts,node.Ports...)
 	var p Port; found:=false
 	for _,candidate:=range allPorts { if candidate.ID==portID { p=candidate; found=true; break } }
 	if !found {

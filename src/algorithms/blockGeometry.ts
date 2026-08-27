@@ -31,7 +31,7 @@ export function calculateMinimumBlockSize(
   cornerMargin = DEFAULT_CORNER_MARGIN,
   portPitch = DEFAULT_PORT_PITCH
 ): { minWidth: number; minHeight: number; wPorts: number; hPorts: number } {
-  const allPorts: Port[] = [...(node.inputs || []), ...(node.outputs || [])];
+  const allPorts: Port[] = [...(node.inputs || []), ...(node.outputs || []), ...((node as any).ports || [])];
 
   let nLeft = 0;
   let nRight = 0;
@@ -148,7 +148,7 @@ export function getPortCoordinatesAccurate(
   portId: string,
   isOutputHint = true
 ): PortCoordinates {
-  const allPorts: Port[] = [...(node.inputs || []), ...(node.outputs || [])];
+  const allPorts: Port[] = [...(node.inputs || []), ...(node.outputs || []), ...((node as any).ports || [])];
   let foundPort = allPorts.find((p) => p.id === portId);
 
   if (!foundPort) {

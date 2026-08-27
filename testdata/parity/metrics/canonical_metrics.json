@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-08-27T05:45:52.797Z",
+  "generator": "scripts/exportParityFixtures.ts (TS Oracle)",
+  "oracleCommit": "371cbc0935c3168babb58c755cae17bb76860dff",
+  "nodes": [
+    {
+      "id": "n1",
+      "title": "N1",
+      "category": "source",
+      "shape": "rectangle",
+      "x": 50,
+      "y": 50,
+      "width": 100,
+      "height": 60,
+      "inputs": [],
+      "outputs": []
+    },
+    {
+      "id": "n2",
+      "title": "N2",
+      "category": "sink",
+      "shape": "rectangle",
+      "x": 300,
+      "y": 50,
+      "width": 100,
+      "height": 60,
+      "inputs": [],
+      "outputs": []
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "sourceBlockId": "n1",
+      "sourcePortId": "out",
+      "targetBlockId": "n2",
+      "targetPortId": "in",
+      "path": [
+        {
+          "x": 150,
+          "y": 80
+        },
+        {
+          "x": 300,
+          "y": 80
+        }
+      ]
+    },
+    {
+      "id": "e2",
+      "sourceBlockId": "n1",
+      "sourcePortId": "out",
+      "targetBlockId": "n2",
+      "targetPortId": "in",
+      "path": [
+        {
+          "x": 200,
+          "y": 30
+        },
+        {
+          "x": 200,
+          "y": 150
+        }
+      ]
+    }
+  ],
+  "expectedMetrics": {
+    "algorithmName": "manual",
+    "routingName": "orthogonal-astar",
+    "executionTimeMs": 0.05,
+    "totalWirelength": 270,
+    "bendCount": 0,
+    "crossingsCount": 1,
+    "overlapCount": 0,
+    "collinearOverlapLength": 0,
+    "collinearOverlapCount": 0,
+    "labelsOnArrowPercentage": 100,
+    "portAlignmentScore": 100,
+    "straightWiresCount": 2,
+    "eliminatedArtifactsCount": 4,
+    "compositeOptimalityScore": 81,
+    "qualityVector": {
+      "hardViolations": 0,
+      "crossings": 1,
+      "collinearOverlapCount": 0,
+      "collinearOverlapLength": 0,
+      "congestionOverflow": 0,
+      "bends": 0,
+      "straightWiresCount": 2,
+      "straightEdgeRatio": 1,
+      "portMisalignmentScore": 0,
+      "portAlignmentScore": 100,
+      "areaRatio": 1.75,
+      "densityDeviation": 0.02,
+      "voidRatio": 0.43,
+      "aspectPenalty": 1.18,
+      "normalizedWirelength": 0,
+      "labelCollisions": 0,
+      "labelsOnArrowPercentage": 100,
+      "compositeScore": 81
+    }
+  },
+  "expectedCollinear": {
+    "totalOverlapLength": 0,
+    "overlapCount": 0
+  }
+}
