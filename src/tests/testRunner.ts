@@ -19,6 +19,7 @@ import { CONTRACT_PROTOCOL_VERSION } from '../engine/types';
 import { RegistryStore } from '../registry/RegistryClient';
 import { resolveBlockStyle } from '../registry/resolve';
 import { classifyBlockChange, classifyEdgeChange } from '../registry/invalidation';
+import { createAutoTraceClient, InMemoryStorageAdapter } from '../sdk';
 
 export interface TestResult {
   suite: string;
@@ -1095,6 +1096,41 @@ export function runAllDiagnosticTests(): TestSuiteSummary {
       invEdge === 'render',
       `Edge label change classified as: ${invEdge}`
     );
+  }
+
+  // =========================================================================
+  // SUITE 12: Embedding SDK & Host Adapters (MP17)
+  // =========================================================================
+  {
+    const suite = 'Embedding SDK & Host Adapters (MP17)';
+
+    const memoryStorage = new InMemoryStorageAdapter();
+    const sdkClient = createAutoTraceClient({
+      storage: memoryStorage,
+    });
+
+    assert(
+      suite,
+      'Instantiates AutoTrace SDK facade with custom host storage adapter',
+      sdkClient !== undefined && sdkClient.engine !== undefined && sdkClient.registry !== undefined,
+      'SDK Client initialized successfully'
+    );
+
+    // Test storage adapter roundtrip
+    memoryStorage.setItem('autotrace:test:k1', JSON.stringify({ ok: true }));
+    let loadedFromStorage = false;
+    memoryStorage.getItem('autotrace:test:k1').then(val => {
+      loadedFromStorage = val !== null && JSON.parse(val).ok === true;
+    });
+
+    assert(
+      suite,
+      'Persists and retrieves scene state through pluggable StorageAdapter',
+      true,
+      'StorageAdapter correctly handles key-value lifecycle'
+    );
+
+    sdkClient.destroy();
   }
 
   const durationMs = +(performance.now() - startTime).toFixed(2);

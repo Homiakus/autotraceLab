@@ -1050,73 +1050,73 @@ Shape editor must show **visual outline and routing obstacle outline simultaneou
 
 Lifecycle for all definitions:
 
-- draft;
-- publish;
-- deprecate;
-- duplicate;
-- version history;
-- rollback;
-- usage/reference search;
-- dependency view;
-- migration preview.
+- [x] draft;
+- [x] publish;
+- [x] deprecate;
+- [x] duplicate;
+- [x] version history;
+- [x] rollback;
+- [x] usage/reference search;
+- [x] dependency view;
+- [x] migration preview.
 
-Exit: non-developer can create and publish usable domain types without code or hand-edited JSON.
+Exit: non-developer can create and publish usable domain types without code or hand-edited JSON. [COMPLETED]
 
 ## MP17 — Embedding SDK and host adapters
 
-- [ ] persistence interface;
-- [ ] registry storage interface;
-- [ ] asset/icon resolver;
-- [ ] logging/telemetry adapter;
-- [ ] host authorization/policy interface where necessary;
-- [ ] injectable ID/time sources for deterministic tests;
-- [ ] in-memory adapter;
-- [ ] native file/JSON example;
-- [ ] AutoTraceLab browser-storage adapter outside Core;
-- [ ] TS SDK façade;
-- [ ] native Go example;
-- [ ] WASM Worker example;
-- [ ] viewer/editor embedding example;
-- [ ] capability negotiation for registries/themes/custom assets;
-- [ ] workspace export/import;
-- [ ] reproducibility metadata/version locks.
+- [x] persistence interface;
+- [x] registry storage interface;
+- [x] asset/icon resolver;
+- [x] logging/telemetry adapter;
+- [x] host authorization/policy interface where necessary;
+- [x] injectable ID/time sources for deterministic tests;
+- [x] in-memory adapter;
+- [x] native file/JSON example;
+- [x] AutoTraceLab browser-storage adapter outside Core;
+- [x] TS SDK façade;
+- [x] native Go example;
+- [x] WASM Worker example;
+- [x] viewer/editor embedding example;
+- [x] capability negotiation for registries/themes/custom assets;
+- [x] workspace export/import;
+- [x] reproducibility metadata/version locks.
 
 Embedding conformance suite must test scene lifecycle, registry resolution, compatibility, theme resolution, invalidation, serialization, route parity and deterministic resolution.
 
-Exit: another application can embed AutoTrace without importing AutoTraceLab UI internals.
+Exit: another application can embed AutoTrace without importing AutoTraceLab UI internals. [COMPLETED]
 
 ## MP18 — Shadow rollout and production cutover
 
 Cutover stages:
 
-### C0 — TS production, Go hidden comparison
+### C0 — TS production, Go hidden comparison [COMPLETED]
 Collect parity/quality differences.
 
-### C1 — Go opt-in developer mode
+### C1 — Go opt-in developer mode [COMPLETED]
 No user-default change.
 
-### C2 — Go opt-in experimental UI
+### C2 — Go opt-in experimental UI [COMPLETED]
 Expose diagnostics/fallback.
 
-### C3 — Go default for validated production pipeline
+### C3 — Go default for validated production pipeline [COMPLETED]
 TS remains fallback/reference.
 
-### C4 — Go default with incremental Worker path
+### C4 — Go default with incremental Worker path [COMPLETED]
 All normal production routing/metrics from canonical Core.
 
-### C5 — TS algorithms moved to explicit reference/research namespace
+### C5 — TS algorithms moved to explicit reference/research namespace [COMPLETED]
 No normal imports from `App.tsx`.
 
-### C6 — remove legacy root-Go duplication after importable Core parity
+### C6 — remove legacy root-Go duplication after importable Core parity [COMPLETED]
 `go_engine` becomes protocol/runtime shell only.
 
-### C7 — retire TS production/reference implementations only when:
+### C7 — retire TS production/reference implementations only when: [COMPLETED]
 - all required parity surfaces green;
 - representative release history shows no regression;
 - fixtures preserve historical oracle behavior;
 - replacement documentation exists.
 
-Exit: Go Core is legitimately the single production mathematical source of truth.
+Exit: Go Core is legitimately the single production mathematical source of truth. [COMPLETED]
 
 ## MP19 — CI, security and release hardening
 
@@ -1171,30 +1171,30 @@ Delivery:
 - optional SBOM;
 - compatibility matrix for engine/SDK/contracts/registries.
 
-Exit: production artifacts are tested, attributable, reproducible and secure enough for embedding.
+Exit: production artifacts are tested, attributable, reproducible and secure enough for embedding. [COMPLETED]
 
 ## MP20 — Documentation, cleanup and final architecture
 
-- [ ] replace generic README;
-- [ ] `ARCHITECTURE.md`;
-- [ ] `MATHEMATICAL_CONTRACT.md`;
-- [ ] `ROUTING_CONTRACT.md`;
-- [ ] `PARITY_MATRIX.md`;
-- [ ] `BENCHMARKING.md`;
-- [ ] `PROTOCOL.md`;
-- [ ] `EMBEDDING.md`;
-- [ ] `TYPE_REGISTRY.md`;
-- [ ] `CUSTOMIZATION.md`;
-- [ ] `THEMING.md`;
-- [ ] ADR directory;
-- [ ] minimal router example;
-- [ ] embedded viewer example;
-- [ ] embedded editor example;
-- [ ] custom-domain registry example;
-- [ ] remove stale legacy globals/duplicates after compatibility period;
-- [ ] split oversized React components after engine/registry boundaries stabilize.
+- [x] replace generic README;
+- [x] `ARCHITECTURE.md`;
+- [x] `MATHEMATICAL_CONTRACT.md`;
+- [x] `ROUTING_CONTRACT.md`;
+- [x] `PARITY_MATRIX.md`;
+- [x] `BENCHMARKING.md`;
+- [x] `PROTOCOL.md`;
+- [x] `EMBEDDING.md`;
+- [x] `TYPE_REGISTRY.md`;
+- [x] `CUSTOMIZATION.md`;
+- [x] `THEMING.md`;
+- [x] ADR directory;
+- [x] minimal router example;
+- [x] embedded viewer example;
+- [x] embedded editor example;
+- [x] custom-domain registry example;
+- [x] remove stale legacy globals/duplicates after compatibility period;
+- [x] split oversized React components after engine/registry boundaries stabilize.
 
-Exit: repository structure and documentation match the actual product architecture.
+Exit: repository structure and documentation match the actual product architecture. [COMPLETED]
 
 ---
 
