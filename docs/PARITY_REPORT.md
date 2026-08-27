@@ -1,10 +1,10 @@
 # AutoTrace TS ↔ Go Parity CI Report
 
-- **Generated**: 2026-08-27T06:58:59.967Z
-- **Git Commit**: `0b89e6773cbed631a97e9d95ad2c209d68359180`
+- **Generated**: 2026-08-27T07:03:23.584Z
+- **Git Commit**: `a1054294c672bed061d65326292fc4666c51737c`
 - **Total Algorithmic Surfaces**: 15
-- **Covered Surfaces**: 7
-- **Fully Passed (P0-P2)**: 7
+- **Covered Surfaces**: 9
+- **Fully Passed (P0-P2)**: 9
 - **Partial / In-Progress**: 0
 
 ## Surface Details
@@ -18,3 +18,5 @@
 | Strict Label Placement | `go_engine/core/label_layout.go` | P0, P1, P2 | ✅ PASS | On-arrow candidate search, obstacle avoidance, Liang-Barsky wire clipping, and penalty computation verified. |
 | Canonical Metrics & QualityVector | `go_engine/core/metrics.go` | P0, P1, P2 | ✅ PASS | Collinear overlap, crossings, wirelength, compactness, void ratio, aspect penalty, and 9-component QualityVector verified. |
 | Non-Linear Programming (NLP) Optimizer | `go_engine/core/nlp_optimizer.go` | P0, P1, P2, P3 | ✅ PASS | Multi-objective loss Φ(X), pinned anchor invariance, analytic forces, and projected gradient descent with momentum verified. |
+| Bridge Jumps & G¹ Geometry | `go_engine/core/bridge_geometry.go` | P0, P1, P2 | ✅ PASS | IEEE 315 / IEC 60617 semicircular line hop arcs and G¹ cubic Bézier corner fillets (κ ≈ 0.55228) verified. |
+| Unified Co-Optimization Engine | `go_engine/core/unified_optimizer.go` | P0, P1, P2, P3 | ✅ PASS | DAG topological layering, port-aware barycentric sweeps, dynamic channel allocation, pin micro-alignment, and artifact-free routing verified. |

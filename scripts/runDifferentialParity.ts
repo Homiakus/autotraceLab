@@ -50,6 +50,8 @@ function generateParityReport() {
   const goLabelsPassed = goTestOut.includes('--- PASS: TestParityLabels');
   const goMetricsPassed = goTestOut.includes('--- PASS: TestParityMetrics');
   const goNLPPassed = goTestOut.includes('--- PASS: TestParityNLP');
+  const goBridgePassed = goTestOut.includes('--- PASS: TestParityBridgeJumps');
+  const goUnifiedPassed = goTestOut.includes('--- PASS: TestParityUnifiedCoOptimization');
   const goMetamorphicPassed = goTestOut.includes('--- PASS: TestMetamorphicTranslationInvariance') &&
                               goTestOut.includes('--- PASS: TestMetamorphicPermutationStability') &&
                               goTestOut.includes('--- PASS: TestMetamorphicCleanerIdempotence') &&
@@ -108,6 +110,20 @@ function generateParityReport() {
       level: 'P0, P1, P2, P3',
       status: (goNLPPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL' | 'PARTIAL',
       notes: 'Multi-objective loss Φ(X), pinned anchor invariance, analytic forces, and projected gradient descent with momentum verified.',
+    },
+    {
+      family: 'Bridge Jumps & G¹ Geometry',
+      target: 'go_engine/core/bridge_geometry.go',
+      level: 'P0, P1, P2',
+      status: (goBridgePassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL' | 'PARTIAL',
+      notes: 'IEEE 315 / IEC 60617 semicircular line hop arcs and G¹ cubic Bézier corner fillets (κ ≈ 0.55228) verified.',
+    },
+    {
+      family: 'Unified Co-Optimization Engine',
+      target: 'go_engine/core/unified_optimizer.go',
+      level: 'P0, P1, P2, P3',
+      status: (goUnifiedPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL' | 'PARTIAL',
+      notes: 'DAG topological layering, port-aware barycentric sweeps, dynamic channel allocation, pin micro-alignment, and artifact-free routing verified.',
     },
   ];
 

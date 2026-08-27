@@ -388,3 +388,105 @@ func TestParityNLP(t *testing.T) {
 	}
 }
 
+type BridgeFixture struct {
+	ParityHeader
+	VerticalPoints   []Point          `json:"verticalPoints"`
+	AllEdges         []EdgeConnection `json:"allEdges"`
+	ExpectedBridgeSvg string          `json:"expectedBridgeSvg"`
+	CornerPoints     []Point          `json:"cornerPoints"`
+	ExpectedG1Svg    string           `json:"expectedG1Svg"`
+}
+
+func TestParityBridgeJumps(t *testing.T) {
+	fixturePath := filepath.Join("..", "..", "testdata", "parity", "bridges", "bridge_jumps.json")
+	data, err := os.ReadFile(fixturePath)
+	if err != nil {
+		t.Skipf("Bridge parity fixture not found: %v", err)
+		return
+	}
+
+	var fixture BridgeFixture
+	if err := json.Unmarshal(data, &fixture); err != nil {
+		t.Fatalf("Failed to unmarshal Bridge fixture: %v", err)
+	}
+
+	// 1. Verify Bridge Hop Arc generation
+	actualBridgeSvg := GenerateOrthogonalPathWithBridgesSVG(fixture.VerticalPoints, "v1", fixture.AllEdges, true, false, nil, nil)
+	if actualBridgeSvg != fixture.ExpectedBridgeSvg {
+		t.Errorf("Bridge SVG mismatch: got %q, want %q", actualBridgeSvg, fixture.ExpectedBridgeSvg)
+	}
+
+	// 2. Verify G^1 Continuous corner fillet generation
+	opts := DefaultRoutingOptions()
+	opts.CornerRadius = OptFloat(12.0)
+	opts.AdaptiveCornerRadius = OptBool(true)
+	opts.SmoothCorners = OptBool(true)
+	weights := DefaultOptimizationWeights()
+
+	actualG1Svg := GenerateOrthogonalPathWithBridgesSVG(fixture.CornerPoints, "c1", nil, false, true, &weights, &opts)
+	if actualG1Svg != fixture.ExpectedG1Svg {
+		t.Errorf("G^1 Corner Fillet SVG mismatch: got %q, want %q", actualG1Svg, fixture.ExpectedG1Svg)
+	}
+}
+
+type UnifiedFixture struct {
+	ParityHeader
+	InputNodes                 []BlockNode      `json:"inputNodes"`
+	InputEdges                 []EdgeConnection `json:"inputEdges"`
+	Options                    RoutingOptions   `json:"options"`
+	ExpectedLayersCount        int              `json:"expectedLayersCount"`
+	ExpectedStraightWiresCount int              `json:"expectedStraightWiresCount"`
+	ExpectedAlignmentScore     int              `json:"expectedAlignmentScore"`
+	ExpectedNodes              []struct {
+		ID    string `json:"id"`
+		X     float64 `json:"x"`
+		Y     float64 `json:"y"`
+		Layer *int    `json:"layer"`
+	} `json:"expectedNodes"`
+}
+
+func TestParityUnifiedCoOptimization(t *testing.T) {
+	fixturePath := filepath.Join("..", "..", "testdata", "parity", "unified", "co_optimization.json")
+	data, err := os.ReadFile(fixturePath)
+	if err != nil {
+		t.Skipf("Unified co-optimization parity fixture not found: %v", err)
+		return
+	}
+
+	var fixture UnifiedFixture
+	if err := json.Unmarshal(data, &fixture); err != nil {
+		t.Fatalf("Failed to unmarshal Unified fixture: %v", err)
+	}
+
+	res := RunUnifiedCoOptimization(fixture.InputNodes, fixture.InputEdges, fixture.Options)
+
+	if res.StraightWiresCount != fixture.ExpectedStraightWiresCount {
+		t.Errorf("StraightWiresCount mismatch: got %d, want %d", res.StraightWiresCount, fixture.ExpectedStraightWiresCount)
+	}
+	if res.AlignmentScore != fixture.ExpectedAlignmentScore {
+		t.Errorf("AlignmentScore mismatch: got %d, want %d", res.AlignmentScore, fixture.ExpectedAlignmentScore)
+	}
+
+	for _, expectedNode := range fixture.ExpectedNodes {
+		var actualNode *BlockNode
+		for _, n := range res.Nodes {
+			if n.ID == expectedNode.ID {
+				actualNode = &n
+				break
+			}
+		}
+		if actualNode == nil {
+			t.Errorf("Node %s not found in result", expectedNode.ID)
+			continue
+		}
+		if actualNode.X != expectedNode.X || actualNode.Y != expectedNode.Y {
+			t.Errorf("Node %s coordinates mismatch: got (%.1f, %.1f), want (%.1f, %.1f)",
+				expectedNode.ID, actualNode.X, actualNode.Y, expectedNode.X, expectedNode.Y)
+		}
+		if expectedNode.Layer != nil && (actualNode.Layer == nil || *actualNode.Layer != *expectedNode.Layer) {
+			t.Errorf("Node %s layer mismatch: got %v, want %v", expectedNode.ID, actualNode.Layer, *expectedNode.Layer)
+		}
+	}
+}
+
+

@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "1.0.0",
+  "generatedAt": "2026-08-27T07:03:23.121Z",
+  "generator": "scripts/exportParityFixtures.ts (TS Oracle)",
+  "oracleCommit": "371cbc0935c3168babb58c755cae17bb76860dff",
+  "inputNodes": [
+    {
+      "id": "src",
+      "title": "Sensor Head",
+      "category": "processor",
+      "shape": "rectangle",
+      "x": 50,
+      "y": 100,
+      "width": 130,
+      "height": 60,
+      "inputs": [],
+      "outputs": [
+        {
+          "id": "out1",
+          "name": "Raw",
+          "side": "right",
+          "type": "output"
+        }
+      ]
+    },
+    {
+      "id": "mid",
+      "title": "Kalman Filter",
+      "category": "processor",
+      "shape": "rectangle",
+      "x": 50,
+      "y": 250,
+      "width": 130,
+      "height": 60,
+      "inputs": [
+        {
+          "id": "in1",
+          "name": "In",
+          "side": "left",
+          "type": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "out2",
+          "name": "Est",
+          "side": "right",
+          "type": "output"
+        }
+      ]
+    },
+    {
+      "id": "dst",
+      "title": "Motor Driver",
+      "category": "sink",
+      "shape": "rectangle",
+      "x": 50,
+      "y": 400,
+      "width": 130,
+      "height": 60,
+      "inputs": [
+        {
+          "id": "in2",
+          "name": "Drive",
+          "side": "left",
+          "type": "input"
+        }
+      ],
+      "outputs": []
+    }
+  ],
+  "inputEdges": [
+    {
+      "id": "e1",
+      "sourceBlockId": "src",
+      "sourcePortId": "out1",
+      "targetBlockId": "mid",
+      "targetPortId": "in1"
+    },
+    {
+      "id": "e2",
+      "sourceBlockId": "mid",
+      "sourcePortId": "out2",
+      "targetBlockId": "dst",
+      "targetPortId": "in2"
+    }
+  ],
+  "options": {
+    "gridSize": 10,
+    "obstacleClearance": 10,
+    "bendPenalty": 35,
+    "crossingPenalty": 50,
+    "channelSpacing": 16,
+    "portExitOffset": 24,
+    "adaptivePortExitOffset": true,
+    "smoothCorners": false,
+    "labelClearance": 8,
+    "strictLabels": true,
+    "minWireDistance": 16,
+    "optimalBlockDistance": 220,
+    "optimalWireDistance": 24,
+    "jumpBridges": false,
+    "weights": {
+      "crossingWeight": 95,
+      "straightnessWeight": 90,
+      "g1SplineWeight": 65,
+      "portAlignmentWeight": 80,
+      "clearanceWeight": 90,
+      "wirelengthWeight": 15,
+      "bendWeight": 25,
+      "labelOverlapWeight": 75
+    }
+  },
+  "expectedLayersCount": 3,
+  "expectedStraightWiresCount": 2,
+  "expectedAlignmentScore": 100,
+  "expectedNodes": [
+    {
+      "id": "src",
+      "x": 80,
+      "y": 80,
+      "layer": 0
+    },
+    {
+      "id": "mid",
+      "x": 390,
+      "y": 80,
+      "layer": 1
+    },
+    {
+      "id": "dst",
+      "x": 700,
+      "y": 80,
+      "layer": 2
+    }
+  ]
+}

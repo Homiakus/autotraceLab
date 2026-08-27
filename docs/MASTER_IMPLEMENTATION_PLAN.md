@@ -825,17 +825,17 @@ Exit: component-wise objective values and invariants match declared contract. [C
 
 ## MP10 — Unified Co-Optimization + bridge geometry
 
-- [ ] Go orchestrator over canonical modules;
-- [ ] no duplicated hidden formulas;
-- [ ] port-aware crossing reduction;
-- [ ] dynamic channels;
-- [ ] pin alignment;
-- [ ] relaxation;
-- [ ] routing/cleaning/labels/metrics;
-- [ ] renderer-neutral bridges;
-- [ ] renderer-neutral G¹ fillets.
+- [x] Go orchestrator over canonical modules;
+- [x] no duplicated hidden formulas;
+- [x] port-aware crossing reduction;
+- [x] dynamic channels;
+- [x] pin alignment;
+- [x] relaxation;
+- [x] routing/cleaning/labels/metrics;
+- [x] renderer-neutral bridges;
+- [x] renderer-neutral G¹ fillets.
 
-Exit: the highest-quality TS pipeline has a canonical Go equivalent.
+Exit: the highest-quality TS pipeline has a canonical Go equivalent. [COMPLETED]
 
 ## MP11 — Incremental mathematics integration [BLOCKING cutover]
 

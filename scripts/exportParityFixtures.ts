@@ -16,6 +16,11 @@ import {
   runNLPOptimization,
   DEFAULT_NLP_PARAMS,
 } from '../src/algorithms/nlpOptimizer';
+import {
+  generateOrthogonalPathWithBridges,
+  renderG1ContinuousStraightPath,
+} from '../src/algorithms/bridgeJumps';
+import { runUnifiedCoOptimization } from '../src/algorithms/unifiedOptimizer';
 import { BlockNode, EdgeConnection, Point, Port, RoutingOptions } from '../src/types';
 
 const TESTDATA_DIR = path.resolve(process.cwd(), 'testdata', 'parity');
@@ -477,6 +482,190 @@ function exportNLPFixtures() {
   });
 }
 
+// 7. Bridge Jumps & G^1 Fillet Fixtures
+function exportBridgeFixtures() {
+  const verticalPoints: Point[] = [
+    { x: 100, y: 20 },
+    { x: 100, y: 200 },
+  ];
+  const allEdges: EdgeConnection[] = [
+    {
+      id: 'h1',
+      sourceBlockId: 'a',
+      sourcePortId: 'out',
+      targetBlockId: 'b',
+      targetPortId: 'in',
+      path: [
+        { x: 40, y: 100 },
+        { x: 160, y: 100 },
+      ],
+    },
+  ];
+
+  const svgWithBridges = generateOrthogonalPathWithBridges(
+    verticalPoints,
+    'v1',
+    allEdges,
+    true,
+    false
+  );
+
+  const cornerPoints: Point[] = [
+    { x: 10, y: 10 },
+    { x: 120, y: 10 },
+    { x: 120, y: 100 },
+  ];
+
+  const svgG1Corner = renderG1ContinuousStraightPath(
+    cornerPoints,
+    true,
+    {
+      crossingWeight: 95,
+      straightnessWeight: 90,
+      g1SplineWeight: 65,
+      portAlignmentWeight: 80,
+      clearanceWeight: 90,
+      wirelengthWeight: 15,
+      bendWeight: 25,
+      labelOverlapWeight: 75,
+    },
+    {
+      gridSize: 10,
+      obstacleClearance: 10,
+      bendPenalty: 35,
+      crossingPenalty: 50,
+      channelSpacing: 16,
+      portExitOffset: 24,
+      adaptivePortExitOffset: true,
+      smoothCorners: true,
+      cornerRadius: 12,
+      adaptiveCornerRadius: true,
+      labelClearance: 8,
+      strictLabels: true,
+      minWireDistance: 16,
+      optimalBlockDistance: 220,
+      optimalWireDistance: 24,
+      jumpBridges: false,
+      weights: {
+        crossingWeight: 95,
+        straightnessWeight: 90,
+        g1SplineWeight: 65,
+        portAlignmentWeight: 80,
+        clearanceWeight: 90,
+        wirelengthWeight: 15,
+        bendWeight: 25,
+        labelOverlapWeight: 75,
+      },
+    }
+  );
+
+  writeFixture('bridges/bridge_jumps.json', {
+    verticalPoints,
+    allEdges,
+    expectedBridgeSvg: svgWithBridges,
+    cornerPoints,
+    expectedG1Svg: svgG1Corner,
+  });
+}
+
+// 8. Unified Co-Optimization Fixtures
+function exportUnifiedFixtures() {
+  const nodes: BlockNode[] = [
+    {
+      id: 'src',
+      title: 'Sensor Head',
+      category: 'processor',
+      shape: 'rectangle',
+      x: 50,
+      y: 100,
+      width: 130,
+      height: 60,
+      inputs: [],
+      outputs: [{ id: 'out1', name: 'Raw', side: 'right', type: 'output' }],
+    },
+    {
+      id: 'mid',
+      title: 'Kalman Filter',
+      category: 'processor',
+      shape: 'rectangle',
+      x: 50,
+      y: 250,
+      width: 130,
+      height: 60,
+      inputs: [{ id: 'in1', name: 'In', side: 'left', type: 'input' }],
+      outputs: [{ id: 'out2', name: 'Est', side: 'right', type: 'output' }],
+    },
+    {
+      id: 'dst',
+      title: 'Motor Driver',
+      category: 'sink',
+      shape: 'rectangle',
+      x: 50,
+      y: 400,
+      width: 130,
+      height: 60,
+      inputs: [{ id: 'in2', name: 'Drive', side: 'left', type: 'input' }],
+      outputs: [],
+    },
+  ];
+
+  const edges: EdgeConnection[] = [
+    {
+      id: 'e1',
+      sourceBlockId: 'src',
+      sourcePortId: 'out1',
+      targetBlockId: 'mid',
+      targetPortId: 'in1',
+    },
+    {
+      id: 'e2',
+      sourceBlockId: 'mid',
+      sourcePortId: 'out2',
+      targetBlockId: 'dst',
+      targetPortId: 'in2',
+    },
+  ];
+
+  const options: RoutingOptions = {
+    gridSize: 10,
+    obstacleClearance: 10,
+    bendPenalty: 35,
+    crossingPenalty: 50,
+    channelSpacing: 16,
+    portExitOffset: 24,
+    adaptivePortExitOffset: true,
+    smoothCorners: false,
+    labelClearance: 8,
+    strictLabels: true,
+    minWireDistance: 16,
+    optimalBlockDistance: 220,
+    optimalWireDistance: 24,
+    jumpBridges: false,
+    weights: {
+      crossingWeight: 95,
+      straightnessWeight: 90,
+      g1SplineWeight: 65,
+      portAlignmentWeight: 80,
+      clearanceWeight: 90,
+      wirelengthWeight: 15,
+      bendWeight: 25,
+      labelOverlapWeight: 75,
+    },
+  };
+
+  const res = runUnifiedCoOptimization(nodes, edges, options);
+
+  writeFixture('unified/co_optimization.json', {
+    inputNodes: nodes,
+    inputEdges: edges,
+    options,
+    expectedLayersCount: 3,
+    expectedStraightWiresCount: res.straightWiresCount,
+    expectedAlignmentScore: res.alignmentScore,
+    expectedNodes: res.nodes.map(n => ({ id: n.id, x: n.x, y: n.y, layer: n.layer })),
+  });
+}
+
 console.log('🚀 Exporting all parity test fixtures from TS oracle...');
 exportGeometryFixtures();
 exportCleanerFixtures();
@@ -484,4 +673,6 @@ exportRouterFixtures();
 exportLabelFixtures();
 exportMetricsFixtures();
 exportNLPFixtures();
+exportBridgeFixtures();
+exportUnifiedFixtures();
 console.log('✨ All TS parity fixtures successfully exported to testdata/parity/');
