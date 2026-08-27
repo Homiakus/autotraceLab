@@ -4,6 +4,14 @@
 
 Use **[`MASTER_IMPLEMENTATION_PLAN.md`](./MASTER_IMPLEMENTATION_PLAN.md)** as the single source of truth for implementation order, blocking gates, milestones, cutover policy and Definition of Done.
 
+## Execution annexes
+
+The following documents expand a bounded workstream of the master plan without replacing its authority:
+
+- **[`EMBEDDING_PRODUCTIZATION_PLAN.md`](./EMBEDDING_PRODUCTIZATION_PLAN.md)** — atomic execution plan for turning the reusable Go core, TypeScript SDK, registry and Go/WASM runtime into a production-grade embeddable platform. Covers SDK package separation, runtime isolation, registry materialization, protocol/version compatibility, cancellation, WASM delivery, consumer CI, Go module productization, documentation and 1.0 release gates.
+
+If an execution annex conflicts with mathematical parity, cutover ordering or another blocking requirement in the master plan, **the master plan wins**.
+
 ## Reference plans
 
 The following documents are retained as detailed audit/history material:
