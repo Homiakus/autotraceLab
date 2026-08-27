@@ -143,12 +143,12 @@ function generateRandomCircuit(runIndex: number, rng: () => number): { nodes: Bl
   return { nodes, edges, options };
 }
 
-export async function runFuzz1000(): Promise<FuzzReport> {
+export async function runFuzz1000(customRuns?: number): Promise<FuzzReport> {
+  const totalRuns = customRuns || parseInt(process.argv[2] || '1000', 10);
   console.log('================================================================================');
-  console.log('  AUTOTRACE LAB - 1,000 RUN DEEP ADVERSARIAL FUZZING & ANOMALY DETECTOR         ');
+  console.log(`  AUTOTRACE LAB - ${totalRuns.toLocaleString()} RUN DEEP ADVERSARIAL FUZZING & ANOMALY DETECTOR`);
   console.log('================================================================================\n');
 
-  const totalRuns = 1000;
   const anomalies: FuzzRunAnomaly[] = [];
   let totalNetsRouted = 0;
   let totalCollinearOverlapsFound = 0;
@@ -334,12 +334,13 @@ export async function runFuzz1000(): Promise<FuzzReport> {
       });
     }
 
-    // Progress report every 100 runs
-    if (run % 100 === 0) {
+    // Progress report every 5%
+    const reportInterval = Math.max(10, Math.floor(totalRuns / 20));
+    if (run % reportInterval === 0 || run === totalRuns) {
       const elapsedMs = performance.now() - tStart;
       const progressPercent = ((run / totalRuns) * 100).toFixed(0);
       const runsPerSec = ((run * 1000) / elapsedMs).toFixed(0);
-      console.log(`⏱️ [${progressPercent}%] Completed ${run}/${totalRuns} runs (${runsPerSec} runs/sec) | Anomalies so far: ${anomalies.length}`);
+      console.log(`⏱️ [${progressPercent}%] Completed ${run.toLocaleString()}/${totalRuns.toLocaleString()} runs (${runsPerSec} runs/sec) | Anomalies so far: ${anomalies.length}`);
     }
   }
 
@@ -360,7 +361,7 @@ export async function runFuzz1000(): Promise<FuzzReport> {
   };
 
   console.log('\n================================================================================');
-  console.log('  1,000 RUN FUZZING AUDIT REPORT                                                ');
+  console.log(`  ${totalRuns.toLocaleString()} RUN FUZZING AUDIT REPORT`);
   console.log('================================================================================');
   console.log(`  Total Fuzz Runs Executed:       ${totalRuns.toLocaleString()}`);
   console.log(`  Passed Runs (100% Invariants):  ${passedRuns.toLocaleString()} / ${totalRuns.toLocaleString()} (${((passedRuns / totalRuns) * 100).toFixed(2)}%)`);
@@ -375,7 +376,7 @@ export async function runFuzz1000(): Promise<FuzzReport> {
     console.log('\n⚠️ Anomalies Discovered:');
     console.table(anomalies.slice(0, 10));
   } else {
-    console.log('\n🎉 ZERO ANOMALIES FOUND! 1,000/1,000 runs strictly satisfied all invariants.');
+    console.log(`\n🎉 ZERO ANOMALIES FOUND! ${totalRuns.toLocaleString()}/${totalRuns.toLocaleString()} runs strictly satisfied all invariants.`);
   }
 
   return report;

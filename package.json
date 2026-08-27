@@ -32,7 +32,8 @@
     "stress": "tsx scripts/stressTestMaster.ts",
     "visual:test": "tsx scripts/visualTester.ts",
     "converge:loop": "tsx scripts/cyclicConvergenceLoop.ts",
-    "fuzz:1000": "tsx scripts/fuzz1000Runs.ts"
+    "fuzz:1000": "tsx scripts/fuzz1000Runs.ts",
+    "fuzz:10000": "tsx scripts/fuzz1000Runs.ts 10000"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
