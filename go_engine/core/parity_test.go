@@ -292,3 +292,99 @@ func TestParityMetrics(t *testing.T) {
 			actual.QualityVector.HardViolations, fixture.ExpectedMetrics.QualityVector.HardViolations)
 	}
 }
+
+type NLPFixture struct {
+	ParityHeader
+	InputNodes               []BlockNode            `json:"inputNodes"`
+	InputEdges               []EdgeConnection       `json:"inputEdges"`
+	Params                   NLPOptimizationParams  `json:"params"`
+	ExpectedInitialBreakdown NLPOptimalityBreakdown `json:"expectedInitialBreakdown"`
+	ExpectedFinalBreakdown   NLPOptimalityBreakdown `json:"expectedFinalBreakdown"`
+	ExpectedImprovement      float64                `json:"expectedImprovement"`
+	PinnedNodeIDs            []string               `json:"pinnedNodeIds"`
+	IterationsRun            int                    `json:"iterationsRun"`
+	HistorySnapshotsCount    int                    `json:"historySnapshotsCount"`
+}
+
+func TestParityNLP(t *testing.T) {
+	fixturePath := filepath.Join("..", "..", "testdata", "parity", "nlp", "nlp_cases.json")
+	data, err := os.ReadFile(fixturePath)
+	if err != nil {
+		t.Skipf("NLP parity fixture not found: %v", err)
+		return
+	}
+
+	var fixture NLPFixture
+	if err := json.Unmarshal(data, &fixture); err != nil {
+		t.Fatalf("Failed to unmarshal NLP fixture: %v", err)
+	}
+
+	// 1. Initial breakdown parity test
+	initialBreakdown := CalculateNLPOptimalityBreakdown(fixture.InputNodes, fixture.InputEdges, fixture.Params)
+
+	if initialBreakdown.OverallCostValue != fixture.ExpectedInitialBreakdown.OverallCostValue {
+		t.Errorf("Initial OverallCostValue mismatch: got %.1f, want %.1f",
+			initialBreakdown.OverallCostValue, fixture.ExpectedInitialBreakdown.OverallCostValue)
+	}
+	if initialBreakdown.TotalWirelength != fixture.ExpectedInitialBreakdown.TotalWirelength {
+		t.Errorf("Initial TotalWirelength mismatch: got %.1f, want %.1f",
+			initialBreakdown.TotalWirelength, fixture.ExpectedInitialBreakdown.TotalWirelength)
+	}
+	if initialBreakdown.BlockDistanceDeviation != fixture.ExpectedInitialBreakdown.BlockDistanceDeviation {
+		t.Errorf("Initial BlockDistanceDeviation mismatch: got %.1f, want %.1f",
+			initialBreakdown.BlockDistanceDeviation, fixture.ExpectedInitialBreakdown.BlockDistanceDeviation)
+	}
+	if initialBreakdown.LabelsOnArrowCount != fixture.ExpectedInitialBreakdown.LabelsOnArrowCount {
+		t.Errorf("Initial LabelsOnArrowCount mismatch: got %d, want %d",
+			initialBreakdown.LabelsOnArrowCount, fixture.ExpectedInitialBreakdown.LabelsOnArrowCount)
+	}
+
+	// 2. Full optimization run parity test
+	opts := DefaultRoutingOptions()
+	opts.GridSize = 10
+	opts.ObstacleClearance = 10
+	opts.BendPenalty = 35
+	opts.CrossingPenalty = 50
+	opts.ChannelSpacing = 16
+	opts.PortExitOffset = 24
+	opts.AdaptivePortExitOffset = OptBool(true)
+	opts.LabelClearance = OptFloat(8.0)
+	opts.StrictLabels = OptBool(true)
+	opts.MinWireDistance = OptFloat(16.0)
+	opts.OptimalBlockDistance = OptFloat(220.0)
+	opts.OptimalWireDistance = OptFloat(24.0)
+
+	params := fixture.Params
+	params.Iterations = fixture.IterationsRun
+
+	res := RunNLPOptimization(fixture.InputNodes, fixture.InputEdges, opts, &params)
+
+	if len(res.History) != fixture.HistorySnapshotsCount {
+		t.Errorf("History snapshots count mismatch: got %d, want %d", len(res.History), fixture.HistorySnapshotsCount)
+	}
+
+	// Verify pinned node invariance
+	for _, pinnedID := range fixture.PinnedNodeIDs {
+		var origNode *BlockNode
+		for _, n := range fixture.InputNodes {
+			if n.ID == pinnedID {
+				origNode = &n
+				break
+			}
+		}
+		var afterNode *BlockNode
+		for _, n := range res.Nodes {
+			if n.ID == pinnedID {
+				afterNode = &n
+				break
+			}
+		}
+		if origNode != nil && afterNode != nil {
+			if afterNode.X != origNode.X || afterNode.Y != origNode.Y {
+				t.Errorf("Pinned node %s position shifted: got (%.1f, %.1f), want (%.1f, %.1f)",
+					pinnedID, afterNode.X, afterNode.Y, origNode.X, origNode.Y)
+			}
+		}
+	}
+}
+

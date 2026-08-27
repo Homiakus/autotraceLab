@@ -49,6 +49,7 @@ function generateParityReport() {
   const goRouterPassed = goTestOut.includes('--- PASS: TestParityRouterAStar');
   const goLabelsPassed = goTestOut.includes('--- PASS: TestParityLabels');
   const goMetricsPassed = goTestOut.includes('--- PASS: TestParityMetrics');
+  const goNLPPassed = goTestOut.includes('--- PASS: TestParityNLP');
   const goMetamorphicPassed = goTestOut.includes('--- PASS: TestMetamorphicTranslationInvariance') &&
                               goTestOut.includes('--- PASS: TestMetamorphicPermutationStability') &&
                               goTestOut.includes('--- PASS: TestMetamorphicCleanerIdempotence') &&
@@ -63,43 +64,50 @@ function generateParityReport() {
       family: 'Metamorphic Invariance Suite',
       target: 'go_engine/core/metamorphic_test.go',
       level: 'P0, P1, P2, P3',
-      status: (goMetamorphicPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL',
+      status: (goMetamorphicPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL' | 'PARTIAL',
       notes: 'Translation invariance, permutation stability, cleaner idempotence, patch equivalence, and metric determinism verified.',
     },
     {
       family: 'Block Geometry & Auto-Sizing',
       target: 'go_engine/core/block_geometry.go',
       level: 'P0, P1, P2',
-      status: (goSizingPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL',
+      status: (goSizingPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL' | 'PARTIAL',
       notes: '6 shapes perimeter coordinates, min dimensions, and deterministic port placement match TS oracle.',
     },
     {
       family: 'Wire Artifact Cleaner',
       target: 'go_engine/core/artifact_cleaner.go',
       level: 'P0, P1, P2',
-      status: (goCleanerPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL',
+      status: (goCleanerPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL' | 'PARTIAL',
       notes: 'Collinear point merge and U-turn reduction verified.',
     },
     {
       family: 'Orthogonal A* Router',
       target: 'go_engine/core/orthogonal_router.go',
       level: 'P0, P1, P2, P3',
-      status: (goRouterPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL',
+      status: (goRouterPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL' | 'PARTIAL',
       notes: 'Obstacle detour, 4-way normal stubs, multi-net channel separation, and prohibited shared wire segments verified.',
     },
     {
       family: 'Strict Label Placement',
       target: 'go_engine/core/label_layout.go',
       level: 'P0, P1, P2',
-      status: (goLabelsPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL',
+      status: (goLabelsPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL' | 'PARTIAL',
       notes: 'On-arrow candidate search, obstacle avoidance, Liang-Barsky wire clipping, and penalty computation verified.',
     },
     {
       family: 'Canonical Metrics & QualityVector',
       target: 'go_engine/core/metrics.go',
       level: 'P0, P1, P2',
-      status: (goMetricsPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL',
+      status: (goMetricsPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL' | 'PARTIAL',
       notes: 'Collinear overlap, crossings, wirelength, compactness, void ratio, aspect penalty, and 9-component QualityVector verified.',
+    },
+    {
+      family: 'Non-Linear Programming (NLP) Optimizer',
+      target: 'go_engine/core/nlp_optimizer.go',
+      level: 'P0, P1, P2, P3',
+      status: (goNLPPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL' | 'PARTIAL',
+      notes: 'Multi-objective loss Φ(X), pinned anchor invariance, analytic forces, and projected gradient descent with momentum verified.',
     },
   ];
 

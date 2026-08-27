@@ -217,26 +217,26 @@ function getDirCode(dx: number, dy: number): number {
 }
 
 /**
- * Packs (gx, gy, dirCode) into a single 32-bit SMI integer
+ * Packs (gx, gy, dirCode) into a single safe JavaScript number (< MAX_SAFE_INTEGER)
  */
 function encodeStateKey(gx: number, gy: number, dirCode: number): number {
-  return ((gx + 1000) * 4000 + (gy + 1000)) * 5 + dirCode;
+  return ((gx + 10000) * 20000 + (gy + 10000)) * 5 + dirCode;
 }
 
 /**
- * Packs (gx, gy) coordinate into a single 32-bit SMI integer
+ * Packs (gx, gy) coordinate into a single safe integer
  */
 function encodeCoordKey(gx: number, gy: number): number {
-  return (gx + 1000) * 4000 + (gy + 1000);
+  return (gx + 10000) * 20000 + (gy + 10000);
 }
 
 /**
  * Packs undirected segment between (gx1, gy1) and (gx2, gy2) into a safe JavaScript number (< MAX_SAFE_INTEGER)
  */
 function encodeSegKey(gx1: number, gy1: number, gx2: number, gy2: number): number {
-  const c1 = (gx1 + 1000) * 4000 + (gy1 + 1000);
-  const c2 = (gx2 + 1000) * 4000 + (gy2 + 1000);
-  return c1 < c2 ? c1 * 20000000 + c2 : c2 * 20000000 + c1;
+  const c1 = (gx1 + 10000) * 20000 + (gy1 + 10000);
+  const c2 = (gx2 + 10000) * 20000 + (gy2 + 10000);
+  return c1 < c2 ? c1 * 100000000 + c2 : c2 * 100000000 + c1;
 }
 
 /**
@@ -323,7 +323,7 @@ export function routeOrthogonalAStar(
 
     for (let cx = cellMinX; cx <= cellMaxX; cx++) {
       for (let cy = cellMinY; cy <= cellMaxY; cy++) {
-        const cKey = (cx + 500) * 2000 + (cy + 500);
+        const cKey = (cx + 2000) * 10000 + (cy + 2000);
         let bucket = spatialGrid.get(cKey);
         if (!bucket) {
           bucket = [];
@@ -337,7 +337,7 @@ export function routeOrthogonalAStar(
   function isInsideObstacle(px: number, py: number, allowNodeA?: string, allowNodeB?: string): boolean {
     const cx = Math.floor(px / SPATIAL_CELL);
     const cy = Math.floor(py / SPATIAL_CELL);
-    const cKey = (cx + 500) * 2000 + (cy + 500);
+    const cKey = (cx + 2000) * 10000 + (cy + 2000);
     const bucket = spatialGrid.get(cKey);
     if (!bucket || bucket.length === 0) return false;
 

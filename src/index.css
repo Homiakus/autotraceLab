@@ -1,28 +1,185 @@
 @import "tailwindcss";
 
+:root,
+[data-theme="dark"] {
+  --surface-canvas: #0c0d10;
+  --surface-primary: #12141a;
+  --surface-secondary: #181b22;
+  --surface-elevated: #1e222b;
+  --surface-overlay: rgba(0, 0, 0, 0.65);
+  --surface-sunken: #090a0d;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-muted: #475569;
+
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-default: rgba(255, 255, 255, 0.13);
+  --border-strong: rgba(255, 255, 255, 0.24);
+
+  --canvas-grid-dot: #252a35;
+
+  /* Default fallback accent */
+  --accent: #3b82f6;
+  --accent-hover: #60a5fa;
+  --accent-active: #2563eb;
+  --accent-subtle: rgba(59, 130, 246, 0.15);
+  --accent-muted: rgba(59, 130, 246, 0.25);
+  --accent-border: rgba(59, 130, 246, 0.4);
+  --accent-contrast: #ffffff;
+  --accent-focus-ring: #60a5fa;
+
+  /* Semantic Status Tokens */
+  --status-success: #10b981;
+  --status-success-subtle: rgba(16, 185, 129, 0.15);
+  --status-success-border: rgba(16, 185, 129, 0.35);
+
+  --status-warning: #f59e0b;
+  --status-warning-subtle: rgba(245, 158, 11, 0.15);
+  --status-warning-border: rgba(245, 158, 11, 0.35);
+
+  --status-danger: #f43f5e;
+  --status-danger-subtle: rgba(244, 63, 94, 0.15);
+  --status-danger-border: rgba(244, 63, 94, 0.35);
+
+  --status-info: #06b6d4;
+  --status-info-subtle: rgba(6, 182, 212, 0.15);
+  --status-info-border: rgba(6, 182, 212, 0.35);
+
+  --status-disabled: #64748b;
+  --status-disabled-subtle: rgba(100, 116, 139, 0.1);
+
+  /* Motion Tokens */
+  --motion-instant: 80ms;
+  --motion-fast: 140ms;
+  --motion-base: 220ms;
+  --motion-medium: 320ms;
+  --motion-slow: 480ms;
+  --motion-scene: 700ms;
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-bounce-subtle: cubic-bezier(0.34, 1.3, 0.64, 1);
+}
+
+[data-theme="light"] {
+  --surface-canvas: #f4f6f9;
+  --surface-primary: #ffffff;
+  --surface-secondary: #eef2f6;
+  --surface-elevated: #ffffff;
+  --surface-overlay: rgba(15, 23, 42, 0.4);
+  --surface-sunken: #e2e8f0;
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-tertiary: #64748b;
+  --text-muted: #94a3b8;
+
+  --border-subtle: rgba(0, 0, 0, 0.07);
+  --border-default: rgba(0, 0, 0, 0.13);
+  --border-strong: rgba(0, 0, 0, 0.22);
+
+  --canvas-grid-dot: #cbd5e1;
+
+  --accent-contrast: #ffffff;
+}
+
 @layer base {
   body {
-    background-color: #0c0d10;
-    color: #e0e2e5;
+    background-color: var(--surface-canvas);
+    color: var(--text-primary);
     font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    transition: background-color var(--motion-base) var(--ease-out), color var(--motion-base) var(--ease-out);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  button, input, select, textarea {
+    font-family: inherit;
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--accent-focus-ring);
+    outline-offset: 2px;
   }
 }
 
-/* Custom Sleek Bento Scrollbar */
+/* Reduced Motion Mode Support */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+[data-motion="reduced"] *,
+[data-motion="reduced"] ::before,
+[data-motion="reduced"] ::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Compact Interface Density Adjustments */
+[data-density="compact"] {
+  --spacing-density-factor: 0.85;
+}
+
+/* Tactile Micro-Interactions */
+.interactive-btn {
+  transition: transform var(--motion-instant) var(--ease-out), background-color var(--motion-fast) var(--ease-out), border-color var(--motion-fast) var(--ease-out);
+}
+.interactive-btn:hover {
+  transform: scale(1.015);
+}
+.interactive-btn:active {
+  transform: scale(0.98);
+}
+
+/* Custom Sleek Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0c0d10;
+  background: var(--surface-canvas);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #252a35;
+  background: var(--border-strong);
   border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b82f6;
+  background: var(--accent);
+}
+
+/* Keyframe Micro-Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--motion-fast) var(--ease-out) forwards;
+}
+
+.animate-scale-up {
+  animation: scaleUp var(--motion-base) var(--ease-spring) forwards;
 }

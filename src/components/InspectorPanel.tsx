@@ -25,6 +25,9 @@ import {
   Lock,
   Zap,
   Sparkles,
+  Layers,
+  CornerUpRight,
+  ArrowRightCircle,
 } from 'lucide-react';
 
 interface InspectorPanelProps {
@@ -35,6 +38,7 @@ interface InspectorPanelProps {
   onDeleteNode: (nodeId: string) => void;
   onDeleteEdge: (edgeId: string) => void;
   onDuplicateNode?: (node: BlockNode) => void;
+  onEnterSubcircuit?: (subcircuitId: string, nodeTitle?: string, parentNodeId?: string) => void;
   onClose: () => void;
 }
 
@@ -46,6 +50,7 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
   onDeleteNode,
   onDeleteEdge,
   onDuplicateNode,
+  onEnterSubcircuit,
   onClose,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -243,6 +248,47 @@ export const InspectorPanel: React.FC<InspectorPanelProps> = ({
                 className="w-full px-2.5 py-1.5 bg-[#0c0d10] border border-white/10 rounded-lg text-gray-300 focus:border-blue-500 focus:outline-none text-[11px]"
               />
             </div>
+          </div>
+
+          {/* Subcircuit Section (Подсхема) */}
+          <div className="p-2.5 rounded-xl bg-purple-950/40 border border-purple-500/30 space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-purple-300 font-bold font-mono text-[11px]">
+                <Layers className="w-3.5 h-3.5 text-purple-400" />
+                <span>Многоуровневая Подсхема</span>
+              </div>
+              <label className="flex items-center gap-1 cursor-pointer text-[10px] text-gray-400">
+                <input
+                  type="checkbox"
+                  checked={selectedNode.isSubcircuit ?? false}
+                  onChange={(e) => onUpdateNode({ ...selectedNode, isSubcircuit: e.target.checked })}
+                  className="rounded text-purple-600 focus:ring-0 bg-[#0c0d10] border-white/20"
+                />
+                <span>Вкл</span>
+              </label>
+            </div>
+
+            {selectedNode.isSubcircuit && (
+              <div className="space-y-2 pt-1 border-t border-purple-500/20">
+                {selectedNode.subcircuitSummary && (
+                  <p className="text-[10px] text-purple-200/80 leading-relaxed font-mono">
+                    {selectedNode.subcircuitSummary}
+                  </p>
+                )}
+                {onEnterSubcircuit && (
+                  <button
+                    onClick={() => {
+                      const subId = selectedNode.subcircuitId || `subcircuit_${selectedNode.id}`;
+                      onEnterSubcircuit(subId, selectedNode.title, selectedNode.id);
+                    }}
+                    className="w-full py-1.5 px-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold font-mono text-[11px] flex items-center justify-center gap-1.5 transition-all shadow-md active:scale-95 cursor-pointer"
+                  >
+                    <ArrowRightCircle className="w-3.5 h-3.5" />
+                    <span>Войти в подсхему</span>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Geometry Shape & Category */}

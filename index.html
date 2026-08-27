@@ -1,18 +1,39 @@
 <!doctype html>
-<html lang="en">
+<html lang="ru">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-    <meta name="description" content="An application built with Google AI Studio." />
-    <meta property="og:title" content="My Google AI Studio App" />
-    <meta property="og:description" content="An application built with Google AI Studio." />
+    <title>AutoTrace Lab — Интерактивная САПР Схемотехники & Трассировки</title>
+    <meta name="description" content="Интерактивная исследовательская платформа для автоматизированного послойного размещения компонентов и ортогональной многокритериальной трассировки печатных плат и электронных схем." />
+    <meta property="og:title" content="AutoTrace Lab — EDA Schematic Layout & Multi-Criteria Routing" />
+    <meta property="og:description" content="Sugiyama Hierarchical Placement, Lee Maze Wave, Orthogonal A*, Unified Co-Optimization & NLP Layout." />
     <meta property="og:type" content="website" />
-    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+
+    <!-- Anti-FOUC / Anti-FART Synchronous Theme Initializer -->
+    <script>
+      (function() {
+        try {
+          var theme = localStorage.getItem('autotrace_theme_mode') || 'dark';
+          var resolved = theme;
+          if (theme === 'system') {
+            resolved = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          }
+          var accent = localStorage.getItem('autotrace_theme_accent') || 'electric-blue';
+          var density = localStorage.getItem('autotrace_theme_density') || 'comfortable';
+          var motion = localStorage.getItem('autotrace_theme_motion') || 'system';
+
+          document.documentElement.setAttribute('data-theme', resolved);
+          document.documentElement.setAttribute('data-theme-preference', theme);
+          document.documentElement.setAttribute('data-accent', accent);
+          document.documentElement.setAttribute('data-density', density);
+          document.documentElement.setAttribute('data-motion', motion);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

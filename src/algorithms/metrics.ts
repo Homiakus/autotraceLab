@@ -18,6 +18,7 @@ import { routeSmoothSplines } from './splineRouter';
 import { runUnifiedCoOptimization } from './unifiedOptimizer';
 import { computeOptimizedLabels } from './labelLayout';
 import { getPortCoordinatesAccurate } from './blockGeometry';
+import { SpatialHashGrid } from './spatialGrid';
 
 /**
  * Checks if two line segments (p1, p2) and (p3, p4) intersect
@@ -49,8 +50,9 @@ export function detectCollinearOverlaps(edges: EdgeConnection[]): { totalOverlap
   let totalOverlapLength = 0;
   let overlapCount = 0;
 
-  const hSegs: { minX: number; maxX: number; y: number; edgeId: string }[] = [];
-  const vSegs: { minY: number; maxY: number; x: number; edgeId: string }[] = [];
+  // Bucket segments by discrete quantized coordinate for O(S log S) / O(S) matching
+  const hBuckets = new Map<number, { minX: number; maxX: number; y: number; edgeId: string }[]>();
+  const vBuckets = new Map<number, { minY: number; maxY: number; x: number; edgeId: string }[]>();
 
   for (let e = 0; e < edges.length; e++) {
     const pts = edges[e].path;
@@ -61,14 +63,26 @@ export function detectCollinearOverlaps(edges: EdgeConnection[]): { totalOverlap
       const p1 = pts[i];
       const p2 = pts[i + 1];
       if (Math.abs(p1.y - p2.y) < 1.5) {
-        hSegs.push({
+        const keyY = Math.round(p1.y);
+        let list = hBuckets.get(keyY);
+        if (!list) {
+          list = [];
+          hBuckets.set(keyY, list);
+        }
+        list.push({
           minX: Math.min(p1.x, p2.x),
           maxX: Math.max(p1.x, p2.x),
           y: p1.y,
           edgeId,
         });
       } else if (Math.abs(p1.x - p2.x) < 1.5) {
-        vSegs.push({
+        const keyX = Math.round(p1.x);
+        let list = vBuckets.get(keyX);
+        if (!list) {
+          list = [];
+          vBuckets.set(keyX, list);
+        }
+        list.push({
           minY: Math.min(p1.y, p2.y),
           maxY: Math.max(p1.y, p2.y),
           x: p1.x,
@@ -78,37 +92,43 @@ export function detectCollinearOverlaps(edges: EdgeConnection[]): { totalOverlap
     }
   }
 
-  // Check horizontal collinear overlaps
-  for (let i = 0; i < hSegs.length; i++) {
-    const s1 = hSegs[i];
-    for (let j = i + 1; j < hSegs.length; j++) {
-      const s2 = hSegs[j];
-      if (s1.edgeId === s2.edgeId) continue;
-      if (Math.abs(s1.y - s2.y) < 1.5) {
-        const overlapMin = Math.max(s1.minX, s2.minX);
-        const overlapMax = Math.min(s1.maxX, s2.maxX);
-        const overlapLen = overlapMax - overlapMin;
-        if (overlapLen > 2) {
-          totalOverlapLength += overlapLen;
-          overlapCount++;
+  // Check horizontal collinear overlaps within each coordinate bucket
+  for (const hSegs of hBuckets.values()) {
+    if (hSegs.length < 2) continue;
+    for (let i = 0; i < hSegs.length; i++) {
+      const s1 = hSegs[i];
+      for (let j = i + 1; j < hSegs.length; j++) {
+        const s2 = hSegs[j];
+        if (s1.edgeId === s2.edgeId) continue;
+        if (Math.abs(s1.y - s2.y) < 1.5) {
+          const overlapMin = Math.max(s1.minX, s2.minX);
+          const overlapMax = Math.min(s1.maxX, s2.maxX);
+          const overlapLen = overlapMax - overlapMin;
+          if (overlapLen > 2) {
+            totalOverlapLength += overlapLen;
+            overlapCount++;
+          }
         }
       }
     }
   }
 
-  // Check vertical collinear overlaps
-  for (let i = 0; i < vSegs.length; i++) {
-    const s1 = vSegs[i];
-    for (let j = i + 1; j < vSegs.length; j++) {
-      const s2 = vSegs[j];
-      if (s1.edgeId === s2.edgeId) continue;
-      if (Math.abs(s1.x - s2.x) < 1.5) {
-        const overlapMin = Math.max(s1.minY, s2.minY);
-        const overlapMax = Math.min(s1.maxY, s2.maxY);
-        const overlapLen = overlapMax - overlapMin;
-        if (overlapLen > 2) {
-          totalOverlapLength += overlapLen;
-          overlapCount++;
+  // Check vertical collinear overlaps within each coordinate bucket
+  for (const vSegs of vBuckets.values()) {
+    if (vSegs.length < 2) continue;
+    for (let i = 0; i < vSegs.length; i++) {
+      const s1 = vSegs[i];
+      for (let j = i + 1; j < vSegs.length; j++) {
+        const s2 = vSegs[j];
+        if (s1.edgeId === s2.edgeId) continue;
+        if (Math.abs(s1.x - s2.x) < 1.5) {
+          const overlapMin = Math.max(s1.minY, s2.minY);
+          const overlapMax = Math.min(s1.maxY, s2.maxY);
+          const overlapLen = overlapMax - overlapMin;
+          if (overlapLen > 2) {
+            totalOverlapLength += overlapLen;
+            overlapCount++;
+          }
         }
       }
     }
@@ -175,9 +195,10 @@ export function calculateBenchmarkMetrics(
     }
   }
 
-  // 2. Calculate edge crossings with broadphase AABB bounding checks
+  // 2. Calculate edge crossings with 2D Spatial Hash Grid indexing
   let crossingsCount = 0;
   interface SegmentEntry {
+    segId: string;
     p1: Point;
     p2: Point;
     minX: number;
@@ -186,7 +207,9 @@ export function calculateBenchmarkMetrics(
     maxY: number;
     edgeId: string;
   }
+  const segmentGrid = new SpatialHashGrid<SegmentEntry>(200);
   const allSegments: SegmentEntry[] = [];
+  let segIdCounter = 0;
 
   for (let e = 0; e < edges.length; e++) {
     const pts = edges[e].path || [];
@@ -194,23 +217,42 @@ export function calculateBenchmarkMetrics(
     for (let i = 0; i < pts.length - 1; i++) {
       const p1 = pts[i];
       const p2 = pts[i + 1];
-      allSegments.push({
+      const minX = Math.min(p1.x, p2.x);
+      const maxX = Math.max(p1.x, p2.x);
+      const minY = Math.min(p1.y, p2.y);
+      const maxY = Math.max(p1.y, p2.y);
+      const entry: SegmentEntry = {
+        segId: `seg_${segIdCounter++}`,
         p1,
         p2,
-        minX: Math.min(p1.x, p2.x),
-        maxX: Math.max(p1.x, p2.x),
-        minY: Math.min(p1.y, p2.y),
-        maxY: Math.max(p1.y, p2.y),
+        minX,
+        maxX,
+        minY,
+        maxY,
         edgeId,
-      });
+      };
+      allSegments.push(entry);
+      segmentGrid.insert(entry.segId, entry, { minX, maxX, minY, maxY });
     }
   }
 
+  const processedPairs = new Set<string>();
   for (let i = 0; i < allSegments.length; i++) {
     const s1 = allSegments[i];
-    for (let j = i + 1; j < allSegments.length; j++) {
-      const s2 = allSegments[j];
-      if (s1.edgeId === s2.edgeId) continue;
+    const candidates = segmentGrid.queryRange({
+      minX: s1.minX,
+      maxX: s1.maxX,
+      minY: s1.minY,
+      maxY: s1.maxY,
+    });
+
+    for (let c = 0; c < candidates.length; c++) {
+      const s2 = candidates[c];
+      if (s1.edgeId === s2.edgeId || s1.segId >= s2.segId) continue;
+      const pairKey = `${s1.segId}_${s2.segId}`;
+      if (processedPairs.has(pairKey)) continue;
+      processedPairs.add(pairKey);
+
       // Quick AABB rejection
       if (s1.maxX < s2.minX || s2.maxX < s1.minX || s1.maxY < s2.minY || s2.maxY < s1.minY) {
         continue;
@@ -221,14 +263,38 @@ export function calculateBenchmarkMetrics(
     }
   }
 
-  // 3. Calculate block overlaps (node-node and edge-through-node)
+  // 3. Calculate block overlaps with Spatial Grid (node-node and edge-through-node)
   let blockOverlapCount = 0;
   let wireBlockCollisionCount = 0;
 
+  const nodeGrid = new SpatialHashGrid<BlockNode>(250);
   for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) {
-      const u = nodes[i];
-      const v = nodes[j];
+    const n = nodes[i];
+    nodeGrid.insert(n.id, n, {
+      minX: n.x,
+      maxX: n.x + n.width,
+      minY: n.y,
+      maxY: n.y + n.height,
+    });
+  }
+
+  const processedNodePairs = new Set<string>();
+  for (let i = 0; i < nodes.length; i++) {
+    const u = nodes[i];
+    const neighbors = nodeGrid.queryRange({
+      minX: u.x,
+      maxX: u.x + u.width,
+      minY: u.y,
+      maxY: u.y + u.height,
+    });
+
+    for (let k = 0; k < neighbors.length; k++) {
+      const v = neighbors[k];
+      if (u.id >= v.id) continue;
+      const key = `${u.id}_${v.id}`;
+      if (processedNodePairs.has(key)) continue;
+      processedNodePairs.add(key);
+
       const overlap = !(
         u.x + u.width < v.x ||
         v.x + v.width < u.x ||
@@ -239,26 +305,31 @@ export function calculateBenchmarkMetrics(
     }
   }
 
-  // Check if edge segments puncture non-endpoint blocks
+  // Check if edge segments puncture non-endpoint blocks via node spatial grid
   for (let e = 0; e < edges.length; e++) {
     const edge = edges[e];
-    const sourceNode = nodeMap.get(edge.sourceBlockId);
-    const targetNode = nodeMap.get(edge.targetBlockId);
     const pts = edge.path || [];
 
     for (let i = 0; i < pts.length - 1; i++) {
       const midX = (pts[i].x + pts[i + 1].x) / 2;
       const midY = (pts[i].y + pts[i + 1].y) / 2;
 
-      for (let n = 0; n < nodes.length; n++) {
-        const node = nodes[n];
-        if (node.id === sourceNode?.id || node.id === targetNode?.id) continue;
-        if (midX > node.x + 2 && midX < node.x + node.width - 2 && midY > node.y + 2 && midY < node.y + node.height - 2) {
+      const nearbyNodes = nodeGrid.queryPoint(midX, midY);
+      for (let n = 0; n < nearbyNodes.length; n++) {
+        const node = nearbyNodes[n];
+        if (node.id === edge.sourceBlockId || node.id === edge.targetBlockId) continue;
+        if (
+          midX > node.x + 2 &&
+          midX < node.x + node.width - 2 &&
+          midY > node.y + 2 &&
+          midY < node.y + node.height - 2
+        ) {
           wireBlockCollisionCount++;
         }
       }
     }
   }
+
 
   const overlapCount = blockOverlapCount + wireBlockCollisionCount;
 

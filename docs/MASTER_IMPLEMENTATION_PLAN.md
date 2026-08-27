@@ -811,17 +811,17 @@ Exit: TS/Go benchmark results mean the same thing. [COMPLETED]
 
 ## MP9 — NLP parity
 
-- [ ] freeze exact canonical Φ;
-- [ ] port all terms;
-- [ ] connected-pair model;
-- [ ] spacing violations;
-- [ ] strict label/overlap barriers;
-- [ ] momentum parameter;
-- [ ] gradient clipping/snap/bounds;
-- [ ] history/breakdown parity;
-- [ ] final canonical rerouting.
+- [x] freeze exact canonical Φ;
+- [x] port all terms;
+- [x] connected-pair model;
+- [x] spacing violations;
+- [x] strict label/overlap barriers;
+- [x] momentum parameter;
+- [x] gradient clipping/snap/bounds;
+- [x] history/breakdown parity;
+- [x] final canonical rerouting.
 
-Exit: component-wise objective values and invariants match declared contract.
+Exit: component-wise objective values and invariants match declared contract. [COMPLETED]
 
 ## MP10 — Unified Co-Optimization + bridge geometry
 

@@ -122,7 +122,77 @@ type RoutingOptions struct {
 	JumpBridges            *bool               `json:"jumpBridges,omitempty"`
 	PinAlignment           *bool               `json:"pinAlignment,omitempty"`
 	ArtifactCleaning       *bool               `json:"artifactCleaning,omitempty"`
-	Weights                OptimizationWeights `json:"weights"`
+	Weights                OptimizationWeights  `json:"weights"`
+	NLPParams              *NLPOptimizationParams `json:"nlpParams,omitempty"`
+}
+
+// NLPOptimizationParams defines multi-objective weights and hyperparameters for non-linear programming solver.
+type NLPOptimizationParams struct {
+	OptimalBlockDistance       float64 `json:"optimalBlockDistance"`
+	OptimalWireDistance        float64 `json:"optimalWireDistance"`
+	WirelengthWeight           float64 `json:"wirelengthWeight"`
+	WirelengthVarianceWeight   float64 `json:"wirelengthVarianceWeight"`
+	BlockRepulsionWeight       float64 `json:"blockRepulsionWeight"`
+	WireSpacingWeight          float64 `json:"wireSpacingWeight"`
+	StrictLabelClearanceWeight float64 `json:"strictLabelClearanceWeight"`
+	PortAlignmentWeight        float64 `json:"portAlignmentWeight"`
+	LearningRate               float64 `json:"learningRate"`
+	Iterations                 int     `json:"iterations"`
+	Momentum                   float64 `json:"momentum"`
+	FreezePinnedNodes          bool    `json:"freezePinnedNodes"`
+}
+
+// NLPOptimalityBreakdown provides detailed sub-component metrics of the multi-objective loss function Φ(X).
+type NLPOptimalityBreakdown struct {
+	TotalWirelength            float64 `json:"totalWirelength"`
+	AverageWirelength          float64 `json:"averageWirelength"`
+	MaxIndividualWirelength    float64 `json:"maxIndividualWirelength"`
+	WirelengthVariance         float64 `json:"wirelengthVariance"`
+	BlockDistanceDeviation     float64 `json:"blockDistanceDeviation"`
+	WireDistanceViolationCount int     `json:"wireDistanceViolationCount"`
+	CollinearWireOverlapLength float64 `json:"collinearWireOverlapLength"`
+	CollinearWireOverlapCount  int     `json:"collinearWireOverlapCount"`
+	LabelsOnArrowCount         int     `json:"labelsOnArrowCount"`
+	LabelsOffArrowCount        int     `json:"labelsOffArrowCount"`
+	LabelsOffArrowPenalty      float64 `json:"labelsOffArrowPenalty"`
+	LabelCollisionsCount       int     `json:"labelCollisionsCount"`
+	PortAlignmentDeviation     float64 `json:"portAlignmentDeviation"`
+	OverallCostValue           float64 `json:"overallCostValue"`
+}
+
+// NLPIterationSnapshot records convergence trajectory at key iteration intervals.
+type NLPIterationSnapshot struct {
+	Iteration              int     `json:"iteration"`
+	Loss                   float64 `json:"loss"`
+	TotalLength            float64 `json:"totalLength"`
+	MaxIndividualLength    float64 `json:"maxIndividualLength"`
+	WireVariance           float64 `json:"wireVariance"`
+	BlockDistanceDeviation float64 `json:"blockDistanceDeviation"`
+	GradientNorm           float64 `json:"gradientNorm"`
+}
+
+// AlgorithmStep records step-by-step visual progression for UI/animator playback.
+type AlgorithmStep struct {
+	StepIndex        int              `json:"stepIndex"`
+	Title            string           `json:"title"`
+	Description      string           `json:"description"`
+	Phase            string           `json:"phase"`
+	NodesSnapshot    []BlockNode      `json:"nodesSnapshot"`
+	EdgesSnapshot    []EdgeConnection `json:"edgesSnapshot"`
+	HighlightedNodes []string         `json:"highlightedNodes,omitempty"`
+	HighlightedEdges []string         `json:"highlightedEdges,omitempty"`
+}
+
+// NLPOptimizationResult contains the converged diagram state, history and before/after breakdowns.
+type NLPOptimizationResult struct {
+	Nodes                 []BlockNode            `json:"nodes"`
+	Edges                 []EdgeConnection       `json:"edges"`
+	Steps                 []AlgorithmStep        `json:"steps"`
+	History               []NLPIterationSnapshot `json:"history"`
+	InitialBreakdown      NLPOptimalityBreakdown `json:"initialBreakdown"`
+	FinalBreakdown        NLPOptimalityBreakdown `json:"finalBreakdown"`
+	ImprovementPercentage float64                `json:"improvementPercentage"`
+	PinnedNodeIDs         []string               `json:"pinnedNodeIds"`
 }
 
 type PortCoordinates struct {

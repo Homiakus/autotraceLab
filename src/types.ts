@@ -82,7 +82,43 @@ export interface BlockNode {
   // Routing constraints
   routingClearance?: number; // Clearance around block routing envelope
   preferredFlow?: 'left-to-right' | 'top-to-bottom' | 'bidirectional';
+
+  // Hierarchical Subcircuits (Подсхемы и надсхемы)
+  isSubcircuit?: boolean; // When true, block represents an encapsulated subcircuit
+  subcircuitId?: string; // ID of the referenced SubcircuitDefinition
+  subcircuitSummary?: string; // Short summary of internal components
 }
+
+export interface ExternalPortBinding {
+  id: string; // Port ID on parent subcircuit block
+  name: string; // Display label
+  type: PortType; // 'input' | 'output' | 'inout'
+  dataType?: PortDataType;
+  side: PortSide; // Which side of the parent block this port appears on
+  internalNodeId: string; // ID of the target block inside the subcircuit
+  internalPortId: string; // ID of the port on the internal block
+  description?: string;
+}
+
+export interface SubcircuitDefinition {
+  id: string;
+  name: string;
+  description?: string;
+  category?: 'logic' | 'processor' | 'storage' | 'custom' | 'io';
+  nodes: BlockNode[];
+  edges: EdgeConnection[];
+  externalInputs: ExternalPortBinding[];
+  externalOutputs: ExternalPortBinding[];
+  createdTimestamp?: number;
+  lastModifiedTimestamp?: number;
+}
+
+export interface HierarchyBreadcrumb {
+  subcircuitId: string | null; // null represents Root circuit
+  name: string;
+  parentNodeId?: string; // Node ID in parent circuit that links to this subcircuit
+}
+
 
 export interface DerivedBlockGeometry {
   blockId: string;

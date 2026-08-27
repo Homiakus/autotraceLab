@@ -11,6 +11,11 @@ import { cleanOrthogonalArtifacts, ObstacleBox } from '../src/algorithms/wireArt
 import { routeOrthogonalAStar } from '../src/algorithms/orthogonalAStarRouter';
 import { computeOptimizedLabels } from '../src/algorithms/labelLayout';
 import { calculateBenchmarkMetrics, detectCollinearOverlaps } from '../src/algorithms/metrics';
+import {
+  calculateNLPOptimalityBreakdown,
+  runNLPOptimization,
+  DEFAULT_NLP_PARAMS,
+} from '../src/algorithms/nlpOptimizer';
 import { BlockNode, EdgeConnection, Point, Port, RoutingOptions } from '../src/types';
 
 const TESTDATA_DIR = path.resolve(process.cwd(), 'testdata', 'parity');
@@ -349,10 +354,134 @@ function exportMetricsFixtures() {
   });
 }
 
+// 6. NLP Optimization Fixtures
+function exportNLPFixtures() {
+  const nodes: BlockNode[] = [
+    {
+      id: 'n1',
+      title: 'Controller',
+      category: 'processor',
+      shape: 'rectangle',
+      x: 100,
+      y: 100,
+      width: 140,
+      height: 70,
+      isPinned: true,
+      inputs: [],
+      outputs: [
+        { id: 'out1', name: 'Out1', side: 'right', type: 'output' },
+        { id: 'out2', name: 'Out2', side: 'right', type: 'output' },
+      ],
+    },
+    {
+      id: 'n2',
+      title: 'Actuator',
+      category: 'sink',
+      shape: 'rectangle',
+      x: 500,
+      y: 120,
+      width: 140,
+      height: 70,
+      inputs: [
+        { id: 'in1', name: 'In1', side: 'left', type: 'input' },
+      ],
+      outputs: [],
+    },
+    {
+      id: 'n3',
+      title: 'Telemetry',
+      category: 'sink',
+      shape: 'rectangle',
+      x: 480,
+      y: 350,
+      width: 140,
+      height: 70,
+      inputs: [
+        { id: 'in2', name: 'In2', side: 'left', type: 'input' },
+      ],
+      outputs: [],
+    },
+  ];
+
+  const edges: EdgeConnection[] = [
+    {
+      id: 'e1',
+      sourceBlockId: 'n1',
+      sourcePortId: 'out1',
+      targetBlockId: 'n2',
+      targetPortId: 'in1',
+      label: 'Control Cmd',
+      path: [
+        { x: 240, y: 135 },
+        { x: 500, y: 135 },
+      ],
+    },
+    {
+      id: 'e2',
+      sourceBlockId: 'n1',
+      sourcePortId: 'out2',
+      targetBlockId: 'n3',
+      targetPortId: 'in2',
+      label: 'Telemetry Pulse',
+      path: [
+        { x: 240, y: 155 },
+        { x: 360, y: 155 },
+        { x: 360, y: 385 },
+        { x: 480, y: 385 },
+      ],
+    },
+  ];
+
+  const params = { ...DEFAULT_NLP_PARAMS };
+  const initialBreakdown = calculateNLPOptimalityBreakdown(nodes, edges, params);
+
+  const options: RoutingOptions = {
+    gridSize: 10,
+    obstacleClearance: 10,
+    bendPenalty: 35,
+    crossingPenalty: 50,
+    channelSpacing: 16,
+    portExitOffset: 24,
+    adaptivePortExitOffset: true,
+    smoothCorners: false,
+    labelClearance: 8,
+    strictLabels: true,
+    minWireDistance: 16,
+    optimalBlockDistance: 220,
+    optimalWireDistance: 24,
+    jumpBridges: false,
+    weights: {
+      crossingWeight: 95,
+      straightnessWeight: 90,
+      g1SplineWeight: 65,
+      portAlignmentWeight: 80,
+      clearanceWeight: 90,
+      wirelengthWeight: 15,
+      bendWeight: 25,
+      labelOverlapWeight: 75,
+    },
+  };
+
+  const nlpResult = runNLPOptimization(nodes, edges, options, { iterations: 30 });
+
+  writeFixture('nlp/nlp_cases.json', {
+    inputNodes: nodes,
+    inputEdges: edges,
+    params,
+    expectedInitialBreakdown: initialBreakdown,
+    expectedFinalBreakdown: nlpResult.finalBreakdown,
+    expectedImprovement: nlpResult.improvementPercentage,
+    pinnedNodeIds: nlpResult.pinnedNodeIds,
+    iterationsRun: 30,
+    historySnapshotsCount: nlpResult.history.length,
+  });
+}
+
 console.log('🚀 Exporting all parity test fixtures from TS oracle...');
 exportGeometryFixtures();
 exportCleanerFixtures();
 exportRouterFixtures();
 exportLabelFixtures();
 exportMetricsFixtures();
+exportNLPFixtures();
 console.log('✨ All TS parity fixtures successfully exported to testdata/parity/');

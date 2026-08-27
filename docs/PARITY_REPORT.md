@@ -1,10 +1,10 @@
 # AutoTrace TS ↔ Go Parity CI Report
 
-- **Generated**: 2026-08-27T06:32:30.440Z
-- **Git Commit**: `a9cf90a3bbee31802c9871792e25465268886ad9`
+- **Generated**: 2026-08-27T06:58:59.967Z
+- **Git Commit**: `0b89e6773cbed631a97e9d95ad2c209d68359180`
 - **Total Algorithmic Surfaces**: 15
-- **Covered Surfaces**: 6
-- **Fully Passed (P0-P2)**: 6
+- **Covered Surfaces**: 7
+- **Fully Passed (P0-P2)**: 7
 - **Partial / In-Progress**: 0
 
 ## Surface Details
@@ -17,3 +17,4 @@
 | Orthogonal A* Router | `go_engine/core/orthogonal_router.go` | P0, P1, P2, P3 | ✅ PASS | Obstacle detour, 4-way normal stubs, multi-net channel separation, and prohibited shared wire segments verified. |
 | Strict Label Placement | `go_engine/core/label_layout.go` | P0, P1, P2 | ✅ PASS | On-arrow candidate search, obstacle avoidance, Liang-Barsky wire clipping, and penalty computation verified. |
 | Canonical Metrics & QualityVector | `go_engine/core/metrics.go` | P0, P1, P2 | ✅ PASS | Collinear overlap, crossings, wirelength, compactness, void ratio, aspect penalty, and 9-component QualityVector verified. |
+| Non-Linear Programming (NLP) Optimizer | `go_engine/core/nlp_optimizer.go` | P0, P1, P2, P3 | ✅ PASS | Multi-objective loss Φ(X), pinned anchor invariance, analytic forces, and projected gradient descent with momentum verified. |
