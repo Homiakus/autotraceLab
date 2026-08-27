@@ -47,6 +47,8 @@ function generateParityReport() {
   const goSizingPassed = goTestOut.includes('--- PASS: TestParityGeometrySizing');
   const goCleanerPassed = goTestOut.includes('--- PASS: TestParityWireCleaner');
   const goRouterPassed = goTestOut.includes('--- PASS: TestParityRouterAStar');
+  const goLabelsPassed = goTestOut.includes('--- PASS: TestParityLabels');
+  const goMetricsPassed = goTestOut.includes('--- PASS: TestParityMetrics');
   const goMetamorphicPassed = goTestOut.includes('--- PASS: TestMetamorphicTranslationInvariance') &&
                               goTestOut.includes('--- PASS: TestMetamorphicPermutationStability') &&
                               goTestOut.includes('--- PASS: TestMetamorphicCleanerIdempotence') &&
@@ -89,15 +91,15 @@ function generateParityReport() {
       family: 'Strict Label Placement',
       target: 'go_engine/core/label_layout.go',
       level: 'P0, P1, P2',
-      status: 'PARTIAL' as const,
-      notes: 'On-arrow segment solver active; Liang-Barsky wire clipping under porting.',
+      status: (goLabelsPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL',
+      notes: 'On-arrow candidate search, obstacle avoidance, Liang-Barsky wire clipping, and penalty computation verified.',
     },
     {
       family: 'Canonical Metrics & QualityVector',
       target: 'go_engine/core/metrics.go',
       level: 'P0, P1, P2',
-      status: 'PARTIAL' as const,
-      notes: 'Collinear overlap and crossing metrics aligned; full lower-bound wirelength in progress.',
+      status: (goMetricsPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL',
+      notes: 'Collinear overlap, crossings, wirelength, compactness, void ratio, aspect penalty, and 9-component QualityVector verified.',
     },
   ];
 

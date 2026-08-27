@@ -797,17 +797,17 @@ Exit: deterministic layout fixtures meet structural/quality parity. [COMPLETED]
 
 ## MP8 — Labels + metrics parity [BLOCKING benchmark truth]
 
-- [ ] strict label collision solver;
-- [ ] multi-candidate on-arrow search;
-- [ ] manual label validation;
-- [ ] label/wire/label collision primitives;
-- [ ] complete canonical QualityVector;
-- [ ] lower-bound normalized wirelength;
-- [ ] overlap/crossing/compactness/density/aspect metrics;
-- [ ] hard-violation classification;
-- [ ] metric version metadata.
+- [x] strict label collision solver;
+- [x] multi-candidate on-arrow search;
+- [x] manual label validation;
+- [x] label/wire/label collision primitives;
+- [x] complete canonical QualityVector;
+- [x] lower-bound normalized wirelength;
+- [x] overlap/crossing/compactness/density/aspect metrics;
+- [x] hard-violation classification;
+- [x] metric version metadata.
 
-Exit: TS/Go benchmark results mean the same thing.
+Exit: TS/Go benchmark results mean the same thing. [COMPLETED]
 
 ## MP9 — NLP parity
 

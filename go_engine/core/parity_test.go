@@ -208,3 +208,87 @@ func TestParityRouterAStar(t *testing.T) {
 		}
 	}
 }
+
+type LabelsFixture struct {
+	ParityHeader
+	Nodes          []BlockNode      `json:"nodes"`
+	Edges          []EdgeConnection `json:"edges"`
+	ExpectedLabels []struct {
+		EdgeID   string                 `json:"edgeId"`
+		Position OptimizedLabelPosition `json:"position"`
+	} `json:"expectedLabels"`
+}
+
+func TestParityLabels(t *testing.T) {
+	fixturePath := filepath.Join("..", "..", "testdata", "parity", "labels", "label_positions.json")
+	data, err := os.ReadFile(fixturePath)
+	if err != nil {
+		t.Skipf("Labels parity fixture not found: %v", err)
+		return
+	}
+
+	var fixture LabelsFixture
+	if err := json.Unmarshal(data, &fixture); err != nil {
+		t.Fatalf("Failed to unmarshal labels fixture: %v", err)
+	}
+
+	labelMap := ComputeOptimizedLabels(fixture.Nodes, fixture.Edges, nil, 8.0)
+	for _, expected := range fixture.ExpectedLabels {
+		actual, ok := labelMap[expected.EdgeID]
+		if !ok {
+			t.Fatalf("Label for edge %s not found in result", expected.EdgeID)
+		}
+
+		if !actual.IsOnArrow {
+			t.Errorf("Label for edge %s must be on arrow (isOnArrow=true), got false", expected.EdgeID)
+		}
+		if actual.Penalty != 0 {
+			t.Errorf("Label for edge %s penalty mismatch: got %.1f, want 0", expected.EdgeID, actual.Penalty)
+		}
+		if actual.SegmentIndex != expected.Position.SegmentIndex {
+			t.Errorf("Label for edge %s segmentIndex mismatch: got %d, want %d",
+				expected.EdgeID, actual.SegmentIndex, expected.Position.SegmentIndex)
+		}
+		if actual.X != expected.Position.X || actual.Y != expected.Position.Y {
+			t.Errorf("Label for edge %s coordinates mismatch: got (%.1f, %.1f), want (%.1f, %.1f)",
+				expected.EdgeID, actual.X, actual.Y, expected.Position.X, expected.Position.Y)
+		}
+	}
+}
+
+type MetricsFixture struct {
+	ParityHeader
+	Nodes           []BlockNode      `json:"nodes"`
+	Edges           []EdgeConnection `json:"edges"`
+	ExpectedMetrics BenchmarkMetrics `json:"expectedMetrics"`
+}
+
+func TestParityMetrics(t *testing.T) {
+	fixturePath := filepath.Join("..", "..", "testdata", "parity", "metrics", "canonical_metrics.json")
+	data, err := os.ReadFile(fixturePath)
+	if err != nil {
+		t.Skipf("Metrics parity fixture not found: %v", err)
+		return
+	}
+
+	var fixture MetricsFixture
+	if err := json.Unmarshal(data, &fixture); err != nil {
+		t.Fatalf("Failed to unmarshal metrics fixture: %v", err)
+	}
+
+	actual := CalculateDetailedMetrics(fixture.Nodes, fixture.Edges, "manual", "orthogonal-astar", 0.05, nil)
+
+	if actual.TotalWirelength != fixture.ExpectedMetrics.TotalWirelength {
+		t.Errorf("TotalWirelength mismatch: got %.1f, want %.1f", actual.TotalWirelength, fixture.ExpectedMetrics.TotalWirelength)
+	}
+	if actual.CrossingsCount != fixture.ExpectedMetrics.CrossingsCount {
+		t.Errorf("CrossingsCount mismatch: got %d, want %d", actual.CrossingsCount, fixture.ExpectedMetrics.CrossingsCount)
+	}
+	if actual.CollinearOverlapCount != fixture.ExpectedMetrics.CollinearOverlapCount {
+		t.Errorf("CollinearOverlapCount mismatch: got %d, want %d", actual.CollinearOverlapCount, fixture.ExpectedMetrics.CollinearOverlapCount)
+	}
+	if actual.QualityVector.HardViolations != fixture.ExpectedMetrics.QualityVector.HardViolations {
+		t.Errorf("HardViolations mismatch: got %d, want %d",
+			actual.QualityVector.HardViolations, fixture.ExpectedMetrics.QualityVector.HardViolations)
+	}
+}
