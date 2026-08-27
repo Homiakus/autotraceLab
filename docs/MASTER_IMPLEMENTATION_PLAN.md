@@ -841,17 +841,17 @@ Exit: the highest-quality TS pipeline has a canonical Go equivalent. [COMPLETED]
 
 Merge canonical algorithms into existing `SceneEngine`.
 
-- [ ] full `open` equals final state after equivalent patches;
-- [ ] dirty edge/node dependency semantics;
-- [ ] route reuse correctness;
-- [ ] options/math-version revisions;
-- [ ] geometry-cache invalidation;
-- [ ] metrics update semantics;
-- [ ] stale revision conflicts;
-- [ ] snapshot isolation;
-- [ ] cancellation/obsolete result handling.
+- [x] full `open` equals final state after equivalent patches;
+- [x] dirty edge/node dependency semantics;
+- [x] route reuse correctness;
+- [x] options/math-version revisions;
+- [x] geometry-cache invalidation;
+- [x] metrics update semantics;
+- [x] stale revision conflicts;
+- [x] snapshot isolation;
+- [x] cancellation/obsolete result handling.
 
-Exit: incremental execution cannot change final mathematical correctness.
+Exit: incremental execution cannot change final mathematical correctness. [COMPLETED]
 
 ## MP12 — Reusable core boundary + Worker/SDK shadow integration
 

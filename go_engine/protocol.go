@@ -72,16 +72,19 @@ func handleGraphProtocol(raw []byte) (out []byte) {
 			"service": "autotrace-lab",
 			"engine": core.EngineID,
 			"capabilities": map[string]any{
-				"runtime": "go-wasm",
-				"protocolVersion": graphProtocolVersion,
-				"importableCore": true,
+				"runtime":           "go-wasm",
+				"protocolVersion":   graphProtocolVersion,
+				"importableCore":    true,
 				"orthogonalRouting": true,
-				"metrics": true,
-				"labels": true,
+				"metrics":           true,
+				"labels":            true,
 				"incrementalScenes": true,
-				"scenePatch": true,
-				"strictRevisions": true,
-				"nlpOptimization": false,
+				"scenePatch":        true,
+				"strictRevisions":   true,
+				"nlpOptimization":   true,
+				"bridgeJumps":       true,
+				"g1Splines":         true,
+				"unifiedCoOpt":      true,
 			},
 		}
 	case "layout":
@@ -97,14 +100,41 @@ func handleGraphProtocol(raw []byte) (out []byte) {
 		}
 		res.OK = true
 		res.Value = graphLayoutValue{
-			GraphID: value.GraphID,
-			Edges: value.Edges,
-			Metrics: value.Metrics,
-			DurationMs: value.DurationMs,
-			Engine: value.Engine,
-			Protocol: graphProtocolVersion,
+			GraphID:         value.GraphID,
+			Edges:           value.Edges,
+			Metrics:         value.Metrics,
+			DurationMs:      value.DurationMs,
+			Engine:          value.Engine,
+			Protocol:        graphProtocolVersion,
 			ContractVersion: value.ContractVersion,
 		}
+	case "nlp.optimize":
+		var payload struct {
+			Nodes   []core.BlockNode            `json:"nodes"`
+			Edges   []core.EdgeConnection       `json:"edges"`
+			Options core.RoutingOptions         `json:"options"`
+			Params  *core.NLPOptimizationParams `json:"params,omitempty"`
+		}
+		if err := json.Unmarshal(req.Payload, &payload); err != nil {
+			res.Error = &graphProtocolError{Code: "AUTOTRACE_INVALID_PAYLOAD", Message: err.Error()}
+			break
+		}
+		optRes := core.RunNLPOptimization(payload.Nodes, payload.Edges, payload.Options, payload.Params)
+		res.OK = true
+		res.Value = optRes
+	case "unified.co_optimize":
+		var payload struct {
+			Nodes   []core.BlockNode      `json:"nodes"`
+			Edges   []core.EdgeConnection `json:"edges"`
+			Options core.RoutingOptions   `json:"options"`
+		}
+		if err := json.Unmarshal(req.Payload, &payload); err != nil {
+			res.Error = &graphProtocolError{Code: "AUTOTRACE_INVALID_PAYLOAD", Message: err.Error()}
+			break
+		}
+		optRes := core.RunUnifiedCoOptimization(payload.Nodes, payload.Edges, payload.Options)
+		res.OK = true
+		res.Value = optRes
 	case "scene.open":
 		var payload core.SceneOpenRequest
 		if err := json.Unmarshal(req.Payload, &payload); err != nil {
@@ -112,7 +142,10 @@ func handleGraphProtocol(raw []byte) (out []byte) {
 			break
 		}
 		value, err := graphSceneEngine.Open(payload)
-		if err != nil { res.Error = graphErrorFrom(err); break }
+		if err != nil {
+			res.Error = graphErrorFrom(err)
+			break
+		}
 		res.OK = true
 		res.Value = value
 	case "scene.patch":
@@ -122,7 +155,26 @@ func handleGraphProtocol(raw []byte) (out []byte) {
 			break
 		}
 		value, err := graphSceneEngine.Patch(payload)
-		if err != nil { res.Error = graphErrorFrom(err); break }
+		if err != nil {
+			res.Error = graphErrorFrom(err)
+			break
+		}
+		res.OK = true
+		res.Value = value
+	case "scene.update_options":
+		var payload struct {
+			GraphID string              `json:"graphId"`
+			Options core.RoutingOptions `json:"options"`
+		}
+		if err := json.Unmarshal(req.Payload, &payload); err != nil {
+			res.Error = &graphProtocolError{Code: "AUTOTRACE_INVALID_PAYLOAD", Message: err.Error()}
+			break
+		}
+		value, err := graphSceneEngine.UpdateOptions(payload.GraphID, payload.Options)
+		if err != nil {
+			res.Error = graphErrorFrom(err)
+			break
+		}
 		res.OK = true
 		res.Value = value
 	case "scene.snapshot":
@@ -132,7 +184,10 @@ func handleGraphProtocol(raw []byte) (out []byte) {
 			break
 		}
 		value, err := graphSceneEngine.Snapshot(payload.GraphID)
-		if err != nil { res.Error = graphErrorFrom(err); break }
+		if err != nil {
+			res.Error = graphErrorFrom(err)
+			break
+		}
 		res.OK = true
 		res.Value = value
 	case "scene.close":

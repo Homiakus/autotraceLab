@@ -85,7 +85,7 @@ func (e *Engine) Open(request SceneOpenRequest) (SceneResult, error) {
 	started := time.Now()
 	routed := RouteOrthogonalAStar(request.Nodes, request.Edges, request.Options)
 	duration := elapsedMs(started)
-	metrics := CalculateBenchmarkMetrics(request.Nodes, routed, duration, "preserve-input-layout", "orthogonal-a-star")
+	metrics := CalculateDetailedMetrics(request.Nodes, routed, "preserve-input-layout", "orthogonal-a-star", duration, &request.Options)
 	state := newSceneState(request.Revision, request.Nodes, routed, request.Options, metrics)
 	e.mu.Lock()
 	e.scenes[request.GraphID] = state
@@ -187,7 +187,7 @@ func (e *Engine) Patch(request ScenePatchRequest) (SceneResult, error) {
 	}
 
 	duration := elapsedMs(started)
-	metrics := CalculateBenchmarkMetrics(nodeList, routed, duration, "incremental-preserve-layout", "orthogonal-a-star")
+	metrics := CalculateDetailedMetrics(nodeList, routed, "incremental-preserve-layout", "orthogonal-a-star", duration, &state.options)
 	state.revision = patch.Revision
 	state.nodes = nodes
 	state.nodeOrder = nodeOrder
@@ -196,6 +196,38 @@ func (e *Engine) Patch(request ScenePatchRequest) (SceneResult, error) {
 	for _, edge := range routed { state.edges[edge.ID] = cloneEdge(edge) }
 	state.metrics = metrics
 	return sceneResult(request.GraphID, state, duration, reused, len(reroutedIDs), reroutedIDs), nil
+}
+
+func (e *Engine) UpdateOptions(graphID string, options RoutingOptions) (SceneResult, error) {
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	state, ok := e.scenes[graphID]
+	if !ok {
+		return SceneResult{}, fmt.Errorf("%w: %s", ErrSceneNotFound, graphID)
+	}
+
+	started := time.Now()
+	state.options = options
+	nodeList := orderedNodes(state.nodes, state.nodeOrder)
+	edgeList := orderedEdges(state.edges, state.edgeOrder)
+
+	routed := RouteOrthogonalAStar(nodeList, edgeList, options)
+	duration := elapsedMs(started)
+	metrics := CalculateDetailedMetrics(nodeList, routed, "preserve-input-layout", "orthogonal-a-star", duration, &options)
+
+	state.revision++
+	state.edges = make(map[string]EdgeConnection, len(routed))
+	for _, edge := range routed {
+		state.edges[edge.ID] = cloneEdge(edge)
+	}
+	state.metrics = metrics
+
+	ids := make([]string, 0, len(routed))
+	for _, edge := range routed {
+		ids = append(ids, edge.ID)
+	}
+
+	return sceneResult(graphID, state, duration, 0, len(routed), ids), nil
 }
 
 func (e *Engine) Snapshot(graphID string) (SceneResult, error) {
