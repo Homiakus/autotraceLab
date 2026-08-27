@@ -757,21 +757,21 @@ Exit: canonical TS cleaner and Go cleaner agree structurally or Go is explicitly
 
 ## MP5 — Orthogonal A* mathematical parity [BLOCKING production router]
 
-- [ ] weighted options/defaults;
-- [ ] state/direction semantics;
-- [ ] obstacle lookup semantics;
-- [ ] occupancy/proximity fields;
-- [ ] shared-segment prohibition;
-- [ ] bend cost;
-- [ ] straight reward;
-- [ ] target-entry alignment;
-- [ ] deterministic tie-breaking;
-- [ ] validated failure/fallback status;
-- [ ] route metadata/bends/length.
+- [x] weighted options/defaults;
+- [x] state/direction semantics;
+- [x] obstacle lookup semantics;
+- [x] occupancy/proximity fields;
+- [x] shared-segment prohibition;
+- [x] bend cost;
+- [x] straight reward;
+- [x] target-entry alignment;
+- [x] deterministic tie-breaking;
+- [x] validated failure/fallback status;
+- [x] route metadata/bends/length.
 
 At this stage preserve observable TypeScript behavior. Go-specific search redesign is MP15.
 
-Exit: A* differential fixtures and hard invariants green.
+Exit: A* differential fixtures and hard invariants green. [COMPLETED]
 
 ## MP6 — Alternate routers parity
 

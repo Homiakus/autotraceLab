@@ -153,3 +153,58 @@ func TestParityFreeSlot(t *testing.T) {
 			actualSlot.X, actualSlot.Y, fixture.ExpectedSlot.X, fixture.ExpectedSlot.Y)
 	}
 }
+
+type RouterFixture struct {
+	ParityHeader
+	Nodes        []BlockNode      `json:"nodes"`
+	Edges        []EdgeConnection `json:"edges"`
+	Options      RoutingOptions   `json:"options"`
+	ExpectedPath []Point          `json:"expectedPath"`
+}
+
+func TestParityRouterAStar(t *testing.T) {
+	fixturePath := filepath.Join("..", "..", "testdata", "parity", "router_astar", "obstacle_detour.json")
+	data, err := os.ReadFile(fixturePath)
+	if err != nil {
+		t.Skipf("Router parity fixture not found: %v", err)
+		return
+	}
+
+	var fixture RouterFixture
+	if err := json.Unmarshal(data, &fixture); err != nil {
+		t.Fatalf("Failed to unmarshal router fixture: %v", err)
+	}
+
+	routed := RouteOrthogonalAStar(fixture.Nodes, fixture.Edges, fixture.Options)
+	if len(routed) == 0 {
+		t.Fatal("RouteOrthogonalAStar returned 0 edges")
+	}
+
+	actualPath := routed[0].Path
+	if len(actualPath) == 0 {
+		t.Fatal("RouteOrthogonalAStar returned empty path")
+	}
+
+	t.Logf("Go A* routed %d points (TS expected %d points)", len(actualPath), len(fixture.ExpectedPath))
+
+	// Ensure zero obstacle collisions
+	for i := 0; i+1 < len(actualPath); i++ {
+		p1, p2 := actualPath[i], actualPath[i+1]
+		for _, obs := range fixture.Nodes {
+			if obs.ID == fixture.Edges[0].SourceBlockID || obs.ID == fixture.Edges[0].TargetBlockID {
+				continue
+			}
+			coreBox := ObstacleBox{
+				ID:   obs.ID,
+				MinX: obs.X + 0.5,
+				MaxX: obs.X + obs.Width - 0.5,
+				MinY: obs.Y + 0.5,
+				MaxY: obs.Y + obs.Height - 0.5,
+			}
+			if SegmentIntersectsBox(p1, p2, coreBox) {
+				t.Fatalf("CRITICAL HARD VIOLATION: Segment (%.1f,%.1f)-(%.1f,%.1f) intersects obstacle %s!",
+					p1.X, p1.Y, p2.X, p2.Y, obs.ID)
+			}
+		}
+	}
+}

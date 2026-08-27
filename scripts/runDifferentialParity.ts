@@ -46,6 +46,7 @@ function generateParityReport() {
 
   const goSizingPassed = goTestOut.includes('--- PASS: TestParityGeometrySizing');
   const goCleanerPassed = goTestOut.includes('--- PASS: TestParityWireCleaner');
+  const goRouterPassed = goTestOut.includes('--- PASS: TestParityRouterAStar');
   const goMetamorphicPassed = goTestOut.includes('--- PASS: TestMetamorphicTranslationInvariance') &&
                               goTestOut.includes('--- PASS: TestMetamorphicPermutationStability') &&
                               goTestOut.includes('--- PASS: TestMetamorphicCleanerIdempotence') &&
@@ -81,8 +82,8 @@ function generateParityReport() {
       family: 'Orthogonal A* Router',
       target: 'go_engine/core/orthogonal_router.go',
       level: 'P0, P1, P2, P3',
-      status: 'PARTIAL' as const,
-      notes: 'Obstacle detour and deterministic grid routing active; congestion fields in progress.',
+      status: (goRouterPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL',
+      notes: 'Obstacle detour, 4-way normal stubs, multi-net channel separation, and prohibited shared wire segments verified.',
     },
     {
       family: 'Strict Label Placement',
