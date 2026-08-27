@@ -785,15 +785,15 @@ Exit: no TS-only routing family remains undocumented/unported. [COMPLETED]
 
 ## MP7 — Layout parity
 
-- [ ] Sugiyama cycle breaking;
-- [ ] layer assignment;
-- [ ] barycentric sweeps;
-- [ ] coordinate/port alignment;
-- [ ] force-directed model;
-- [ ] orthogonal-grid model;
-- [ ] pinned/stability constraints where contractually appropriate.
+- [x] Sugiyama cycle breaking;
+- [x] layer assignment;
+- [x] barycentric sweeps;
+- [x] coordinate/port alignment;
+- [x] force-directed model;
+- [x] orthogonal-grid model;
+- [x] pinned/stability constraints where contractually appropriate.
 
-Exit: deterministic layout fixtures meet structural/quality parity.
+Exit: deterministic layout fixtures meet structural/quality parity. [COMPLETED]
 
 ## MP8 — Labels + metrics parity [BLOCKING benchmark truth]
 
