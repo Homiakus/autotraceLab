@@ -95,7 +95,7 @@ export function computeAdaptivePortStub(
 
   // 3. Multi-port lane staggering on the same face (prevents 90° corner clashing)
   if (totalEdgesOnFace > 1) {
-    const staggerDelta = 6;
+    const staggerDelta = 10;
     const staggered = maxAllowedStub + (edgeIndexOnFace - (totalEdgesOnFace - 1) / 2) * staggerDelta;
     return Math.max(minStub, Math.round(staggered));
   }
@@ -310,45 +310,17 @@ export function routeOrthogonalAStar(
     nodeBottom: n.y + n.height,
   }));
 
-  // Spatial Grid Hash (128px cell size) for O(1) average obstacle collision testing
-  const SPATIAL_CELL = 128;
-  const spatialGrid = new Map<number, ObstacleBox[]>();
-
-  for (let i = 0; i < obstacles.length; i++) {
-    const obs = obstacles[i];
-    const cellMinX = Math.floor(obs.left / SPATIAL_CELL);
-    const cellMaxX = Math.floor(obs.right / SPATIAL_CELL);
-    const cellMinY = Math.floor(obs.top / SPATIAL_CELL);
-    const cellMaxY = Math.floor(obs.bottom / SPATIAL_CELL);
-
-    for (let cx = cellMinX; cx <= cellMaxX; cx++) {
-      for (let cy = cellMinY; cy <= cellMaxY; cy++) {
-        const cKey = (cx + 2000) * 10000 + (cy + 2000);
-        let bucket = spatialGrid.get(cKey);
-        if (!bucket) {
-          bucket = [];
-          spatialGrid.set(cKey, bucket);
-        }
-        bucket.push(obs);
-      }
-    }
-  }
-
   function isInsideObstacle(px: number, py: number, allowNodeA?: string, allowNodeB?: string): boolean {
-    const cx = Math.floor(px / SPATIAL_CELL);
-    const cy = Math.floor(py / SPATIAL_CELL);
-    const cKey = (cx + 2000) * 10000 + (cy + 2000);
-    const bucket = spatialGrid.get(cKey);
-    if (!bucket || bucket.length === 0) return false;
+    for (let i = 0; i < obstacles.length; i++) {
+      const obs = obstacles[i];
 
-    for (let i = 0; i < bucket.length; i++) {
-      const obs = bucket[i];
-      // 1. Strict Physical Node Body Check: FORBIDDEN for ALL blocks (0 tolerance)
+      // 1. Strict Physical Node Body Interior Check: FORBIDDEN for ALL blocks (0 tolerance)
+      // (Uses 0.1px margin so exact port contact points on the outer boundary face are not blocked)
       if (
-        px >= obs.nodeX &&
-        px <= obs.nodeRight &&
-        py >= obs.nodeY &&
-        py <= obs.nodeBottom
+        px > obs.nodeX + 0.1 &&
+        px < obs.nodeRight - 0.1 &&
+        py > obs.nodeY + 0.1 &&
+        py < obs.nodeBottom - 0.1
       ) {
         return true;
       }
@@ -670,24 +642,30 @@ function createObstacleBypassingOrthogonalPath(
 ): Point[] {
   const points: Point[] = [{ x: source.x, y: source.y }, startPoint];
 
-  // Find all blocking nodes in the bounding box between start and end
-  const minX = Math.min(startPoint.x, endPoint.x);
-  const maxX = Math.max(startPoint.x, endPoint.x);
-  const minY = Math.min(startPoint.y, endPoint.y);
-  const maxY = Math.max(startPoint.y, endPoint.y);
+  // Find all blocking nodes in the horizontal and vertical spans between start and end
+  const xSpanMin = Math.min(startPoint.x, endPoint.x) - clearance;
+  const xSpanMax = Math.max(startPoint.x, endPoint.x) + clearance;
+  const xOverlappingNodes = nodes.filter(n => {
+    return n.x < xSpanMax && n.x + n.width > xSpanMin;
+  });
+
+  const blockMinY = xOverlappingNodes.length > 0 ? Math.min(...xOverlappingNodes.map(n => n.y)) : Math.min(startPoint.y, endPoint.y);
+  const blockMaxY = xOverlappingNodes.length > 0 ? Math.max(...xOverlappingNodes.map(n => n.y + n.height)) : Math.max(startPoint.y, endPoint.y);
+
+  const ySpanMin = Math.min(startPoint.y, endPoint.y) - clearance;
+  const ySpanMax = Math.max(startPoint.y, endPoint.y) + clearance;
+  const yOverlappingNodes = nodes.filter(n => {
+    return n.y < ySpanMax && n.y + n.height > ySpanMin;
+  });
+
+  const blockMinX = yOverlappingNodes.length > 0 ? Math.min(...yOverlappingNodes.map(n => n.x)) : Math.min(startPoint.x, endPoint.x);
+  const blockMaxX = yOverlappingNodes.length > 0 ? Math.max(...yOverlappingNodes.map(n => n.x + n.width)) : Math.max(startPoint.x, endPoint.x);
 
   const intersectingNodes = nodes.filter(n => {
     const nRight = n.x + n.width;
     const nBottom = n.y + n.height;
-    return n.x < maxX && nRight > minX && n.y < maxY && nBottom > minY;
+    return n.x < xSpanMax && nRight > xSpanMin && n.y < ySpanMax && nBottom > ySpanMin;
   });
-
-  // Calculate safe bypass envelope (above or below all intersecting blocks)
-  const allNodes = nodes.length > 0 ? nodes : intersectingNodes;
-  const blockMinY = Math.min(...allNodes.map(n => n.y));
-  const blockMaxY = Math.max(...allNodes.map(n => n.y + n.height));
-  const blockMinX = Math.min(...allNodes.map(n => n.x));
-  const blockMaxX = Math.max(...allNodes.map(n => n.x + n.width));
 
   const bypassAboveY = blockMinY - clearance - 16 + nudge;
   const bypassBelowY = blockMaxY + clearance + 16 + nudge;

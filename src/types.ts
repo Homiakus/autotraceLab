@@ -314,3 +314,37 @@ export interface SceneResult {
   contractVersion: number;
 }
 
+export const DEFAULT_OPTIMIZATION_WEIGHTS: OptimizationWeights = {
+  crossingWeight: 95.0,
+  straightnessWeight: 90.0,
+  g1SplineWeight: 65.0,
+  portAlignmentWeight: 80.0,
+  clearanceWeight: 90.0,
+  wirelengthWeight: 15.0,
+  bendWeight: 25.0,
+  labelOverlapWeight: 75.0,
+};
+
+export const DEFAULT_ROUTING_OPTIONS: RoutingOptions = {
+  gridSize: 10.0,
+  obstacleClearance: 10.0,
+  bendPenalty: 35.0,
+  crossingPenalty: 50.0,
+  channelSpacing: 16.0,
+  portExitOffset: 24.0,
+  adaptivePortExitOffset: true,
+  smoothCorners: false,
+  cornerRadius: 8.0,
+  adaptiveCornerRadius: true,
+  labelClearance: 8.0,
+  strictLabels: true,
+  minWireDistance: 16.0,
+  optimalBlockDistance: 200.0,
+  optimalWireDistance: 20.0,
+  jumpBridges: false,
+  pinAlignment: true,
+  artifactCleaning: true,
+  weights: DEFAULT_OPTIMIZATION_WEIGHTS,
+};
+
+

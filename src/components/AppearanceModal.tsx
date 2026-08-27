@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import {
+  THEME_PRESETS,
   ACCENT_PRESETS,
   ThemeMode,
   InterfaceDensity,
@@ -21,6 +22,13 @@ import {
   Eye,
   ShieldCheck,
   AlertTriangle,
+  Layers,
+  Compass,
+  Cpu,
+  Tv,
+  Radio,
+  Snowflake,
+  FileCode,
 } from 'lucide-react';
 import { toast } from '../utils/toastService';
 
@@ -47,7 +55,7 @@ export const AppearanceModal: React.FC = () => {
   if (!isAppearanceModalOpen) return null;
 
   // Calculate contrast ratio against current background
-  const bgHex = resolvedTheme === 'dark' ? '#0c0d10' : '#ffffff';
+  const bgHex = resolvedTheme === 'light' || resolvedTheme === 'solarized' ? '#ffffff' : '#0c0d10';
   const activeColorHex = accent === 'custom' ? customAccentHex : (ACCENT_PRESETS.find(p => p.id === accent)?.hex || '#3b82f6');
   const contrastWithBg = getContrastRatio(activeColorHex, bgHex);
   const isContrastGood = contrastWithBg >= 3.0;
@@ -83,7 +91,7 @@ export const AppearanceModal: React.FC = () => {
       aria-labelledby="appearance-modal-title"
     >
       <div
-        className="w-full max-w-xl bg-[var(--surface-elevated)] border border-[var(--border-default)] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-[var(--text-primary)] animate-scale-up"
+        className="w-full max-w-2xl bg-[var(--surface-elevated)] border border-[var(--border-default)] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-[var(--text-primary)] animate-scale-up"
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
@@ -94,17 +102,17 @@ export const AppearanceModal: React.FC = () => {
             </div>
             <div>
               <h2 id="appearance-modal-title" className="text-base font-bold text-[var(--text-primary)]">
-                Внешний вид & Тематизация
+                Внешний вид & Графические Темы
               </h2>
               <p className="text-xs text-[var(--text-secondary)]">
-                Кастомизация цветов, тем, плотности и системы движения
+                Стилизация САПР, цветовые палитры, плотность и визуальное оформление холста
               </p>
             </div>
           </div>
 
           <button
             onClick={() => setIsAppearanceModalOpen(false)}
-            className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-secondary)] transition-colors"
+            className="p-1.5 rounded-lg text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-secondary)] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -113,75 +121,95 @@ export const AppearanceModal: React.FC = () => {
         {/* Modal Body */}
         <div className="p-5 overflow-y-auto space-y-6">
           {/* 1. Theme Selection */}
-          <div className="space-y-2.5">
-            <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] flex items-center gap-1.5 font-mono">
-              <Sun className="w-3.5 h-3.5 text-[var(--accent)]" />
-              <span>Режим Темы (Theme Mode)</span>
-            </label>
-
-            <div className="grid grid-cols-3 gap-2.5">
-              {/* System */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold uppercase tracking-wider text-[var(--text-tertiary)] flex items-center gap-1.5 font-mono">
+                <Sun className="w-3.5 h-3.5 text-[var(--accent)]" />
+                <span>Графические Темы Оформления (Visual Themes)</span>
+              </label>
               <button
                 onClick={() => {
                   setTheme('system');
                   toast.success('Тема: Автоматически (Системная)');
                 }}
-                className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all active:scale-95 ${
+                className={`text-[11px] font-mono px-2 py-0.5 rounded-lg border transition-all cursor-pointer flex items-center gap-1 ${
                   theme === 'system'
-                    ? 'border-[var(--accent)] bg-[var(--accent-subtle)] text-[var(--text-primary)] font-semibold shadow-md'
-                    : 'border-[var(--border-default)] hover:border-[var(--border-strong)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]'
+                    ? 'border-[var(--accent)] bg-[var(--accent-subtle)] text-[var(--accent)] font-bold'
+                    : 'border-[var(--border-default)] text-[var(--text-secondary)] hover:border-[var(--border-strong)]'
                 }`}
               >
-                <div className="w-full h-12 rounded-lg bg-gradient-to-r from-slate-900 via-slate-700 to-slate-200 border border-white/10 flex items-center justify-center">
-                  <Laptop className="w-5 h-5 text-white drop-shadow" />
-                </div>
-                <div className="text-xs flex items-center gap-1">
-                  <span>Системная</span>
-                  {theme === 'system' && <Check className="w-3 h-3 text-[var(--accent)]" />}
-                </div>
+                <Laptop className="w-3 h-3" />
+                <span>Системная OS</span>
+                {theme === 'system' && <Check className="w-3 h-3" />}
               </button>
+            </div>
 
-              {/* Dark */}
-              <button
-                onClick={() => {
-                  setTheme('dark');
-                  toast.success('Тема: Тёмная (Dark Mode)');
-                }}
-                className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all active:scale-95 ${
-                  theme === 'dark'
-                    ? 'border-[var(--accent)] bg-[var(--accent-subtle)] text-[var(--text-primary)] font-semibold shadow-md'
-                    : 'border-[var(--border-default)] hover:border-[var(--border-strong)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]'
-                }`}
-              >
-                <div className="w-full h-12 rounded-lg bg-[#0c0d10] border border-white/15 flex items-center justify-center">
-                  <Moon className="w-5 h-5 text-blue-400 drop-shadow" />
-                </div>
-                <div className="text-xs flex items-center gap-1">
-                  <span>Тёмная</span>
-                  {theme === 'dark' && <Check className="w-3 h-3 text-[var(--accent)]" />}
-                </div>
-              </button>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
+              {THEME_PRESETS.map((preset) => {
+                const isSelected = theme === preset.id || (theme === 'system' && resolvedTheme === preset.id);
 
-              {/* Light */}
-              <button
-                onClick={() => {
-                  setTheme('light');
-                  toast.success('Тема: Светлая (Light Mode)');
-                }}
-                className={`p-3 rounded-xl border flex flex-col items-center gap-2 transition-all active:scale-95 ${
-                  theme === 'light'
-                    ? 'border-[var(--accent)] bg-[var(--accent-subtle)] text-[var(--text-primary)] font-semibold shadow-md'
-                    : 'border-[var(--border-default)] hover:border-[var(--border-strong)] bg-[var(--surface-secondary)] text-[var(--text-secondary)]'
-                }`}
-              >
-                <div className="w-full h-12 rounded-lg bg-[#f8fafc] border border-slate-300 flex items-center justify-center">
-                  <Sun className="w-5 h-5 text-amber-500 drop-shadow" />
-                </div>
-                <div className="text-xs flex items-center gap-1">
-                  <span>Светлая</span>
-                  {theme === 'light' && <Check className="w-3 h-3 text-[var(--accent)]" />}
-                </div>
-              </button>
+                return (
+                  <button
+                    key={preset.id}
+                    onClick={() => {
+                      setTheme(preset.id);
+                      toast.success(`Тема изменена: ${preset.nameRu}`);
+                    }}
+                    className={`p-2.5 rounded-xl border flex flex-col text-left gap-2 transition-all active:scale-95 cursor-pointer relative overflow-hidden group ${
+                      isSelected
+                        ? 'border-[var(--accent)] bg-[var(--accent-subtle)] ring-1 ring-[var(--accent)] shadow-lg'
+                        : 'border-[var(--border-default)] hover:border-[var(--border-strong)] bg-[var(--surface-secondary)]'
+                    }`}
+                  >
+                    {/* Mini Visual Preview Mockup */}
+                    <div
+                      className="w-full h-16 rounded-lg p-2 flex flex-col justify-between border relative overflow-hidden transition-transform group-hover:scale-[1.02]"
+                      style={{
+                        backgroundColor: preset.bgHex,
+                        borderColor: preset.accentHex + '40',
+                      }}
+                    >
+                      {/* Grid Pattern Dots */}
+                      <div
+                        className="absolute inset-0 opacity-40 pointer-events-none"
+                        style={{
+                          backgroundImage: `radial-gradient(${preset.gridHex} 1.2px, transparent 1.2px)`,
+                          backgroundSize: '8px 8px',
+                        }}
+                      />
+
+                      {/* Top Bar Mock */}
+                      <div className="flex items-center justify-between z-10">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: preset.accentHex }} />
+                        <div className="w-8 h-1 rounded" style={{ backgroundColor: preset.accentHex + '60' }} />
+                      </div>
+
+                      {/* Mock Block Node */}
+                      <div
+                        className="w-20 h-6 rounded border flex items-center px-1.5 gap-1 z-10 shadow-sm"
+                        style={{
+                          backgroundColor: preset.blockHex,
+                          borderColor: preset.accentHex + '80',
+                        }}
+                      >
+                        <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: preset.accentHex }} />
+                        <div className="w-10 h-1 rounded bg-white/40" />
+                      </div>
+                    </div>
+
+                    {/* Card Description */}
+                    <div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-[var(--text-primary)]">{preset.nameRu}</span>
+                        {isSelected && <Check className="w-3.5 h-3.5 text-[var(--accent)] shrink-0" />}
+                      </div>
+                      <p className="text-[10px] text-[var(--text-tertiary)] leading-tight mt-0.5 line-clamp-2">
+                        {preset.descriptionRu}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

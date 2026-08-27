@@ -1133,6 +1133,94 @@ export function runAllDiagnosticTests(): TestSuiteSummary {
     sdkClient.destroy();
   }
 
+  // =========================================================================
+  // SUITE 13: Strict Obstacle Avoidance & Zero Block Penetration
+  // =========================================================================
+  {
+    const suite = 'Strict Obstacle Avoidance & Zero Block Penetration';
+
+    // Test 13.1: Intermediate obstacle block between source and target
+    const nodeA: BlockNode = {
+      id: 'nodeA',
+      title: 'Source A',
+      category: 'processor',
+      x: 50,
+      y: 100,
+      width: 100,
+      height: 60,
+      inputs: [],
+      outputs: [{ id: 'outA', name: 'OUT', type: 'output', side: 'right' }],
+    };
+
+    const nodeObstacle: BlockNode = {
+      id: 'nodeObstacle',
+      title: 'Obstacle B',
+      category: 'processor',
+      x: 200,
+      y: 80,
+      width: 120,
+      height: 100, // Directly in the direct line of sight between A and C
+      inputs: [{ id: 'inObs', name: 'IN', type: 'input', side: 'left' }],
+      outputs: [],
+    };
+
+    const nodeC: BlockNode = {
+      id: 'nodeC',
+      title: 'Target C',
+      category: 'processor',
+      x: 380,
+      y: 100,
+      width: 100,
+      height: 60,
+      inputs: [{ id: 'inC', name: 'IN', type: 'input', side: 'left' }],
+      outputs: [],
+    };
+
+    const testNodes = [nodeA, nodeObstacle, nodeC];
+    const testEdges: EdgeConnection[] = [
+      {
+        id: 'e_A_C',
+        sourceBlockId: 'nodeA',
+        sourcePortId: 'outA',
+        targetBlockId: 'nodeC',
+        targetPortId: 'inC',
+      },
+    ];
+
+    const routed = routeOrthogonalAStar(testNodes, testEdges, TEST_ROUTING_OPTIONS);
+    const path = routed[0]?.path || [];
+
+    // Verify that NO segment in path intersects nodeObstacle core body
+    let intersectsObstacle = false;
+    for (let i = 0; i < path.length - 1; i++) {
+      const p1 = path[i];
+      const p2 = path[i + 1];
+      const segMinX = Math.min(p1.x, p2.x);
+      const segMaxX = Math.max(p1.x, p2.x);
+      const segMinY = Math.min(p1.y, p2.y);
+      const segMaxY = Math.max(p1.y, p2.y);
+
+      // Core body bounding check
+      if (
+        segMaxX > nodeObstacle.x + 1 &&
+        segMinX < nodeObstacle.x + nodeObstacle.width - 1 &&
+        segMaxY > nodeObstacle.y + 1 &&
+        segMinY < nodeObstacle.y + nodeObstacle.height - 1
+      ) {
+        intersectsObstacle = true;
+        break;
+      }
+    }
+
+    assert(
+      suite,
+      'A* and Cleaner strictly detour around intervening obstacles without penetrating node body',
+      !intersectsObstacle && path.length >= 4,
+      `Obstacle bypassed cleanly (Path vertices: ${path.length}, Obstacle penetration: ${intersectsObstacle})`,
+      { path, obstacle: nodeObstacle }
+    );
+  }
+
   const durationMs = +(performance.now() - startTime).toFixed(2);
 
   const passed = results.filter(r => r.passed).length;

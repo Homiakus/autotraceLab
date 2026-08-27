@@ -142,11 +142,62 @@ export class EngineClient {
         return;
       }
 
-      // Fallback: in Node / tests where WASM worker isn't running, emulate or reject
+      // Isomorphic Fallback: in Node.js / tests where WASM Worker is not active,
+      // emulate execution using TypeScript computational core
+      try {
+        if (operation === 'hello') {
+          resolve({
+            service: 'autotrace-lab-ts-fallback',
+            engine: 'autotrace-ts-baseline',
+            capabilities: {
+              runtime: 'typescript-fallback',
+              protocolVersion: 1,
+              orthogonalRouting: true,
+              metrics: true,
+              labels: true,
+              incrementalScenes: true,
+              scenePatch: true,
+              strictRevisions: true,
+              nlpOptimization: false,
+              bridgeJumps: true,
+              g1Splines: true,
+              unifiedCoOpt: false,
+            },
+          } as any);
+          return;
+        }
+
+        if (operation === 'layout') {
+          const p = payload as LayoutRequestPayload;
+          const start = performance.now();
+          const routed = routeOrthogonalAStar(p.nodes, p.edges, p.options);
+          const dur = performance.now() - start;
+          const metrics = calculateBenchmarkMetrics(p.nodes, routed, dur, 'preserve-input-layout', 'orthogonal-a-star');
+          resolve({
+            graphId: p.graphId,
+            edges: routed,
+            metrics,
+            durationMs: dur,
+            engine: 'autotrace-ts-fallback',
+            protocol: 1,
+            contractVersion: 1,
+          } as any);
+          return;
+        }
+
+        if (operation === 'scene.close') {
+          resolve({ graphId: (payload as any).graphId, closed: true } as any);
+          return;
+        }
+      } catch (emulateErr) {
+        reject(emulateErr);
+        return;
+      }
+
       reject(
         new EngineProtocolError({
           code: 'AUTOTRACE_NO_WORKER',
-          message: 'Engine client worker or WASM bridge is not active',
+          message: `Engine client worker or WASM bridge is not active for operation ${operation}`,
           retryable: true,
         })
       );

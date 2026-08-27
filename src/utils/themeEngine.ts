@@ -4,10 +4,141 @@
  * dark/light themes, accent palettes, motion modes, and density configurations.
  */
 
-export type ThemeMode = 'system' | 'light' | 'dark';
-export type ResolvedTheme = 'light' | 'dark';
+export type ThemeMode =
+  | 'system'
+  | 'dark'
+  | 'light'
+  | 'blueprint'
+  | 'pcb_emerald'
+  | 'amber_crt'
+  | 'synthwave'
+  | 'nordic_frost'
+  | 'solarized';
+
+export type ResolvedTheme =
+  | 'dark'
+  | 'light'
+  | 'blueprint'
+  | 'pcb_emerald'
+  | 'amber_crt'
+  | 'synthwave'
+  | 'nordic_frost'
+  | 'solarized';
+
 export type InterfaceDensity = 'comfortable' | 'compact';
 export type MotionPreference = 'system' | 'full' | 'reduced';
+
+export interface ThemePreset {
+  id: ThemeMode;
+  name: string;
+  nameRu: string;
+  descriptionRu: string;
+  category: 'Modern Dark' | 'Technical Light' | 'Engineering & Retro' | 'Cyber & Sci-Fi';
+  bgHex: string;
+  surfaceHex: string;
+  accentHex: string;
+  gridHex: string;
+  blockHex: string;
+}
+
+export const THEME_PRESETS: ThemePreset[] = [
+  {
+    id: 'dark',
+    name: 'Obsidian Dark',
+    nameRu: 'Кибер-Обсидиан',
+    descriptionRu: 'Глубокий тёмный обсидиан с высокой контрастностью и неоновыми акцентами',
+    category: 'Modern Dark',
+    bgHex: '#0c0d10',
+    surfaceHex: '#12141a',
+    accentHex: '#3b82f6',
+    gridHex: '#252a35',
+    blockHex: '#16181d',
+  },
+  {
+    id: 'blueprint',
+    name: 'CAD Blueprint',
+    nameRu: 'Инженерная Синька CAD',
+    descriptionRu: 'Классический кобальтовый чертёж САПР со светящейся координатной сеткой',
+    category: 'Engineering & Retro',
+    bgHex: '#08172c',
+    surfaceHex: '#0d223f',
+    accentHex: '#38bdf8',
+    gridHex: '#1d4474',
+    blockHex: '#0c2340',
+  },
+  {
+    id: 'pcb_emerald',
+    name: 'Silicon PCB Emerald',
+    nameRu: 'Изумрудный Текстолит PCB',
+    descriptionRu: 'Тёмно-зелёный шелкографический текстолит с золотыми и медными дорожками',
+    category: 'Engineering & Retro',
+    bgHex: '#04140d',
+    surfaceHex: '#072216',
+    accentHex: '#eab308',
+    gridHex: '#134e35',
+    blockHex: '#072418',
+  },
+  {
+    id: 'amber_crt',
+    name: 'Vintage Amber CRT',
+    nameRu: 'Янтарный Осциллограф',
+    descriptionRu: 'Монохромный янтарный люминофор лабораторных приборов и ретро-терминалов',
+    category: 'Engineering & Retro',
+    bgHex: '#120c02',
+    surfaceHex: '#1c1404',
+    accentHex: '#f59e0b',
+    gridHex: '#3d2b0b',
+    blockHex: '#1c1305',
+  },
+  {
+    id: 'synthwave',
+    name: 'Tokyo Synthwave',
+    nameRu: 'Токио Неон Синтвейв',
+    descriptionRu: 'Пурпурно-неоновая киберпанк эстетика с яркими светящимися трассами',
+    category: 'Cyber & Sci-Fi',
+    bgHex: '#0f071a',
+    surfaceHex: '#190e2b',
+    accentHex: '#f43f5e',
+    gridHex: '#401f68',
+    blockHex: '#1b0d2e',
+  },
+  {
+    id: 'nordic_frost',
+    name: 'Nordic Arctic Frost',
+    nameRu: 'Арктический Нордик',
+    descriptionRu: 'Холодный скандинавский сланец с пастельно-бирюзовыми акцентами',
+    category: 'Modern Dark',
+    bgHex: '#0b111a',
+    surfaceHex: '#101926',
+    accentHex: '#06b6d4',
+    gridHex: '#22354f',
+    blockHex: '#111a28',
+  },
+  {
+    id: 'light',
+    name: 'Clean Studio Light',
+    nameRu: 'Студийный Светлый',
+    descriptionRu: 'Минималистичный светлый интерфейс с кристально чистой контрастной графикой',
+    category: 'Technical Light',
+    bgHex: '#f8fafc',
+    surfaceHex: '#ffffff',
+    accentHex: '#2563eb',
+    gridHex: '#cbd5e1',
+    blockHex: '#ffffff',
+  },
+  {
+    id: 'solarized',
+    name: 'Warm Solarized Cream',
+    nameRu: 'Тёплый Пергамент Solarized',
+    descriptionRu: 'Мягкий кремовый пергамент для снижения усталости глаз при долгой работе',
+    category: 'Technical Light',
+    bgHex: '#fdf6e3',
+    surfaceHex: '#f5eed7',
+    accentHex: '#cb4b16',
+    gridHex: '#d3c7a8',
+    blockHex: '#fbf1d8',
+  },
+];
 
 export interface AccentPreset {
   id: string;
@@ -146,29 +277,31 @@ export function generateAccentPalette(baseHex: string, resolvedTheme: ResolvedTh
   const rgb = hexToRgb(baseHex) || { r: 59, g: 130, b: 246 };
   const hsl = rgbToHsl(rgb.r, rgb.g, rgb.b);
 
+  const isLight = resolvedTheme === 'light' || resolvedTheme === 'solarized';
+
   // Normalize saturation and lightness for consistent perceptual weight
   const clampedSat = Math.min(95, Math.max(45, hsl.s));
-  const targetLightness = resolvedTheme === 'dark' ? Math.max(50, Math.min(62, hsl.l)) : Math.max(42, Math.min(54, hsl.l));
+  const targetLightness = !isLight ? Math.max(50, Math.min(64, hsl.l)) : Math.max(42, Math.min(54, hsl.l));
 
   const primaryAccent = hslToHex(hsl.h, clampedSat, targetLightness);
-  const hoverAccent = hslToHex(hsl.h, clampedSat, resolvedTheme === 'dark' ? targetLightness + 8 : targetLightness - 8);
-  const activeAccent = hslToHex(hsl.h, clampedSat, resolvedTheme === 'dark' ? targetLightness - 6 : targetLightness - 14);
+  const hoverAccent = hslToHex(hsl.h, clampedSat, !isLight ? targetLightness + 8 : targetLightness - 8);
+  const activeAccent = hslToHex(hsl.h, clampedSat, !isLight ? targetLightness - 6 : targetLightness - 14);
 
   // Contrast foreground: white or dark charcoal
   const lum = getLuminance(rgb.r, rgb.g, rgb.b);
   const contrastText = lum > 0.42 ? '#090a0f' : '#ffffff';
 
-  const subtleLightness = resolvedTheme === 'dark' ? 14 : 94;
+  const subtleLightness = !isLight ? 14 : 94;
   const subtleSat = Math.min(50, clampedSat);
   const subtleAccent = hslToHex(hsl.h, subtleSat, subtleLightness);
 
-  const mutedLightness = resolvedTheme === 'dark' ? 22 : 88;
+  const mutedLightness = !isLight ? 22 : 88;
   const mutedAccent = hslToHex(hsl.h, Math.min(40, clampedSat), mutedLightness);
 
-  const borderLightness = resolvedTheme === 'dark' ? 32 : 75;
+  const borderLightness = !isLight ? 32 : 75;
   const borderAccent = hslToHex(hsl.h, Math.min(60, clampedSat), borderLightness);
 
-  const focusRing = hslToHex(hsl.h, Math.min(90, clampedSat + 10), resolvedTheme === 'dark' ? 60 : 45);
+  const focusRing = hslToHex(hsl.h, Math.min(90, clampedSat + 10), !isLight ? 60 : 45);
 
   return {
     accent: primaryAccent,
@@ -201,13 +334,18 @@ export function applyThemeToDocument(
 
   // Determine base accent hex
   let baseHex = '#3b82f6';
-  const preset = ACCENT_PRESETS.find(p => p.id === accentId);
-  if (preset) {
-    baseHex = preset.hex;
-    root.setAttribute('data-accent', preset.id);
+  const themePreset = THEME_PRESETS.find(tp => tp.id === resolvedTheme);
+  const accentPreset = ACCENT_PRESETS.find(p => p.id === accentId);
+
+  if (accentPreset) {
+    baseHex = accentPreset.hex;
+    root.setAttribute('data-accent', accentPreset.id);
   } else if (accentId === 'custom' && customHex) {
     baseHex = customHex;
     root.setAttribute('data-accent', 'custom');
+  } else if (themePreset) {
+    baseHex = themePreset.accentHex;
+    root.setAttribute('data-accent', 'theme-default');
   }
 
   // Generate tokens

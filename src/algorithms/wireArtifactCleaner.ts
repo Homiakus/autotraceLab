@@ -388,7 +388,27 @@ export function cleanOrthogonalArtifacts(
   // PASS 6: Enforce 100% strict orthogonal horizontal/vertical segments
   points = enforceStrictOrthogonality(points, obstacleBoxes, nodes, ignoreIds);
 
-  return mergeCollinear(points);
+  const cleaned = mergeCollinear(points);
+
+  // FINAL INTEGRITY CHECK: Ensure NO segment in the cleaned path cuts through any block core body
+  for (let i = 0; i < cleaned.length - 1; i++) {
+    for (const node of nodes) {
+      if (node.id === sourceNodeId || node.id === targetNodeId) continue;
+      const coreBox: ObstacleBox = {
+        id: node.id,
+        minX: node.x + 0.5,
+        maxX: node.x + node.width - 0.5,
+        minY: node.y + 0.5,
+        maxY: node.y + node.height - 0.5,
+      };
+      if (segmentIntersectsBox(cleaned[i], cleaned[i + 1], coreBox)) {
+        // If cleaned path introduced an obstacle collision, return original rawPoints
+        return rawPoints;
+      }
+    }
+  }
+
+  return cleaned;
 }
 
 /**

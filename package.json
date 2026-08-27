@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
+    "build:lib": "vite build --config vite.lib.config.ts",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "test": "tsx src/tests/runAllTests.ts",
+    "test:sdk": "tsx src/tests/sdkTest.ts",
     "parity": "tsx scripts/runDifferentialParity.ts",
     "export-fixtures": "tsx scripts/exportParityFixtures.ts"
   },

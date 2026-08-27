@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"math"
@@ -73,6 +74,13 @@ type Engine struct {
 func NewEngine() *Engine { return &Engine{scenes: make(map[string]*sceneState)} }
 
 func (e *Engine) Open(request SceneOpenRequest) (SceneResult, error) {
+	return e.OpenWithContext(context.Background(), request)
+}
+
+func (e *Engine) OpenWithContext(ctx context.Context, request SceneOpenRequest) (SceneResult, error) {
+	if err := ctx.Err(); err != nil {
+		return SceneResult{}, err
+	}
 	if request.GraphID == "" {
 		return SceneResult{}, fmt.Errorf("graph id is required")
 	}
@@ -84,6 +92,9 @@ func (e *Engine) Open(request SceneOpenRequest) (SceneResult, error) {
 	}
 	started := time.Now()
 	routed := RouteOrthogonalAStar(request.Nodes, request.Edges, request.Options)
+	if err := ctx.Err(); err != nil {
+		return SceneResult{}, err
+	}
 	duration := elapsedMs(started)
 	metrics := CalculateDetailedMetrics(request.Nodes, routed, "preserve-input-layout", "orthogonal-a-star", duration, &request.Options)
 	state := newSceneState(request.Revision, request.Nodes, routed, request.Options, metrics)
@@ -96,6 +107,13 @@ func (e *Engine) Open(request SceneOpenRequest) (SceneResult, error) {
 }
 
 func (e *Engine) Patch(request ScenePatchRequest) (SceneResult, error) {
+	return e.PatchWithContext(context.Background(), request)
+}
+
+func (e *Engine) PatchWithContext(ctx context.Context, request ScenePatchRequest) (SceneResult, error) {
+	if err := ctx.Err(); err != nil {
+		return SceneResult{}, err
+	}
 	if request.GraphID == "" {
 		return SceneResult{}, fmt.Errorf("graph id is required")
 	}
@@ -199,6 +217,13 @@ func (e *Engine) Patch(request ScenePatchRequest) (SceneResult, error) {
 }
 
 func (e *Engine) UpdateOptions(graphID string, options RoutingOptions) (SceneResult, error) {
+	return e.UpdateOptionsWithContext(context.Background(), graphID, options)
+}
+
+func (e *Engine) UpdateOptionsWithContext(ctx context.Context, graphID string, options RoutingOptions) (SceneResult, error) {
+	if err := ctx.Err(); err != nil {
+		return SceneResult{}, err
+	}
 	e.mu.Lock()
 	defer e.mu.Unlock()
 	state, ok := e.scenes[graphID]
@@ -212,6 +237,9 @@ func (e *Engine) UpdateOptions(graphID string, options RoutingOptions) (SceneRes
 	edgeList := orderedEdges(state.edges, state.edgeOrder)
 
 	routed := RouteOrthogonalAStar(nodeList, edgeList, options)
+	if err := ctx.Err(); err != nil {
+		return SceneResult{}, err
+	}
 	duration := elapsedMs(started)
 	metrics := CalculateDetailedMetrics(nodeList, routed, "preserve-input-layout", "orthogonal-a-star", duration, &options)
 

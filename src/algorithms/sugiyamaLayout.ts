@@ -1,5 +1,6 @@
 import { BlockNode, EdgeConnection, AlgorithmStep } from '../types';
 import { getPortCoordinates } from './orthogonalAStarRouter';
+import { separateAllOverlappingNodes } from './blockCollision';
 
 export interface SugiyamaResult {
   nodes: BlockNode[];
@@ -11,12 +12,12 @@ export interface SugiyamaResult {
  * 1. Cycle Breaking (FAS - Feedback Arc Set)
  * 2. Layer / Rank Assignment (Coffman-Graham / Longest Path)
  * 3. Crossing Reduction (Barycentric Layer Sweeping)
- * 4. Coordinate Assignment (Port-aligned Balanced Placement)
+ * 4. Coordinate Assignment (Port-aligned Balanced Placement + Collision Separation)
  */
 export function runSugiyamaLayout(
   initialNodes: BlockNode[],
   edges: EdgeConnection[],
-  options = { layerSpacing: 180, nodeSpacing: 50, startX: 80, startY: 80 }
+  options = { layerSpacing: 220, nodeSpacing: 80, startX: 80, startY: 80 }
 ): SugiyamaResult {
   const steps: AlgorithmStep[] = [];
   const nodes = initialNodes.map(n => ({ ...n }));
@@ -271,14 +272,17 @@ export function runSugiyamaLayout(
     });
   }
 
+  // Ensure strict non-overlapping collision safety between all nodes
+  const nonOverlappingNodes = separateAllOverlappingNodes(nodes, 24);
+
   steps.push({
     stepIndex: 4,
     title: 'Фаза 4: Расчёт координат и соосное выравнивание портов (Pin-Aligned Brandes-Köpf)',
     description: 'Назначены точные координаты X/Y со сквозным микро-выравниванием соосности пинов для устранения лишних изгибов.',
     phase: 'Coordinate Assignment',
-    nodesSnapshot: JSON.parse(JSON.stringify(nodes)),
+    nodesSnapshot: JSON.parse(JSON.stringify(nonOverlappingNodes)),
     edgesSnapshot: JSON.parse(JSON.stringify(edges)),
   });
 
-  return { nodes, steps };
+  return { nodes: nonOverlappingNodes, steps };
 }

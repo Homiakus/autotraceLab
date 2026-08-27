@@ -36,11 +36,23 @@ const STORAGE_KEYS = {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
+const VALID_THEMES: ThemeMode[] = [
+  'system',
+  'dark',
+  'light',
+  'blueprint',
+  'pcb_emerald',
+  'amber_crt',
+  'synthwave',
+  'nordic_frost',
+  'solarized',
+];
+
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Load initial settings or fallback
   const [theme, setThemeState] = useState<ThemeMode>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.THEME) as ThemeMode;
-    return saved === 'light' || saved === 'dark' || saved === 'system' ? saved : 'dark';
+    return VALID_THEMES.includes(saved) ? saved : 'dark';
   });
 
   const [accent, setAccentState] = useState<string>(() => {

@@ -102,6 +102,12 @@ export function routeManhattanChannel(
     const minY = Math.min(stubStart.y, stubEnd.y);
     const maxY = Math.max(stubStart.y, stubEnd.y);
 
+    const horizontalSpanBlocks = nodes.filter(n => {
+      if (n.id === sourceNode.id || n.id === targetNode.id) return false;
+      const nRight = n.x + n.width;
+      return n.x < maxX && nRight > minX;
+    });
+
     const interveningBlocks = nodes.filter(n => {
       if (n.id === sourceNode.id || n.id === targetNode.id) return false;
       const nRight = n.x + n.width;
@@ -111,8 +117,8 @@ export function routeManhattanChannel(
 
     if (interveningBlocks.length > 0) {
       // Route around obstacles via clearance channel
-      const blockMinY = Math.min(...interveningBlocks.map(n => n.y));
-      const blockMaxY = Math.max(...interveningBlocks.map(n => n.y + n.height));
+      const blockMinY = Math.min(...horizontalSpanBlocks.map(n => n.y));
+      const blockMaxY = Math.max(...horizontalSpanBlocks.map(n => n.y + n.height));
       const bypassAboveY = blockMinY - (options.obstacleClearance || 16) - 16 + nudge;
       const bypassBelowY = blockMaxY + (options.obstacleClearance || 16) + 16 + nudge;
 

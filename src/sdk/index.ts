@@ -3,11 +3,41 @@ import { EngineClient } from '../engine/EngineClient';
 import { RegistryStore } from '../registry/RegistryClient';
 import { AutoTraceSDKConfig, AutoTraceSession, StorageAdapter } from './types';
 import { InMemoryStorageAdapter, LocalStorageAdapter } from './storage';
+import { generateOrthogonalPathWithBridges, renderG1ContinuousStraightPath } from '../algorithms/bridgeJumps';
+import { routeOrthogonalAStar } from '../algorithms/orthogonalAStarRouter';
 
 export * from './types';
 export * from './storage';
 export { EngineClient } from '../engine/EngineClient';
 export { RegistryStore } from '../registry/RegistryClient';
+export { generateOrthogonalPathWithBridges, renderG1ContinuousStraightPath } from '../algorithms/bridgeJumps';
+
+/**
+ * Renders an EdgeConnection to an SVG path definition ("M ... L ... A ...")
+ * with optional smooth G1 corner fillets and bridge jump arcs for crossings.
+ */
+export function renderEdgeToSvgPath(
+  edge: EdgeConnection,
+  allEdges: EdgeConnection[] = [edge],
+  options: {
+    enableBridges?: boolean;
+    smoothCorners?: boolean;
+    cornerRadius?: number;
+  } = {}
+): string {
+  if (!edge.path || edge.path.length === 0) return '';
+  const enableBridges = options.enableBridges ?? false;
+  const smoothCorners = options.smoothCorners ?? true;
+  return generateOrthogonalPathWithBridges(
+    edge.path,
+    edge.id,
+    allEdges,
+    enableBridges,
+    smoothCorners,
+    undefined,
+    { cornerRadius: options.cornerRadius ?? 8.0 } as any
+  );
+}
 
 export class AutoTraceClient {
   readonly engine: EngineClient;

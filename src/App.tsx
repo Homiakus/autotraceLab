@@ -14,6 +14,7 @@ import { CodeExportView } from './components/CodeExportView';
 import { NlpOptimizationModal } from './components/NlpOptimizationModal';
 import { CreateBlockModal } from './components/CreateBlockModal';
 import { AppearanceModal } from './components/AppearanceModal';
+import { AdminWorkspace } from './components/admin/AdminWorkspace';
 import { StatusBar } from './components/StatusBar';
 import { ToastContainer } from './components/ToastContainer';
 import { toast } from './utils/toastService';
@@ -94,6 +95,7 @@ export default function App() {
   const [currentMetrics, setCurrentMetrics] = useState<BenchmarkMetrics | undefined>(undefined);
   const [isNlpModalOpen, setIsNlpModalOpen] = useState(false);
   const [isCreateBlockModalOpen, setIsCreateBlockModalOpen] = useState(false);
+  const [isAdminWorkspaceOpen, setIsAdminWorkspaceOpen] = useState(false);
   const [customStepperSteps, setCustomStepperSteps] = useState<any[] | null>(null);
 
   // Recalculate edge routing whenever nodes, routing algorithm, or options change
@@ -168,10 +170,14 @@ export default function App() {
     [layoutAlgorithm, nodes, edges, computeRouting]
   );
 
-  // Initial execution on mount
+  // Initial execution on mount (preserves clean hand-crafted topology coordinates and routes cleanly)
   useEffect(() => {
-    executeLayoutAndRoute('sugiyama', PRESET_TOPOLOGIES[0].nodes, PRESET_TOPOLOGIES[0].edges);
-  }, []);
+    const initialNodes = PRESET_TOPOLOGIES[0].nodes;
+    const initialEdges = PRESET_TOPOLOGIES[0].edges;
+    setNodes(initialNodes);
+    const routed = computeRouting(initialNodes, initialEdges);
+    setEdges(routed);
+  }, [computeRouting]);
 
   // Run unified joint layout & artifact-free routing co-optimization
   const handleRunCoOptimization = useCallback(() => {
@@ -228,7 +234,8 @@ export default function App() {
     setHierarchyPath([{ subcircuitId: null, name: preset.name }]);
     setHierarchyStack([]);
     setNodes(preset.nodes);
-    executeLayoutAndRoute(layoutAlgorithm, preset.nodes, preset.edges);
+    const routed = computeRouting(preset.nodes, preset.edges);
+    setEdges(routed);
     toast.info(`Загружена топология: ${preset.name}`);
   };
 
@@ -699,7 +706,11 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[var(--surface-canvas)] text-[var(--text-primary)] flex flex-col font-sans selection:bg-[var(--accent)]/30 selection:text-[var(--text-primary)] transition-colors duration-200">
       {/* Top Global Navigation Bar */}
-      <Header activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Header
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onOpenAdminWorkspace={() => setIsAdminWorkspaceOpen(true)}
+      />
 
       {/* Main Body View Switching */}
       <main className="flex-1 flex overflow-hidden">
@@ -878,6 +889,12 @@ export default function App() {
         isOpen={isCreateBlockModalOpen}
         onClose={() => setIsCreateBlockModalOpen(false)}
         onCreateBlock={handleCreateCustomBlock}
+      />
+
+      {/* AutoTrace Declarative Registry & Customization Workspace (MP16) */}
+      <AdminWorkspace
+        isOpen={isAdminWorkspaceOpen}
+        onClose={() => setIsAdminWorkspaceOpen(false)}
       />
     </div>
   );

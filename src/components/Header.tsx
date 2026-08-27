@@ -22,9 +22,10 @@ interface HeaderProps {
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
   onOpenQuickTour?: () => void;
+  onOpenAdminWorkspace?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
+export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab, onOpenAdminWorkspace }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const { resolvedTheme, toggleTheme, setIsAppearanceModalOpen, accent } = useTheme();
 
@@ -131,8 +132,17 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
             })}
           </nav>
 
-          {/* Desktop Theme and Appearance Buttons */}
+          {/* Desktop Theme, Go Core & Appearance Buttons */}
           <div className="hidden md:flex items-center gap-1 bg-[var(--surface-secondary)] p-1 rounded-xl border border-[var(--border-subtle)]">
+            <button
+              onClick={onOpenAdminWorkspace}
+              title="Открыть Административную Панель Декларативного Реестра Go Core (MP16)"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/20 transition-all active:scale-95 font-mono"
+            >
+              <span className="w-2 h-2 rounded-full bg-indigo-400 animate-ping"></span>
+              <span className="font-bold text-[11px]">Go Core Реестр</span>
+            </button>
+
             <button
               onClick={toggleTheme}
               title={`Переключить на ${resolvedTheme === 'dark' ? 'светлую' : 'тёмную'} тему`}

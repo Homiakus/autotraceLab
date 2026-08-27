@@ -30,12 +30,15 @@ import {
   ArrowUpRight,
   CornerUpLeft,
   FolderPlus,
-  CheckSquare,
   Boxes,
+  CheckSquare,
   Unlink,
   X as CloseIcon,
+  Palette,
 } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
 import { getPortCoordinatesAccurate as getPortCoordinates } from '../algorithms/blockGeometry';
+import { applyRepulsiveDisplacement, separateAllOverlappingNodes } from '../algorithms/blockCollision';
 import { LeeDebugWave } from '../algorithms/leeWaveRouter';
 import { computeOptimizedLabels, OptimizedLabelPosition } from '../algorithms/labelLayout';
 import { generateOrthogonalPathWithBridges } from '../algorithms/bridgeJumps';
@@ -141,7 +144,7 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
   const [showGrid, setShowGrid] = useState(true);
   const [showEdgeLabels, setShowEdgeLabels] = useState(true);
   const [showBridgeJumps, setShowBridgeJumps] = useState(options.jumpBridges);
-  const [showInspector, _setShowInspector] = useState(true);
+  const { setIsAppearanceModalOpen } = useTheme();
 
   // Multi-selection state
   const [selectedNodeIds, setSelectedNodeIds] = useState<Set<string>>(new Set());
@@ -429,17 +432,16 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
         y: e.clientY - panStart.y,
       });
     } else if (draggingNodeId) {
-      const updatedNodes = nodes.map(n => {
-        if (n.id === draggingNodeId) {
-          const rawX = currentCanvasX - dragOffset.x;
-          const rawY = currentCanvasY - dragOffset.y;
-          const snap = options.gridSize || 10;
-          const x = Math.max(20, Math.round(rawX / snap) * snap);
-          const y = Math.max(20, Math.round(rawY / snap) * snap);
-          return { ...n, x, y };
-        }
-        return n;
-      });
+      const rawX = currentCanvasX - dragOffset.x;
+      const rawY = currentCanvasY - dragOffset.y;
+      const updatedNodes = applyRepulsiveDisplacement(
+        nodes,
+        draggingNodeId,
+        rawX,
+        rawY,
+        24,
+        options.gridSize || 10
+      );
       onNodesChange(updatedNodes);
     } else if (draggingLabelEdgeId) {
       const newPos: Point = {
@@ -456,6 +458,10 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
 
   const handleMouseUp = () => {
     setIsPanning(false);
+    if (draggingNodeId) {
+      const finalizedNodes = separateAllOverlappingNodes(nodes, 24, options.gridSize || 10);
+      onNodesChange(finalizedNodes);
+    }
     setDraggingNodeId(null);
     setDraggingLabelEdgeId(null);
   };
@@ -509,17 +515,16 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
           y: touch.clientY - panStart.y,
         });
       } else if (draggingNodeId) {
-        const updatedNodes = nodes.map(n => {
-          if (n.id === draggingNodeId) {
-            const rawX = currentCanvasX - dragOffset.x;
-            const rawY = currentCanvasY - dragOffset.y;
-            const snap = options.gridSize || 10;
-            const x = Math.max(20, Math.round(rawX / snap) * snap);
-            const y = Math.max(20, Math.round(rawY / snap) * snap);
-            return { ...n, x, y };
-          }
-          return n;
-        });
+        const rawX = currentCanvasX - dragOffset.x;
+        const rawY = currentCanvasY - dragOffset.y;
+        const updatedNodes = applyRepulsiveDisplacement(
+          nodes,
+          draggingNodeId,
+          rawX,
+          rawY,
+          24,
+          options.gridSize || 10
+        );
         onNodesChange(updatedNodes);
       } else if (draggingLabelEdgeId) {
         const newPos: Point = {
@@ -541,6 +546,10 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
     }
     if (e.touches.length === 0) {
       setIsPanning(false);
+      if (draggingNodeId) {
+        const finalizedNodes = separateAllOverlappingNodes(nodes, 24, options.gridSize || 10);
+        onNodesChange(finalizedNodes);
+      }
       setDraggingNodeId(null);
       setDraggingLabelEdgeId(null);
     }
@@ -923,7 +932,7 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
     <div
       ref={containerRef}
       id="diagram-canvas-container"
-      className="relative w-full h-full bg-[#0c0d10] overflow-hidden select-none cursor-crosshair border border-white/5 rounded-2xl flex flex-col justify-between touch-none"
+      className="relative w-full h-full bg-[var(--surface-canvas)] overflow-hidden select-none cursor-crosshair border border-[var(--border-subtle)] rounded-2xl flex flex-col justify-between touch-none transition-colors duration-300"
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
@@ -938,7 +947,7 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
       {/* Background Radial Grid Pattern */}
       {showGrid && (
         <div
-          className="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(#252a35_1px,transparent_1px)] bg-[size:20px_20px]"
+          className="absolute inset-0 pointer-events-none opacity-45 bg-[radial-gradient(var(--canvas-grid-dot,#252a35)_1.2px,transparent_1.2px)] bg-[size:20px_20px]"
           style={{
             backgroundPosition: `${pan.x}px ${pan.y}px`,
           }}
@@ -1124,10 +1133,19 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
         >
           <Move className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
         </button>
+        <div className="w-px h-3 sm:h-4 bg-white/10 mx-0.5 sm:mx-1" />
+        <button
+          id="btn-canvas-theme-gallery"
+          onClick={() => setIsAppearanceModalOpen(true)}
+          title="Сменить графическую тему (Инженерная Синька, PCB, Янтарный, Неон, Светлая)"
+          className="p-1.5 sm:p-2 rounded-lg hover:bg-white/10 text-[var(--accent)] hover:text-white transition-colors cursor-pointer"
+        >
+          <Palette className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+        </button>
       </div>
 
       {/* Floating Port / Node / Edge Inspector Drawer */}
-      {showInspector && (selectedNode || selectedEdge) && (
+      {(selectedNode || selectedEdge) && (
         <InspectorPanel
           selectedNode={selectedNode}
           selectedEdge={selectedEdge}
@@ -1154,39 +1172,76 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
         }}
       >
         <defs>
-          {/* Arrowhead Markers with high contrast and strict collinear alignment */}
+          {/* Dynamic Arrowhead Markers for every wire color with crisp pin offset */}
+          {Array.from(
+            new Set([
+              '#3b82f6',
+              '#60a5fa',
+              '#ec4899',
+              '#38bdf8',
+              '#10b981',
+              '#f59e0b',
+              '#8b5cf6',
+              '#ea580c',
+              '#ef4444',
+              '#0284c7',
+              '#0ea5e9',
+              '#b45309',
+              '#6366f1',
+              ...edges.map(e => e.color || '#3b82f6'),
+              ...externalWires.map(w => w.color || '#8b5cf6'),
+            ])
+          ).map(color => {
+            const safeId = color.replace(/[^a-zA-Z0-9]/g, '_');
+            return (
+              <marker
+                key={`marker-${safeId}`}
+                id={`arrow-${safeId}`}
+                viewBox="0 0 10 10"
+                refX="6.5"
+                refY="5"
+                markerWidth="5.5"
+                markerHeight="5.5"
+                orient="auto"
+              >
+                <path d="M 0 1.5 L 6.5 5 L 0 8.5 z" fill={color} />
+              </marker>
+            );
+          })}
+
+          {/* Fallback default, hover and selected markers */}
           <marker
             id="arrow-default"
             viewBox="0 0 10 10"
-            refX="8"
+            refX="6.5"
+            refY="5"
+            markerWidth="5.5"
+            markerHeight="5.5"
+            orient="auto"
+          >
+            <path d="M 0 1.5 L 6.5 5 L 0 8.5 z" fill="#3b82f6" />
+          </marker>
+          <marker
+            id="arrow-hover"
+            viewBox="0 0 10 10"
+            refX="6.5"
             refY="5"
             markerWidth="6.5"
             markerHeight="6.5"
             orient="auto"
           >
-            <path d="M 0 1.5 L 8.5 5 L 0 8.5 z" fill="#3b82f6" />
-          </marker>
-          <marker
-            id="arrow-hover"
-            viewBox="0 0 10 10"
-            refX="8"
-            refY="5"
-            markerWidth="7.5"
-            markerHeight="7.5"
-            orient="auto"
-          >
-            <path d="M 0 1 L 9.5 5 L 0 9 z" fill="#60a5fa" />
+            <path d="M 0 1 L 7.5 5 L 0 9 z" fill="#60a5fa" />
           </marker>
           <marker
             id="arrow-selected"
             viewBox="0 0 10 10"
-            refX="8"
+            refX="6.5"
             refY="5"
-            markerWidth="7.5"
-            markerHeight="7.5"
+            markerWidth="6.5"
+            markerHeight="6.5"
             orient="auto"
           >
-            <path d="M 0 1 L 9.5 5 L 0 9 z" fill="#ec4899" />
+            <path d="M 0 1 L 7.5 5 L 0 9 z" fill="#ec4899" />
           </marker>
 
           {/* Dynamic Clip Paths for each Node based on shape geometry */}
@@ -1553,7 +1608,7 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
                     strokeDasharray={wire.type === 'input' ? '6 3' : undefined}
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    markerEnd="url(#arrow-default)"
+                    markerEnd={`url(#${isSelected ? 'arrow-selected' : isHovered ? 'arrow-hover' : `arrow-${wireColor.replace(/[^a-zA-Z0-9]/g, '_')}`})`}
                   />
 
                   {/* External Wire Label Badge */}
@@ -1607,7 +1662,11 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
               options
             );
             const edgeColor = isSelected ? '#ec4899' : isHovered ? '#60a5fa' : edge.color || '#3b82f6';
-            const markerId = isSelected ? 'arrow-selected' : isHovered ? 'arrow-hover' : 'arrow-default';
+            const markerId = isSelected
+              ? 'arrow-selected'
+              : isHovered
+              ? 'arrow-hover'
+              : `arrow-${edgeColor.replace(/[^a-zA-Z0-9]/g, '_')}`;
 
             const labelInfo = optimizedLabels.get(edge.id);
 
@@ -1749,12 +1808,12 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
             const showTitleOverlay = node.showTitleOverlay ?? true;
 
             const strokeColor = isSelected
-              ? '#60a5fa'
+              ? 'var(--accent, #60a5fa)'
               : node.isSubcircuit
               ? '#a855f7'
               : isDragging
-              ? '#3b82f6'
-              : 'rgba(255,255,255,0.12)';
+              ? 'var(--accent, #3b82f6)'
+              : 'var(--block-border, rgba(255,255,255,0.12))';
             const strokeWidthVal = isSelected ? '2' : node.isSubcircuit ? '1.5' : '1';
 
             // Shape path rendering helper
@@ -1764,7 +1823,7 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
               shapeElement = (
                 <path
                   d={d}
-                  fill="#16181d"
+                  fill="var(--block-bg, #16181d)"
                   stroke={strokeColor}
                   strokeWidth={strokeWidthVal}
                   strokeDasharray={node.isSubcircuit ? '4 2' : undefined}
@@ -1778,7 +1837,7 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
                   y="0"
                   width={node.width}
                   height={node.height}
-                  fill="#16181d"
+                  fill="var(--block-bg, #16181d)"
                   stroke={strokeColor}
                   strokeWidth={strokeWidthVal}
                   strokeDasharray={node.isSubcircuit ? '4 2' : undefined}
@@ -1790,7 +1849,7 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
               shapeElement = (
                 <polygon
                   points={pts}
-                  fill="#16181d"
+                  fill="var(--block-bg, #16181d)"
                   stroke={strokeColor}
                   strokeWidth={strokeWidthVal}
                   strokeDasharray={node.isSubcircuit ? '4 2' : undefined}
@@ -1804,7 +1863,7 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
                   cx={node.width / 2}
                   cy={node.height / 2}
                   r={radius}
-                  fill="#16181d"
+                  fill="var(--block-bg, #16181d)"
                   stroke={strokeColor}
                   strokeWidth={strokeWidthVal}
                   strokeDasharray={node.isSubcircuit ? '4 2' : undefined}
@@ -1816,7 +1875,7 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
               shapeElement = (
                 <polygon
                   points={pts}
-                  fill="#16181d"
+                  fill="var(--block-bg, #16181d)"
                   stroke={strokeColor}
                   strokeWidth={strokeWidthVal}
                   strokeDasharray={node.isSubcircuit ? '4 2' : undefined}
@@ -1832,7 +1891,7 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
                   width={node.width}
                   height={node.height}
                   rx="12"
-                  fill="#16181d"
+                  fill="var(--block-bg, #16181d)"
                   stroke={strokeColor}
                   strokeWidth={strokeWidthVal}
                   strokeDasharray={node.isSubcircuit ? '4 2' : undefined}
@@ -1889,19 +1948,19 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
                   <>
                     <path
                       d={`M 0 10 Q 0 0 10 0 L ${node.width - 10} 0 Q ${node.width} 0 ${node.width} 10 L ${node.width} 22 L 0 22 Z`}
-                      fill={hasImage ? 'rgba(15, 23, 42, 0.85)' : node.isSubcircuit ? 'rgba(59, 7, 100, 0.7)' : '#1e293b'}
-                      stroke="rgba(255,255,255,0.06)"
+                      fill={hasImage ? 'rgba(15, 23, 42, 0.85)' : node.isSubcircuit ? 'rgba(59, 7, 100, 0.7)' : 'var(--block-header, #1e293b)'}
+                      stroke="var(--block-border, rgba(255,255,255,0.06))"
                       strokeWidth="1"
                     />
 
                     {/* Left Mini Accent Dot */}
-                    <circle cx="10" cy="11" r="3" fill={node.color || (node.isSubcircuit ? '#c084fc' : '#3b82f6')} />
+                    <circle cx="10" cy="11" r="3" fill={node.color || (node.isSubcircuit ? '#c084fc' : 'var(--accent, #3b82f6)')} />
 
                     {/* Node Title */}
                     <text
                       x="18"
                       y="14.5"
-                      fill="#ffffff"
+                      fill="var(--text-primary, #ffffff)"
                       fontSize="10"
                       fontWeight="600"
                       fontFamily="system-ui, sans-serif"
@@ -1941,43 +2000,45 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
                     )}
 
                     {/* Pin / Freeze Button on Node Header */}
-                    <g
-                      transform={`translate(${node.width - 20}, 3)`}
-                      className="cursor-pointer group"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        const updated = nodes.map((n) =>
-                          n.id === node.id ? { ...n, isPinned: !n.isPinned } : n
-                        );
-                        onNodesChange(updated);
-                      }}
-                      title={
-                        node.isPinned
-                          ? 'Узел заморожен (неподвижен при оптимизации ∇Φ=0)'
-                          : 'Заморозить узел от перемещений'
-                      }
-                    >
-                      <rect
-                        x="0"
-                        y="0"
-                        width="16"
-                        height="16"
-                        rx="3"
-                        fill={node.isPinned ? 'rgba(245, 158, 11, 0.35)' : 'rgba(255, 255, 255, 0.06)'}
-                        stroke={node.isPinned ? '#f59e0b' : 'transparent'}
-                        strokeWidth="1"
-                      />
-                      <text
-                        x="8"
-                        y="11.5"
-                        fill={node.isPinned ? '#fbbf24' : '#64748b'}
-                        fontSize="9"
-                        textAnchor="middle"
-                        fontFamily="system-ui"
+                    {node && (
+                      <g
+                        transform={`translate(${node.width - 20}, 3)`}
+                        className="cursor-pointer group"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const updated = nodes.map((n) =>
+                            n.id === node.id ? { ...n, isPinned: !n.isPinned } : n
+                          );
+                          onNodesChange(updated);
+                        }}
+                        title={
+                          node.isPinned
+                            ? 'Узел заморожен (неподвижен при отталкивании и оптимизации)'
+                            : 'Заморозить узел от перемещений'
+                        }
                       >
-                        {node.isPinned ? '🔒' : '🔓'}
-                      </text>
-                    </g>
+                        <rect
+                          x="0"
+                          y="0"
+                          width="16"
+                          height="16"
+                          rx="3"
+                          fill={node.isPinned ? 'rgba(245, 158, 11, 0.35)' : 'rgba(255, 255, 255, 0.06)'}
+                          stroke={node.isPinned ? '#f59e0b' : 'transparent'}
+                          strokeWidth="1"
+                        />
+                        <text
+                          x="8"
+                          y="11.5"
+                          fill={node.isPinned ? '#fbbf24' : '#64748b'}
+                          fontSize="9"
+                          textAnchor="middle"
+                          fontFamily="system-ui"
+                        >
+                          {node.isPinned ? '🔒' : '🔓'}
+                        </text>
+                      </g>
+                    )}
                   </>
                 )}
 
@@ -2005,6 +2066,7 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
                   const isConnectingSource =
                     connectingFrom?.nodeId === node.id && connectingFrom?.portId === port.id;
                   const isFixed = port.placementMode === 'fixed';
+                  const isInput = port.type === 'input';
 
                   // Calculate text alignment & offsets
                   let textX = localX;
@@ -2032,6 +2094,22 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
                       textY = node.height - 8;
                       textAnchor = 'middle';
                       break;
+                  }
+
+                  // Direction indicator triangle geometry (points into block for input, out for output)
+                  let triPoints = '';
+                  if (isInput) {
+                    // Enters block
+                    if (side === 'left') triPoints = `${localX + 2},${localY} ${localX - 1.5},${localY - 1.5} ${localX - 1.5},${localY + 1.5}`;
+                    else if (side === 'right') triPoints = `${localX - 2},${localY} ${localX + 1.5},${localY - 1.5} ${localX + 1.5},${localY + 1.5}`;
+                    else if (side === 'top') triPoints = `${localX},${localY + 2} ${localX - 1.5},${localY - 1.5} ${localX + 1.5},${localY - 1.5}`;
+                    else triPoints = `${localX},${localY - 2} ${localX - 1.5},${localY + 1.5} ${localX + 1.5},${localY + 1.5}`;
+                  } else {
+                    // Exits block
+                    if (side === 'left') triPoints = `${localX - 2},${localY} ${localX + 1.5},${localY - 1.5} ${localX + 1.5},${localY + 1.5}`;
+                    else if (side === 'right') triPoints = `${localX + 2},${localY} ${localX - 1.5},${localY - 1.5} ${localX - 1.5},${localY + 1.5}`;
+                    else if (side === 'top') triPoints = `${localX},${localY - 2} ${localX - 1.5},${localY + 1.5} ${localX + 1.5},${localY + 1.5}`;
+                    else triPoints = `${localX},${localY + 2} ${localX - 1.5},${localY - 1.5} ${localX + 1.5},${localY - 1.5}`;
                   }
 
                   return (
@@ -2086,15 +2164,7 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
 
                       {/* Direction indicator triangle */}
                       <polygon
-                        points={
-                          side === 'right'
-                            ? `${localX + 1.5},${localY} ${localX - 1.5},${localY - 2} ${localX - 1.5},${localY + 2}`
-                            : side === 'left'
-                            ? `${localX - 1.5},${localY} ${localX + 1.5},${localY - 2} ${localX + 1.5},${localY + 2}`
-                            : side === 'top'
-                            ? `${localX},${localY - 1.5} ${localX - 2},${localY + 1.5} ${localX + 2},${localY + 1.5}`
-                            : `${localX},${localY + 1.5} ${localX - 2},${localY - 1.5} ${localX + 2},${localY - 1.5}`
-                        }
+                        points={triPoints}
                         fill="#0c0d10"
                       />
 
