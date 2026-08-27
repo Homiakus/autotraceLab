@@ -299,3 +299,18 @@ export interface ScenePatch {
   removedBlockIds?: string[];
   removedEdgeIds?: string[];
 }
+
+export interface SceneResult {
+  graphId: string;
+  revision: number;
+  nodes: BlockNode[];
+  edges: EdgeConnection[];
+  metrics: BenchmarkMetrics;
+  durationMs: number;
+  reusedEdges: number;
+  reroutedEdges: number;
+  reroutedEdgeIds?: string[];
+  engine: string;
+  contractVersion: number;
+}
+

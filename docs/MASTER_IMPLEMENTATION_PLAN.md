@@ -865,19 +865,19 @@ src/engine/autotrace.worker.ts
 src/engine/wasmLoader.ts
 ```
 
-- [ ] `hello` capability negotiation;
-- [ ] request IDs;
-- [ ] `open/patch/snapshot/close` client;
-- [ ] Worker loads Go/WASM;
-- [ ] stale response rejection;
-- [ ] conflict recovery;
-- [ ] engine health/status;
-- [ ] shadow execution alongside current TS production path;
-- [ ] parity telemetry/report in development/benchmark mode.
+- [x] `hello` capability negotiation;
+- [x] request IDs;
+- [x] `open/patch/snapshot/close` client;
+- [x] Worker loads Go/WASM;
+- [x] stale response rejection;
+- [x] conflict recovery;
+- [x] engine health/status;
+- [x] shadow execution alongside current TS production path;
+- [x] parity telemetry/report in development/benchmark mode.
 
 Do **not** switch default production routing yet.
 
-Exit: same scenes can execute through TS and Worker/Go in shadow mode.
+Exit: same scenes can execute through TS and Worker/Go in shadow mode. [COMPLETED]
 
 ## MP13 — Declarative registry foundation
 
