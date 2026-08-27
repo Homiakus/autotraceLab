@@ -35,7 +35,7 @@ export class WasmLoader {
 
   private async initWasm(wasmUrl: string): Promise<WasmBridgeInstance> {
     // Check if global function already available
-    if (typeof globalThis !== 'undefined' && (globalThis as any).businessOSAutoTraceRequest) {
+    if (typeof globalThis !== 'undefined' && typeof (globalThis as any).businessOSAutoTraceRequest === 'function') {
       this.instance = {
         isReady: true,
         request: (jsonStr: string) => (globalThis as any).businessOSAutoTraceRequest(jsonStr),
@@ -44,27 +44,30 @@ export class WasmLoader {
     }
 
     try {
-      if (typeof window !== 'undefined' && window.Go) {
-        const go = new window.Go();
+      const g = typeof globalThis !== 'undefined' ? (globalThis as any) : typeof window !== 'undefined' ? (window as any) : (self as any);
+      if (g && g.Go) {
+        const go = new g.Go();
         let wasmModule: WebAssembly.WebAssemblyInstantiatedSource;
 
-        if (WebAssembly.instantiateStreaming) {
-          wasmModule = await WebAssembly.instantiateStreaming(fetch(wasmUrl), go.importObject);
-        } else {
-          const response = await fetch(wasmUrl);
-          const bytes = await response.arrayBuffer();
-          wasmModule = await WebAssembly.instantiate(bytes, go.importObject);
-        }
+        if (typeof fetch === 'function') {
+          if (WebAssembly.instantiateStreaming) {
+            wasmModule = await WebAssembly.instantiateStreaming(fetch(wasmUrl), go.importObject);
+          } else {
+            const response = await fetch(wasmUrl);
+            const bytes = await response.arrayBuffer();
+            wasmModule = await WebAssembly.instantiate(bytes, go.importObject);
+          }
 
-        // Run Go runtime in background
-        go.run(wasmModule.instance);
+          // Run Go runtime in background
+          go.run(wasmModule.instance);
 
-        if ((globalThis as any).businessOSAutoTraceRequest) {
-          this.instance = {
-            isReady: true,
-            request: (jsonStr: string) => (globalThis as any).businessOSAutoTraceRequest(jsonStr),
-          };
-          return this.instance;
+          if (g.businessOSAutoTraceRequest) {
+            this.instance = {
+              isReady: true,
+              request: (jsonStr: string) => g.businessOSAutoTraceRequest(jsonStr),
+            };
+            return this.instance;
+          }
         }
       }
     } catch (err) {
@@ -72,10 +75,11 @@ export class WasmLoader {
     }
 
     // Fallback instance (returns ready false if binary wasn't loaded)
+    const isReady = typeof globalThis !== 'undefined' && typeof (globalThis as any).businessOSAutoTraceRequest === 'function';
     this.instance = {
-      isReady: typeof (globalThis as any).businessOSAutoTraceRequest === 'function',
+      isReady,
       request: (jsonStr: string) => {
-        if ((globalThis as any).businessOSAutoTraceRequest) {
+        if (typeof globalThis !== 'undefined' && (globalThis as any).businessOSAutoTraceRequest) {
           return (globalThis as any).businessOSAutoTraceRequest(jsonStr);
         }
         throw new Error('Go WASM engine is not loaded');

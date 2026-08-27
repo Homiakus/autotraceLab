@@ -60,10 +60,7 @@ type OrthogonalAStarRouter struct{}
 
 func (r *OrthogonalAStarRouter) Name() string { return "orthogonal-a-star" }
 func (r *OrthogonalAStarRouter) Route(ctx context.Context, nodes []BlockNode, edges []EdgeConnection, options RoutingOptions) ([]EdgeConnection, error) {
-	if err := ctx.Err(); err != nil {
-		return nil, err
-	}
-	return RouteOrthogonalAStar(nodes, edges, options), nil
+	return RouteOrthogonalAStarWithContext(ctx, nodes, edges, options)
 }
 
 // ManhattanChannelRouter wraps RouteManhattanChannel.

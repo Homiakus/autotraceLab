@@ -7,9 +7,6 @@ import (
 	"time"
 )
 
-const ContractVersion = 1
-const EngineID = "autotrace-core-go"
-
 type RouteRequest struct {
 	GraphID string          `json:"graphId"`
 	Nodes   []BlockNode     `json:"nodes"`

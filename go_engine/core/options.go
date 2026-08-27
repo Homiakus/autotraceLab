@@ -77,3 +77,31 @@ func DefaultRoutingOptions() RoutingOptions {
 		Weights:                DefaultOptimizationWeights(),
 	}
 }
+
+// Normalize fills missing or invalid options with canonical defaults and clamps parameters to safe operating ranges.
+func (o *RoutingOptions) Normalize() RoutingOptions {
+	defaults := DefaultRoutingOptions()
+	if o.GridSize < 4 || o.GridSize > 50 {
+		o.GridSize = defaults.GridSize
+	}
+	if o.ObstacleClearance <= 0 {
+		o.ObstacleClearance = defaults.ObstacleClearance
+	}
+	if o.BendPenalty <= 0 {
+		o.BendPenalty = defaults.BendPenalty
+	}
+	if o.CrossingPenalty <= 0 {
+		o.CrossingPenalty = defaults.CrossingPenalty
+	}
+	if o.ChannelSpacing <= 0 {
+		o.ChannelSpacing = defaults.ChannelSpacing
+	}
+	if o.PortExitOffset <= 0 {
+		o.PortExitOffset = defaults.PortExitOffset
+	}
+	if o.Weights.CrossingWeight == 0 && o.Weights.StraightnessWeight == 0 {
+		o.Weights = defaults.Weights
+	}
+	return *o
+}
+

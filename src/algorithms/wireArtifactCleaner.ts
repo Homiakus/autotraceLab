@@ -348,42 +348,9 @@ export function cleanOrthogonalArtifacts(
     }
   }
 
-  // Explicitly ensure points[0] -> points[1] is collinear with sPos.normal and length >= sStub
+  // Ensure start and end points match port anchor locations
   points[0] = { x: sPos.x, y: sPos.y };
-  if (sPos.normal.dx !== 0) {
-    points[1].y = sPos.y;
-    if (sPos.normal.dx > 0) {
-      points[1].x = Math.max(sPos.x + sStub, points[1].x);
-    } else {
-      points[1].x = Math.min(sPos.x - sStub, points[1].x);
-    }
-  } else if (sPos.normal.dy !== 0) {
-    points[1].x = sPos.x;
-    if (sPos.normal.dy > 0) {
-      points[1].y = Math.max(sPos.y + sStub, points[1].y);
-    } else {
-      points[1].y = Math.min(sPos.y - sStub, points[1].y);
-    }
-  }
-
-  // Explicitly ensure points[last-1] -> points[last] is collinear with tPos.normal and length >= tStub
-  const lastIdx = points.length - 1;
-  points[lastIdx] = { x: tPos.x, y: tPos.y };
-  if (tPos.normal.dx !== 0) {
-    points[lastIdx - 1].y = tPos.y;
-    if (tPos.normal.dx > 0) {
-      points[lastIdx - 1].x = Math.max(tPos.x + tStub, points[lastIdx - 1].x);
-    } else {
-      points[lastIdx - 1].x = Math.min(tPos.x - tStub, points[lastIdx - 1].x);
-    }
-  } else if (tPos.normal.dy !== 0) {
-    points[lastIdx - 1].x = tPos.x;
-    if (tPos.normal.dy > 0) {
-      points[lastIdx - 1].y = Math.max(tPos.y + tStub, points[lastIdx - 1].y);
-    } else {
-      points[lastIdx - 1].y = Math.min(tPos.y - tStub, points[lastIdx - 1].y);
-    }
-  }
+  points[points.length - 1] = { x: tPos.x, y: tPos.y };
 
   // PASS 6: Enforce 100% strict orthogonal horizontal/vertical segments
   points = enforceStrictOrthogonality(points, obstacleBoxes, nodes, ignoreIds);

@@ -1,6 +1,7 @@
 package core
 
 import (
+	"context"
 	"fmt"
 	"math"
 	"strings"
@@ -255,13 +256,29 @@ func CalculateNLPOptimalityBreakdown(
 	}
 }
 
-// RunNLPOptimization executes multi-objective gradient descent on block coordinates to converge to Pareto-optimal diagram layout.
+// RunNLPOptimization executes multi-objective gradient descent on block coordinates.
 func RunNLPOptimization(
 	initialNodes []BlockNode,
 	initialEdges []EdgeConnection,
 	options RoutingOptions,
 	customParams *NLPOptimizationParams,
 ) NLPOptimizationResult {
+	res, _ := RunNLPOptimizationWithContext(context.Background(), initialNodes, initialEdges, options, customParams)
+	return res
+}
+
+// RunNLPOptimizationWithContext executes multi-objective gradient descent with context cancellation support.
+func RunNLPOptimizationWithContext(
+	ctx context.Context,
+	initialNodes []BlockNode,
+	initialEdges []EdgeConnection,
+	options RoutingOptions,
+	customParams *NLPOptimizationParams,
+) (NLPOptimizationResult, error) {
+	if err := ctx.Err(); err != nil {
+		return NLPOptimizationResult{}, err
+	}
+
 	params := DefaultNLPParams()
 	if options.NLPParams != nil {
 		params = *options.NLPParams
@@ -332,7 +349,39 @@ func RunNLPOptimization(
 		momentum = 0.85
 	}
 
+	// Compute dynamic bounding box
+	minBoundX, minBoundY := 1e9, 1e9
+	maxBoundX, maxBoundY := -1e9, -1e9
+	for _, n := range initialNodes {
+		if n.X < minBoundX {
+			minBoundX = n.X
+		}
+		if n.Y < minBoundY {
+			minBoundY = n.Y
+		}
+		if n.X+n.Width > maxBoundX {
+			maxBoundX = n.X + n.Width
+		}
+		if n.Y+n.Height > maxBoundY {
+			maxBoundY = n.Y + n.Height
+		}
+	}
+	if minBoundX == 1e9 {
+		minBoundX, minBoundY = 0, 0
+		maxBoundX, maxBoundY = 2200, 1800
+	}
+	minBoundX = math.Min(30.0, minBoundX-500.0)
+	minBoundY = math.Min(30.0, minBoundY-500.0)
+	maxBoundX = math.Max(2200.0, maxBoundX+500.0)
+	maxBoundY = math.Max(1800.0, maxBoundY+500.0)
+
 	for iter := 1; iter <= iterations; iter++ {
+		select {
+		case <-ctx.Done():
+			return NLPOptimizationResult{}, ctx.Err()
+		default:
+		}
+
 		nodeMap := make(map[string]BlockNode, len(nodes))
 		for _, n := range nodes {
 			nodeMap[n.ID] = n
@@ -478,8 +527,8 @@ func RunNLPOptimization(
 			node.X += vel.vx
 			node.Y += vel.vy
 
-			node.X = math.Max(30.0, math.Min(2200.0, node.X))
-			node.Y = math.Max(30.0, math.Min(1800.0, node.Y))
+			node.X = math.Max(minBoundX, math.Min(maxBoundX, node.X))
+			node.Y = math.Max(minBoundY, math.Min(maxBoundY, node.Y))
 		}
 
 		// Record snapshot every 15 iterations or on final step
@@ -522,7 +571,10 @@ func RunNLPOptimization(
 	}
 
 	// 5. Final Wire Routing on Optimized Positions
-	routedEdges := RouteOrthogonalAStar(nodes, edges, options)
+	routedEdges, err := RouteOrthogonalAStarWithContext(ctx, nodes, edges, options)
+	if err != nil {
+		return NLPOptimizationResult{}, err
+	}
 	labelClearance := 12.0
 	if options.LabelClearance != nil {
 		labelClearance = *options.LabelClearance
@@ -554,5 +606,5 @@ func RunNLPOptimization(
 		FinalBreakdown:        finalBreakdown,
 		ImprovementPercentage: improvement,
 		PinnedNodeIDs:         pinnedIDsList,
-	}
+	}, nil
 }

@@ -738,6 +738,8 @@ export default function App() {
               onOpenStepper={() => setActiveTab('stepper')}
               isOpenOnMobile={isMobileControlOpen}
               onCloseMobile={() => setIsMobileControlOpen(false)}
+              nodes={nodes}
+              edges={edges}
             />
 
             {/* Main Interactive Diagram Canvas Surface */}

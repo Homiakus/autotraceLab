@@ -111,12 +111,82 @@ func TestGlobalRouter_DifficultFirstAndRipUp(t *testing.T) {
 	}
 }
 
-func Benchmark100Nodes200Edges_Performance(b *testing.B) {
+func BenchmarkRoute_100Nodes200Edges(b *testing.B) {
 	nodes, edges := generateSyntheticScene(100, 200)
 	opts := DefaultRoutingOptions()
 
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_ = RouteOrthogonalAStar(nodes, edges, opts)
+	}
+}
+
+func BenchmarkRoute_GlobalCoordinated100Nodes200Edges(b *testing.B) {
+	nodes, edges := generateSyntheticScene(100, 200)
+	opts := DefaultRoutingOptions()
+
+	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		_ = RouteGlobalCoordinated(nodes, edges, opts, nil)
+	}
+}
+
+func BenchmarkEngine_ScenePatchIncremental(b *testing.B) {
+	engine := NewEngine()
+	nodes, edges := generateSyntheticScene(100, 200)
+	opts := DefaultRoutingOptions()
+	_, err := engine.Open(SceneOpenRequest{
+		GraphID:  "bench-patch",
+		Revision: 1,
+		Nodes:    nodes,
+		Edges:    edges,
+		Options:  opts,
+	})
+	if err != nil {
+		b.Fatalf("open failed: %v", err)
+	}
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		baseRev := i + 1
+		_, err := engine.Patch(ScenePatchRequest{
+			GraphID: "bench-patch",
+			Patch: ScenePatch{
+				BaseRevision: baseRev,
+				Revision:     baseRev + 1,
+				ChangedBlocks: []BlockNode{
+					{
+						ID: "n_5", Title: "Moved 5", X: 1100 + float64(i%100), Y: 500, Width: 120, Height: 60,
+						Inputs:  []Port{{ID: "in1", Name: "In", Side: SideLeft, Type: "input"}},
+						Outputs: []Port{{ID: "out1", Name: "Out", Side: SideRight, Type: "output"}},
+					},
+				},
+			},
+		})
+		if err != nil {
+			b.Fatalf("patch %d failed: %v", i, err)
+		}
+	}
+}
+
+func BenchmarkEngine_SceneSnapshot(b *testing.B) {
+	engine := NewEngine()
+	nodes, edges := generateSyntheticScene(100, 200)
+	opts := DefaultRoutingOptions()
+	_, _ = engine.Open(SceneOpenRequest{
+		GraphID:  "bench-snap",
+		Revision: 1,
+		Nodes:    nodes,
+		Edges:    edges,
+		Options:  opts,
+	})
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		_, _ = engine.Snapshot("bench-snap")
 	}
 }

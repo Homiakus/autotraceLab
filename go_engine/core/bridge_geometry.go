@@ -91,6 +91,7 @@ func GenerateRendererNeutralPathWithBridges(
 	}
 
 	bridgeRadius := 5.5
+	minClearanceFromCorner := bridgeRadius + 8.0
 	var primitives []PathPrimitive
 
 	for i := 0; i < len(points)-1; i++ {
@@ -108,10 +109,10 @@ func GenerateRendererNeutralPathWithBridges(
 			var hops []float64
 			for _, other := range otherSegments {
 				if other.isHorizontal &&
-					other.minX < segX-2.0 &&
-					other.maxX > segX+2.0 &&
-					other.p1.Y > segMinY+bridgeRadius+4.0 &&
-					other.p1.Y < segMaxY-bridgeRadius-4.0 {
+					other.minX < segX-3.0 &&
+					other.maxX > segX+3.0 &&
+					other.p1.Y > segMinY+minClearanceFromCorner &&
+					other.p1.Y < segMaxY-minClearanceFromCorner {
 					hops = append(hops, other.p1.Y)
 				}
 			}
@@ -126,9 +127,11 @@ func GenerateRendererNeutralPathWithBridges(
 			for _, hopY := range hops {
 				startArcY := hopY - bridgeRadius
 				endArcY := hopY + bridgeRadius
+				sweepFlag := 1
 				if !isMovingDown {
 					startArcY = hopY + bridgeRadius
 					endArcY = hopY - bridgeRadius
+					sweepFlag = 0
 				}
 
 				// Line to start of bridge hop
@@ -147,7 +150,7 @@ func GenerateRendererNeutralPathWithBridges(
 					End:         Point{X: segX, Y: endArcY},
 					Radius:      bridgeRadius,
 					IsBridgeHop: true,
-					SweepFlag:   1,
+					SweepFlag:   sweepFlag,
 				})
 				currentPos = Point{X: segX, Y: endArcY}
 			}
@@ -273,21 +276,13 @@ func RenderG1ContinuousPrimitives(
 			continue
 		}
 
-		allowedLen1 := math.Max(1.0, (len1-4.0)*0.48)
-		if i == 1 {
-			allowedLen1 = math.Max(1.0, len1-10.0)
-		}
-		allowedLen2 := math.Max(1.0, (len2-4.0)*0.48)
-		if i == len(points)-2 {
-			allowedLen2 = math.Max(1.0, len2-12.0)
-		}
-
+		// Safety: each corner can NEVER take more than 45% of incoming or outgoing span.
 		maxRadius := math.Min(baseRadius, math.Min(len1*0.45, len2*0.45))
 		if isAdaptive {
-			maxRadius = math.Min(baseRadius, math.Min(allowedLen1, allowedLen2))
+			maxRadius = math.Min(baseRadius, math.Min(len1*0.45, len2*0.45))
 		}
 
-		if maxRadius > 1.2 {
+		if maxRadius > 1.5 {
 			startX := pCurr.X - u1x*maxRadius
 			startY := pCurr.Y - u1y*maxRadius
 			endX := pCurr.X + u2x*maxRadius

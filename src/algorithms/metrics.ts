@@ -92,6 +92,8 @@ export function detectCollinearOverlaps(edges: EdgeConnection[]): { totalOverlap
     }
   }
 
+  const eMap = new Map(edges.map(e => [e.id, e]));
+
   // Check horizontal collinear overlaps within each coordinate bucket
   for (const hSegs of hBuckets.values()) {
     if (hSegs.length < 2) continue;
@@ -100,6 +102,21 @@ export function detectCollinearOverlaps(edges: EdgeConnection[]): { totalOverlap
       for (let j = i + 1; j < hSegs.length; j++) {
         const s2 = hSegs[j];
         if (s1.edgeId === s2.edgeId) continue;
+        
+        const edge1 = eMap.get(s1.edgeId);
+        const edge2 = eMap.get(s2.edgeId);
+        if (edge1 && edge2) {
+          const shareSamePin =
+            (edge1.sourceBlockId === edge2.sourceBlockId && edge1.sourcePortId === edge2.sourcePortId) ||
+            (edge1.targetBlockId === edge2.targetBlockId && edge1.targetPortId === edge2.targetPortId) ||
+            (edge1.sourceBlockId === edge2.targetBlockId && edge1.sourcePortId === edge2.targetPortId) ||
+            (edge1.targetBlockId === edge2.sourceBlockId && edge1.targetPortId === edge2.sourcePortId);
+          if (shareSamePin) {
+            // Wires sharing the same terminal pin are electrical multi-drop branches/feed-throughs
+            continue;
+          }
+        }
+
         if (Math.abs(s1.y - s2.y) < 1.5) {
           const overlapMin = Math.max(s1.minX, s2.minX);
           const overlapMax = Math.min(s1.maxX, s2.maxX);
@@ -121,6 +138,21 @@ export function detectCollinearOverlaps(edges: EdgeConnection[]): { totalOverlap
       for (let j = i + 1; j < vSegs.length; j++) {
         const s2 = vSegs[j];
         if (s1.edgeId === s2.edgeId) continue;
+
+        const edge1 = eMap.get(s1.edgeId);
+        const edge2 = eMap.get(s2.edgeId);
+        if (edge1 && edge2) {
+          const shareSamePin =
+            (edge1.sourceBlockId === edge2.sourceBlockId && edge1.sourcePortId === edge2.sourcePortId) ||
+            (edge1.targetBlockId === edge2.targetBlockId && edge1.targetPortId === edge2.targetPortId) ||
+            (edge1.sourceBlockId === edge2.targetBlockId && edge1.sourcePortId === edge2.targetPortId) ||
+            (edge1.targetBlockId === edge2.sourceBlockId && edge1.targetPortId === edge2.sourcePortId);
+          if (shareSamePin) {
+            // Wires sharing the same terminal pin are electrical multi-drop branches/feed-throughs
+            continue;
+          }
+        }
+
         if (Math.abs(s1.x - s2.x) < 1.5) {
           const overlapMin = Math.max(s1.minY, s2.minY);
           const overlapMax = Math.min(s1.maxY, s2.maxY);

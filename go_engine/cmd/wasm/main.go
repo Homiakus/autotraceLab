@@ -4,6 +4,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"syscall/js"
 
@@ -23,13 +24,13 @@ func main() {
 	js.Global().Set("goAutoTraceNLP", js.FuncOf(goAutoTraceNLP))
 	js.Global().Set("goAutoTracePing", js.FuncOf(func(this js.Value, args []js.Value) any { return "pong_go_wasm_v2" }))
 
-	fmt.Println("🚀 [Go Core WASM] AutoTrace protocol v1 engine initialized")
+	fmt.Println("🚀 [Go Core WASM] AutoTrace protocol v2 engine initialized")
 	<-c
 }
 
 func goBusinessOSAutoTraceRequest(this js.Value, args []js.Value) any {
 	if len(args) != 1 {
-		return `{"protocol":1,"ok":false,"error":{"code":"AUTOTRACE_ARGUMENT","message":"one JSON request argument is required"}}`
+		return `{"protocol":2,"ok":false,"error":{"code":"AUTOTRACE_ARGUMENT","message":"one JSON request argument is required"}}`
 	}
 	return string(handleProtocolRequest([]byte(args[0].String())))
 }
@@ -105,13 +106,13 @@ type protocolError struct {
 func handleProtocolRequest(raw []byte) []byte {
 	var req protocolReq
 	if err := json.Unmarshal(raw, &req); err != nil {
-		res, _ := json.Marshal(protocolRes{Protocol: core.ContractVersion, OK: false, Error: &protocolError{Code: "AUTOTRACE_INVALID_JSON", Message: err.Error()}})
+		res, _ := json.Marshal(protocolRes{Protocol: core.ProtocolVersion, OK: false, Error: &protocolError{Code: "AUTOTRACE_INVALID_JSON", Message: err.Error()}})
 		return res
 	}
 
-	res := protocolRes{Protocol: core.ContractVersion, RequestID: req.RequestID}
-	if req.Protocol != core.ContractVersion {
-		res.Error = &protocolError{Code: "AUTOTRACE_PROTOCOL_MISMATCH", Message: fmt.Sprintf("protocol %d is unsupported", req.Protocol)}
+	res := protocolRes{Protocol: core.ProtocolVersion, RequestID: req.RequestID}
+	if req.Protocol != core.ProtocolVersion {
+		res.Error = &protocolError{Code: "AUTOTRACE_PROTOCOL_MISMATCH", Message: fmt.Sprintf("protocol %d is unsupported, expected %d", req.Protocol, core.ProtocolVersion)}
 		out, _ := json.Marshal(res)
 		return out
 	}
@@ -124,7 +125,9 @@ func handleProtocolRequest(raw []byte) []byte {
 			"engine":  core.EngineID,
 			"capabilities": map[string]any{
 				"runtime":           "go-wasm",
-				"protocolVersion":   core.ContractVersion,
+				"protocolVersion":   core.ProtocolVersion,
+				"contractVersion":   core.ContractVersion,
+				"importableCore":    true,
 				"orthogonalRouting": true,
 				"metrics":           true,
 				"labels":            true,
@@ -196,7 +199,23 @@ func handleProtocolRequest(raw []byte) []byte {
 		}
 		val, err := graphSceneEngine.Patch(payload)
 		if err != nil {
-			res.Error = &protocolError{Code: "AUTOTRACE_ERROR", Message: err.Error()}
+			var revErr *core.RevisionConflictError
+			if errors.As(err, &revErr) {
+				res.Error = &protocolError{
+					Code:      "AUTOTRACE_REVISION_CONFLICT",
+					Message:   revErr.Error(),
+					Retryable: true,
+					Details: map[string]any{
+						"graphId":  revErr.GraphID,
+						"expected": revErr.Expected,
+						"actual":   revErr.Actual,
+					},
+				}
+			} else if errors.Is(err, core.ErrSceneNotFound) {
+				res.Error = &protocolError{Code: "AUTOTRACE_SCENE_NOT_FOUND", Message: err.Error()}
+			} else {
+				res.Error = &protocolError{Code: "AUTOTRACE_ERROR", Message: err.Error()}
+			}
 			break
 		}
 		res.OK = true
@@ -212,7 +231,11 @@ func handleProtocolRequest(raw []byte) []byte {
 		}
 		val, err := graphSceneEngine.UpdateOptions(payload.GraphID, payload.Options)
 		if err != nil {
-			res.Error = &protocolError{Code: "AUTOTRACE_ERROR", Message: err.Error()}
+			if errors.Is(err, core.ErrSceneNotFound) {
+				res.Error = &protocolError{Code: "AUTOTRACE_SCENE_NOT_FOUND", Message: err.Error()}
+			} else {
+				res.Error = &protocolError{Code: "AUTOTRACE_ERROR", Message: err.Error()}
+			}
 			break
 		}
 		res.OK = true
@@ -227,7 +250,11 @@ func handleProtocolRequest(raw []byte) []byte {
 		}
 		val, err := graphSceneEngine.Snapshot(payload.GraphID)
 		if err != nil {
-			res.Error = &protocolError{Code: "AUTOTRACE_ERROR", Message: err.Error()}
+			if errors.Is(err, core.ErrSceneNotFound) {
+				res.Error = &protocolError{Code: "AUTOTRACE_SCENE_NOT_FOUND", Message: err.Error()}
+			} else {
+				res.Error = &protocolError{Code: "AUTOTRACE_ERROR", Message: err.Error()}
+			}
 			break
 		}
 		res.OK = true

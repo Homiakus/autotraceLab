@@ -17,241 +17,119 @@ import {
   NLPOptimizePayload,
   UnifiedCoOptimizePayload,
   ShadowComparisonReport,
-  ProtocolResponse,
 } from './types';
-import { createProtocolRequest, EngineProtocolError } from './protocol';
+import { EngineBackend, BackendType } from './backend/EngineBackend';
+import { TypeScriptBackend } from './backend/TypeScriptBackend';
+import { DirectWasmBackend } from './backend/DirectWasmBackend';
+import { WasmWorkerBackend } from './backend/WasmWorkerBackend';
 import { routeOrthogonalAStar } from '../algorithms/orthogonalAStarRouter';
 import { calculateBenchmarkMetrics } from '../algorithms/metrics';
 
 export interface EngineClientOptions {
+  backend?: BackendType | EngineBackend;
   workerUrl?: string;
+  worker?: Worker;
   timeoutMs?: number;
   enableShadowExecution?: boolean;
 }
 
-interface PendingRequest {
-  resolve: (value: any) => void;
-  reject: (reason: any) => void;
-  timer: any;
-  operation: EngineOperation;
-}
-
 export class EngineClient {
-  private worker: Worker | null = null;
-  private pendingRequests = new Map<string, PendingRequest>();
-  private timeoutMs: number;
+  readonly backend: EngineBackend;
   private enableShadow: boolean;
-  private isInitialized = false;
   private cachedCapabilities: HelloResult | null = null;
 
   constructor(options: EngineClientOptions = {}) {
-    this.timeoutMs = options.timeoutMs || 10000;
     this.enableShadow = Boolean(options.enableShadowExecution);
 
-    if (typeof Worker !== 'undefined' && options.workerUrl) {
-      try {
-        this.worker = new Worker(options.workerUrl, { type: 'module' });
-        this.worker.onmessage = this.handleWorkerMessage.bind(this);
-        this.worker.onerror = this.handleWorkerError.bind(this);
-      } catch (err) {
-        console.warn('[EngineClient] Worker initialization deferred/fallback:', err);
-      }
-    }
-  }
-
-  private handleWorkerMessage(event: MessageEvent<ProtocolResponse>) {
-    const res = event.data;
-    if (!res || !res.requestId) return;
-
-    const pending = this.pendingRequests.get(res.requestId);
-    if (!pending) {
-      // Stale or cancelled response, safely ignored
-      return;
-    }
-
-    clearTimeout(pending.timer);
-    this.pendingRequests.delete(res.requestId);
-
-    if (res.ok) {
-      pending.resolve(res.value);
+    if (options.backend && typeof options.backend === 'object') {
+      this.backend = options.backend;
     } else {
-      pending.reject(
-        new EngineProtocolError(
-          res.error || {
-            code: 'AUTOTRACE_UNKNOWN',
-            message: 'Engine call failed without explicit error details',
-          }
-        )
-      );
+      const bType: BackendType = (options.backend as BackendType) || 'auto';
+      this.backend = this.resolveBackend(bType, options);
     }
   }
 
-  private handleWorkerError(event: ErrorEvent) {
-    console.error('[EngineClient] Worker internal error:', event);
+  private resolveBackend(type: BackendType, options: EngineClientOptions): EngineBackend {
+    if (type === 'typescript') {
+      return new TypeScriptBackend();
+    }
+    if (type === 'direct-wasm') {
+      return new DirectWasmBackend();
+    }
+    if (type === 'wasm-worker') {
+      return new WasmWorkerBackend({
+        worker: options.worker,
+        workerUrl: options.workerUrl,
+        timeoutMs: options.timeoutMs,
+      });
+    }
+
+    // Auto resolution:
+    if (typeof globalThis !== 'undefined' && typeof (globalThis as any).businessOSAutoTraceRequest === 'function') {
+      return new DirectWasmBackend();
+    }
+    if (typeof Worker !== 'undefined' && (options.worker || options.workerUrl)) {
+      return new WasmWorkerBackend({
+        worker: options.worker,
+        workerUrl: options.workerUrl,
+        timeoutMs: options.timeoutMs,
+      });
+    }
+
+    return new TypeScriptBackend();
   }
 
-  async send<TReq, TRes>(operation: EngineOperation, payload: TReq): Promise<TRes> {
-    const req = createProtocolRequest(operation, payload);
-
-    return new Promise<TRes>((resolve, reject) => {
-      // If global Go WASM function available directly in current thread
-      if (typeof globalThis !== 'undefined' && (globalThis as any).businessOSAutoTraceRequest) {
-        try {
-          const rawResponse = (globalThis as any).businessOSAutoTraceRequest(JSON.stringify(req));
-          const res = JSON.parse(rawResponse) as ProtocolResponse<TRes>;
-          if (res.ok) {
-            resolve(res.value as TRes);
-          } else {
-            reject(
-              new EngineProtocolError(
-                res.error || {
-                  code: 'AUTOTRACE_EXEC_ERROR',
-                  message: 'Execution error in Go core WASM bridge',
-                }
-              )
-            );
-          }
-          return;
-        } catch (err) {
-          reject(err);
-          return;
-        }
-      }
-
-      // If Web Worker is available
-      if (this.worker) {
-        const timer = setTimeout(() => {
-          this.pendingRequests.delete(req.requestId);
-          reject(
-            new EngineProtocolError({
-              code: 'AUTOTRACE_TIMEOUT',
-              message: `Engine operation ${operation} timed out after ${this.timeoutMs}ms`,
-              retryable: true,
-            })
-          );
-        }, this.timeoutMs);
-
-        this.pendingRequests.set(req.requestId, {
-          resolve,
-          reject,
-          timer,
-          operation,
-        });
-
-        this.worker.postMessage(req);
-        return;
-      }
-
-      // Isomorphic Fallback: in Node.js / tests where WASM Worker is not active,
-      // emulate execution using TypeScript computational core
-      try {
-        if (operation === 'hello') {
-          resolve({
-            service: 'autotrace-lab-ts-fallback',
-            engine: 'autotrace-ts-baseline',
-            capabilities: {
-              runtime: 'typescript-fallback',
-              protocolVersion: 1,
-              orthogonalRouting: true,
-              metrics: true,
-              labels: true,
-              incrementalScenes: true,
-              scenePatch: true,
-              strictRevisions: true,
-              nlpOptimization: false,
-              bridgeJumps: true,
-              g1Splines: true,
-              unifiedCoOpt: false,
-            },
-          } as any);
-          return;
-        }
-
-        if (operation === 'layout') {
-          const p = payload as LayoutRequestPayload;
-          const start = performance.now();
-          const routed = routeOrthogonalAStar(p.nodes, p.edges, p.options);
-          const dur = performance.now() - start;
-          const metrics = calculateBenchmarkMetrics(p.nodes, routed, dur, 'preserve-input-layout', 'orthogonal-a-star');
-          resolve({
-            graphId: p.graphId,
-            edges: routed,
-            metrics,
-            durationMs: dur,
-            engine: 'autotrace-ts-fallback',
-            protocol: 1,
-            contractVersion: 1,
-          } as any);
-          return;
-        }
-
-        if (operation === 'scene.close') {
-          resolve({ graphId: (payload as any).graphId, closed: true } as any);
-          return;
-        }
-      } catch (emulateErr) {
-        reject(emulateErr);
-        return;
-      }
-
-      reject(
-        new EngineProtocolError({
-          code: 'AUTOTRACE_NO_WORKER',
-          message: `Engine client worker or WASM bridge is not active for operation ${operation}`,
-          retryable: true,
-        })
-      );
-    });
+  async send<TReq, TRes>(operation: EngineOperation, payload: TReq, signal?: AbortSignal): Promise<TRes> {
+    return this.backend.request<TReq, TRes>(operation, payload, signal);
   }
 
   async hello(): Promise<HelloResult> {
     if (this.cachedCapabilities) return this.cachedCapabilities;
-    const res = await this.send<{}, HelloResult>('hello', {});
+    const res = await this.backend.hello();
     this.cachedCapabilities = res;
-    this.isInitialized = true;
     return res;
   }
 
-  async layout(payload: LayoutRequestPayload): Promise<LayoutResultValue> {
-    return this.send<LayoutRequestPayload, LayoutResultValue>('layout', payload);
+  async layout(payload: LayoutRequestPayload, signal?: AbortSignal): Promise<LayoutResultValue> {
+    return this.send<LayoutRequestPayload, LayoutResultValue>('layout', payload, signal);
   }
 
-  async open(payload: SceneOpenPayload): Promise<SceneResult> {
-    return this.send<SceneOpenPayload, SceneResult>('scene.open', payload);
+  async open(payload: SceneOpenPayload, signal?: AbortSignal): Promise<SceneResult> {
+    return this.send<SceneOpenPayload, SceneResult>('scene.open', payload, signal);
   }
 
-  async patch(payload: ScenePatchPayload): Promise<SceneResult> {
-    return this.send<ScenePatchPayload, SceneResult>('scene.patch', payload);
+  async patch(payload: ScenePatchPayload, signal?: AbortSignal): Promise<SceneResult> {
+    return this.send<ScenePatchPayload, SceneResult>('scene.patch', payload, signal);
   }
 
-  async updateOptions(payload: SceneUpdateOptionsPayload): Promise<SceneResult> {
-    return this.send<SceneUpdateOptionsPayload, SceneResult>('scene.update_options', payload);
+  async updateOptions(payload: SceneUpdateOptionsPayload, signal?: AbortSignal): Promise<SceneResult> {
+    return this.send<SceneUpdateOptionsPayload, SceneResult>('scene.update_options', payload, signal);
   }
 
-  async snapshot(graphId: string): Promise<SceneResult> {
-    return this.send<{ graphId: string }, SceneResult>('scene.snapshot', { graphId });
+  async snapshot(graphId: string, signal?: AbortSignal): Promise<SceneResult> {
+    return this.send<{ graphId: string }, SceneResult>('scene.snapshot', { graphId }, signal);
   }
 
-  async close(graphId: string): Promise<SceneCloseResult> {
-    return this.send<{ graphId: string }, SceneCloseResult>('scene.close', { graphId });
+  async close(graphId: string, signal?: AbortSignal): Promise<SceneCloseResult> {
+    return this.send<{ graphId: string }, SceneCloseResult>('scene.close', { graphId }, signal);
   }
 
-  async optimizeNLP(payload: NLPOptimizePayload): Promise<NLPOptimizationResult> {
-    return this.send<NLPOptimizePayload, NLPOptimizationResult>('nlp.optimize', payload);
+  async optimizeNLP(payload: NLPOptimizePayload, signal?: AbortSignal): Promise<NLPOptimizationResult> {
+    return this.send<NLPOptimizePayload, NLPOptimizationResult>('nlp.optimize', payload, signal);
   }
 
-  async unifiedCoOptimize(payload: UnifiedCoOptimizePayload): Promise<any> {
-    return this.send<UnifiedCoOptimizePayload, any>('unified.co_optimize', payload);
+  async unifiedCoOptimize(payload: UnifiedCoOptimizePayload, signal?: AbortSignal): Promise<any> {
+    return this.send<UnifiedCoOptimizePayload, any>('unified.co_optimize', payload, signal);
   }
 
   /**
-   * Shadow execution method: executes request through TS baseline and Go/Worker concurrently
-   * and produces telemetry on timing, parity, and discrepancies.
+   * Shadow comparison: runs TS reference implementation alongside backend request to check parity
    */
   async shadowCompare(
     nodes: BlockNode[],
     edges: EdgeConnection[],
-    options: RoutingOptions
+    options: RoutingOptions,
+    signal?: AbortSignal
   ): Promise<ShadowComparisonReport> {
     const startTs = performance.now();
     const tsRouted = routeOrthogonalAStar(nodes, edges, options);
@@ -269,15 +147,15 @@ export class EngineClient {
         nodes,
         edges,
         options,
-      });
+      }, signal);
       goDuration = performance.now() - startGo;
       goMetrics = goResult.metrics;
 
       if (goResult.edges.length !== tsRouted.length) {
-        discrepancies.push(`Edge count mismatch: TS=${tsRouted.length} Go=${goResult.edges.length}`);
+        discrepancies.push(`Edge count mismatch: TS=${tsRouted.length} Go/Backend=${goResult.edges.length}`);
       }
     } catch (err: any) {
-      discrepancies.push(`Go execution error: ${err?.message || String(err)}`);
+      discrepancies.push(`Backend execution error: ${err?.message || String(err)}`);
     }
 
     const matched = discrepancies.length === 0;
@@ -295,20 +173,7 @@ export class EngineClient {
     };
   }
 
-  destroy() {
-    for (const pending of this.pendingRequests.values()) {
-      clearTimeout(pending.timer);
-      pending.reject(
-        new EngineProtocolError({
-          code: 'AUTOTRACE_CLIENT_DESTROYED',
-          message: 'EngineClient was destroyed',
-        })
-      );
-    }
-    this.pendingRequests.clear();
-    if (this.worker) {
-      this.worker.terminate();
-      this.worker = null;
-    }
+  async destroy() {
+    await this.backend.dispose();
   }
 }

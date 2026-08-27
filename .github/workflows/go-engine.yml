@@ -31,14 +31,14 @@ jobs:
           set -euo pipefail
           mkdir -p dist/autotrace
           cd go_engine
-          GOOS=js GOARCH=wasm go build -trimpath -o ../dist/autotrace/autotrace-core.wasm .
+          GOOS=js GOARCH=wasm go build -trimpath -o ../dist/autotrace/autotrace-core.wasm ./cmd/wasm
           cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" ../dist/autotrace/wasm_exec.js
           cd ..
           cat > dist/autotrace/engine-manifest.json <<EOF
           {
             "name": "autotrace-core",
             "contractVersion": 1,
-            "protocolVersion": 1,
+            "protocolVersion": 2,
             "runtime": "go-wasm",
             "commit": "${GITHUB_SHA}",
             "entrypoint": "businessOSAutoTraceRequest",

@@ -376,13 +376,24 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
     return wires;
   }, [activeSubcircuit, nodes, edges, subcircuitBounds, showBridgeJumps, options]);
 
-  // Zoom handlers
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
-    const newZoom = Math.min(Math.max(0.3, zoom * zoomFactor), 2.8);
-    setZoom(newZoom);
-  };
+  // Native non-passive Wheel handler to avoid "Unable to preventDefault inside passive event listener invocation"
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    const onWheel = (e: WheelEvent) => {
+      if (e.cancelable) {
+        e.preventDefault();
+      }
+      const zoomFactor = e.deltaY < 0 ? 1.08 : 0.92;
+      setZoom(prev => Math.min(Math.max(0.3, prev * zoomFactor), 2.8));
+    };
+
+    container.addEventListener('wheel', onWheel, { passive: false });
+    return () => {
+      container.removeEventListener('wheel', onWheel);
+    };
+  }, []);
 
 
   const handleFitToScreen = useCallback(() => {
@@ -933,7 +944,6 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
       ref={containerRef}
       id="diagram-canvas-container"
       className="relative w-full h-full bg-[var(--surface-canvas)] overflow-hidden select-none cursor-crosshair border border-[var(--border-subtle)] rounded-2xl flex flex-col justify-between touch-none transition-colors duration-300"
-      onWheel={handleWheel}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}

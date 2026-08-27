@@ -20,6 +20,7 @@ import { RegistryStore } from '../registry/RegistryClient';
 import { resolveBlockStyle } from '../registry/resolve';
 import { classifyBlockChange, classifyEdgeChange } from '../registry/invalidation';
 import { createAutoTraceClient, InMemoryStorageAdapter } from '../sdk';
+import { extractTopologySummary, tuneParametersLocalHeuristics } from '../algorithms/aiParameterTuner';
 
 export interface TestResult {
   suite: string;
@@ -1218,6 +1219,104 @@ export function runAllDiagnosticTests(): TestSuiteSummary {
       !intersectsObstacle && path.length >= 4,
       `Obstacle bypassed cleanly (Path vertices: ${path.length}, Obstacle penetration: ${intersectsObstacle})`,
       { path, obstacle: nodeObstacle }
+    );
+  }
+
+  // =========================================================================
+  // SUITE 14: AI Routing Hyperparameter Tuning & Neural Heuristics
+  // =========================================================================
+  {
+    const suite = 'AI Routing Hyperparameter Tuning & Neural Heuristics';
+
+    const testNodes: BlockNode[] = [
+      {
+        id: 'mcu',
+        title: 'STM32 MCU',
+        category: 'processor',
+        semanticType: 'MCU',
+        x: 100,
+        y: 100,
+        width: 140,
+        height: 120,
+        inputs: [
+          { id: 'p1', name: 'PA0', type: 'input' },
+          { id: 'p2', name: 'PA1', type: 'input' },
+          { id: 'p3', name: 'PA2', type: 'input' },
+          { id: 'p4', name: 'PA3', type: 'input' },
+        ],
+        outputs: [
+          { id: 'p5', name: 'TX', type: 'output' },
+          { id: 'p6', name: 'RX', type: 'output' },
+        ],
+      },
+      {
+        id: 'sensor',
+        title: 'BME280',
+        category: 'source',
+        x: 350,
+        y: 100,
+        width: 100,
+        height: 80,
+        inputs: [],
+        outputs: [{ id: 'p7', name: 'SDA', type: 'output' }],
+      },
+    ];
+
+    const testEdges: EdgeConnection[] = [
+      { id: 'e1', sourceBlockId: 'sensor', sourcePortId: 'p7', targetBlockId: 'mcu', targetPortId: 'p1' },
+    ];
+
+    // 1. Topology summary extraction
+    const summary = extractTopologySummary(testNodes, testEdges);
+    assert(
+      suite,
+      'Topology summary accurately computes pin counts and density profile',
+      summary.nodeCount === 2 && summary.totalPins === 7 && summary.maxPinsOnSingleBlock === 6,
+      `Summary: totalPins=${summary.totalPins}, maxPins=${summary.maxPinsOnSingleBlock}, density=${summary.densityScore}`
+    );
+
+    // 2. EDA compact tuning profile
+    const edaResult = tuneParametersLocalHeuristics(summary, 'eda compact');
+    assert(
+      suite,
+      'EDA compact tuning enforces tighter clearance and higher bend penalty',
+      (edaResult.options.obstacleClearance ?? 0) <= 12 &&
+        (edaResult.options.bendPenalty ?? 0) >= 40 &&
+        edaResult.options.pinAlignment === true,
+      `EDA clearance=${edaResult.options.obstacleClearance}px, bendPenalty=${edaResult.options.bendPenalty}`
+    );
+
+    // 3. Presentation tuning profile
+    const presResult = tuneParametersLocalHeuristics(summary, 'presentation');
+    assert(
+      suite,
+      'Presentation tuning enables smooth G1 corner fillets and generous spacing',
+      (presResult.options.obstacleClearance ?? 0) >= 20 &&
+        (presResult.options.cornerRadius ?? 0) >= 12 &&
+        presResult.options.adaptiveCornerRadius === true,
+      `Presentation clearance=${presResult.options.obstacleClearance}px, cornerRadius=${presResult.options.cornerRadius}px`
+    );
+
+    // 4. Safe bounded ranges invariant
+    const allProfiles = ['eda compact', 'presentation', 'bus mcu', 'zero bends', 'custom'];
+    let allValid = true;
+    for (const p of allProfiles) {
+      const res = tuneParametersLocalHeuristics(summary, p);
+      const c = res.options.obstacleClearance ?? 15;
+      const ch = res.options.channelSpacing ?? 14;
+      const r = res.options.cornerRadius ?? 12;
+      const b = res.options.bendPenalty ?? 35;
+      const s = res.options.portExitOffset ?? 20;
+      if (c < 5 || c > 35 || ch < 8 || ch > 40 || r < 0 || r > 24 || b < 0 || b > 80 || s < 10 || s > 40) {
+        allValid = false;
+        break;
+      }
+    }
+    assert(
+      suite,
+      'All AI parameter recommendations stay strictly within valid router bounds',
+      allValid,
+      'Verified [5..35]px clearance, [8..40]px channels, [0..24]px radius, [0..80] bend penalty across all profiles'
     );
   }
 

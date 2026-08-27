@@ -4,6 +4,7 @@ import {
   RoutingAlgorithmType,
   RoutingOptions,
   BlockNode,
+  EdgeConnection,
   OptimizationWeights,
   WeightPresetId,
 } from '../types';
@@ -27,8 +28,18 @@ import {
   X,
   Palette,
   Check,
+  Bot,
+  Wand2,
+  Loader2,
+  RefreshCw,
+  Info,
 } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import {
+  tuneRoutingParametersWithAI,
+  AITunedParametersResult,
+} from '../algorithms/aiParameterTuner';
+import { toast } from '../utils/toastService';
 
 interface ControlPanelProps {
   selectedPresetId: string;
@@ -48,6 +59,8 @@ interface ControlPanelProps {
   onOpenStepper: () => void;
   isOpenOnMobile?: boolean;
   onCloseMobile?: () => void;
+  nodes?: BlockNode[];
+  edges?: EdgeConnection[];
 }
 
 export const ControlPanel: React.FC<ControlPanelProps> = ({
@@ -68,8 +81,33 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   onOpenStepper,
   isOpenOnMobile = false,
   onCloseMobile,
+  nodes = [],
+  edges = [],
 }) => {
   const { accent } = useTheme();
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [aiResult, setAiResult] = useState<AITunedParametersResult | null>(null);
+  const [isAiExpanded, setIsAiExpanded] = useState(true);
+
+  const handleRunAITuning = async (promptOverride?: string) => {
+    const promptToUse = promptOverride !== undefined ? promptOverride : aiPrompt;
+    setIsAiLoading(true);
+    try {
+      const res = await tuneRoutingParametersWithAI(nodes, edges, promptToUse);
+      setAiResult(res);
+      onOptionsChange({
+        ...options,
+        ...res.options,
+        weights: res.weights || options.weights,
+      });
+      toast.success(`✨ ${res.profileName}`, res.reasoning, 4000);
+    } catch (err: any) {
+      toast.error('Ошибка подбора параметров', err?.message || 'Не удалось выполнить подбор');
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
 
   return (
     <>
@@ -159,62 +197,29 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                 <span>Фаза 1: Размещение Блоков</span>
               </span>
               <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                Placement
+                Sugiyama
               </span>
             </div>
 
             <div className="space-y-1.5">
-              {[
-                {
-                  id: 'sugiyama' as LayoutAlgorithmType,
-                  name: 'Sugiyama Framework',
-                  badge: 'Recommended',
-                  desc: 'Послойное ранжирование + барицентрическая сортировка.',
-                },
-                {
-                  id: 'orthogonal_grid' as LayoutAlgorithmType,
-                  name: 'Orthogonal Grid / TSM',
-                  badge: 'Matrix',
-                  desc: 'Дискретная сетка слотов с сохранением ортогональных осей.',
-                },
-                {
-                  id: 'force_directed' as LayoutAlgorithmType,
-                  name: 'Force-Directed Flow',
-                  badge: 'Physics',
-                  desc: 'Физическая симуляция пружин с гравитацией портов.',
-                },
-              ].map(algo => {
-                const isSelected = layoutAlgorithm === algo.id;
-                return (
-                  <button
-                    key={algo.id}
-                    id={`layout-algo-${algo.id}`}
-                    onClick={() => onLayoutChange(algo.id)}
-                    className={`w-full text-left p-2.5 rounded-lg border transition-all ${
-                      isSelected
-                        ? 'bg-[var(--accent-subtle)] border-[var(--accent-border)] text-[var(--text-primary)] ring-1 ring-[var(--accent)]/30'
-                        : 'bg-[var(--surface-sunken)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-default)] hover:text-[var(--text-primary)]'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-1.5">
-                        <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-cyan-400' : 'bg-[var(--text-tertiary)]'}`} />
-                        <span className="text-xs font-semibold">{algo.name}</span>
-                      </div>
-                      <span
-                        className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase ${
-                          algo.badge === 'Recommended'
-                            ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)]'
-                            : 'bg-[var(--surface-primary)] text-[var(--text-tertiary)]'
-                        }`}
-                      >
-                        {algo.badge}
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-[var(--text-secondary)] leading-tight pl-3">{algo.desc}</p>
-                  </button>
-                );
-              })}
+              <button
+                id="layout-algo-sugiyama"
+                onClick={() => onLayoutChange('sugiyama')}
+                className="w-full text-left p-2.5 rounded-lg border transition-all bg-[var(--accent-subtle)] border-[var(--accent-border)] text-[var(--text-primary)] ring-1 ring-[var(--accent)]/30"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                    <span className="text-xs font-semibold">Sugiyama Framework</span>
+                  </div>
+                  <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)]">
+                    Active
+                  </span>
+                </div>
+                <p className="text-[10px] text-[var(--text-secondary)] leading-tight pl-3">
+                  Послойное ранжирование (DAG Layering) + барицентрическая сортировка + соосность пинов.
+                </p>
+              </button>
             </div>
           </div>
 
@@ -226,68 +231,29 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                 <span>Фаза 2: Трассировка Связей</span>
               </span>
               <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                Routing
+                A* Engine
               </span>
             </div>
 
             <div className="space-y-1.5">
-              {[
-                {
-                  id: 'orthogonal_astar' as RoutingAlgorithmType,
-                  name: 'Orthogonal A* Router',
-                  badge: 'Recommended',
-                  desc: 'A* с нормалями выходов портов и штрафами за повороты.',
-                },
-                {
-                  id: 'lee_wave' as RoutingAlgorithmType,
-                  name: 'Lee Maze Wave',
-                  badge: 'Exact BFS',
-                  desc: 'Волновой фронт распространения потенциала по сетке.',
-                },
-                {
-                  id: 'manhattan_channel' as RoutingAlgorithmType,
-                  name: 'Manhattan Channel',
-                  badge: 'O(1) Fast',
-                  desc: 'Z/L/C коридоры между свободными интервалами.',
-                },
-                {
-                  id: 'smooth_spline' as RoutingAlgorithmType,
-                  name: 'Smooth Splines (Bézier)',
-                  badge: 'Curves',
-                  desc: 'Плавные кубические сплайны с нормальными касательными.',
-                },
-              ].map(algo => {
-                const isSelected = routingAlgorithm === algo.id;
-                return (
-                  <button
-                    key={algo.id}
-                    id={`routing-algo-${algo.id}`}
-                    onClick={() => onRoutingChange(algo.id)}
-                    className={`w-full text-left p-2.5 rounded-lg border transition-all ${
-                      isSelected
-                        ? 'bg-[var(--accent-subtle)] border-[var(--accent-border)] text-[var(--text-primary)] ring-1 ring-[var(--accent)]/30'
-                        : 'bg-[var(--surface-sunken)] border-[var(--border-subtle)] text-[var(--text-secondary)] hover:border-[var(--border-default)] hover:text-[var(--text-primary)]'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-1.5">
-                        <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-[var(--accent)]' : 'bg-[var(--text-tertiary)]'}`} />
-                        <span className="text-xs font-semibold">{algo.name}</span>
-                      </div>
-                      <span
-                        className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase ${
-                          algo.badge === 'Recommended'
-                            ? 'bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)]'
-                            : 'bg-[var(--surface-primary)] text-[var(--text-tertiary)]'
-                        }`}
-                      >
-                        {algo.badge}
-                      </span>
-                    </div>
-                    <p className="text-[10px] text-[var(--text-secondary)] leading-tight pl-3">{algo.desc}</p>
-                  </button>
-                );
-              })}
+              <button
+                id="routing-algo-orthogonal_astar"
+                onClick={() => onRoutingChange('orthogonal_astar')}
+                className="w-full text-left p-2.5 rounded-lg border transition-all bg-[var(--accent-subtle)] border-[var(--accent-border)] text-[var(--text-primary)] ring-1 ring-[var(--accent)]/30"
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
+                    <span className="text-xs font-semibold">Orthogonal A* Router</span>
+                  </div>
+                  <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded uppercase bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent-border)]">
+                    Active
+                  </span>
+                </div>
+                <p className="text-[10px] text-[var(--text-secondary)] leading-tight pl-3">
+                  Ортогональный A* с 4-сторонними нормалями выходов портов, эшелонированием каналов и G¹ скруглениями.
+                </p>
+              </button>
             </div>
           </div>
 
@@ -299,6 +265,115 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
                 <span>Параметры Оптимизации</span>
               </span>
               <span className="text-[9px] font-mono text-[var(--text-tertiary)]">Config</span>
+            </div>
+
+            {/* AI Auto-Tuner Smart Assistant Box */}
+            <div className="rounded-lg border border-purple-500/30 bg-purple-950/20 p-2.5 space-y-2 relative overflow-hidden transition-all shadow-inner">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-purple-400 animate-pulse" />
+                  <span className="text-[11px] font-bold text-purple-300 font-mono">
+                    AI Auto-Tune (LLM)
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAiExpanded(!isAiExpanded)}
+                  className="p-1 rounded text-purple-400 hover:text-purple-200 transition-colors"
+                  title="Свернуть/Развернуть AI подбор"
+                >
+                  {isAiExpanded ? (
+                    <ChevronUp className="w-3.5 h-3.5" />
+                  ) : (
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  )}
+                </button>
+              </div>
+
+              {isAiExpanded && (
+                <div className="space-y-2 pt-1 animate-fade-in">
+                  {/* Quick Intent Pills */}
+                  <div className="grid grid-cols-2 gap-1 text-[10px]">
+                    <button
+                      type="button"
+                      onClick={() => handleRunAITuning('eda compact pcb плотная плата')}
+                      disabled={isAiLoading}
+                      className="px-1.5 py-1 rounded bg-purple-900/30 border border-purple-500/20 text-purple-200 hover:bg-purple-800/40 hover:border-purple-400/40 transition-all text-left flex items-center gap-1 truncate disabled:opacity-50"
+                    >
+                      <span>⚡</span> <span className="truncate">Плата EDA</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRunAITuning('presentation ux clean просторно красиво')}
+                      disabled={isAiLoading}
+                      className="px-1.5 py-1 rounded bg-purple-900/30 border border-purple-500/20 text-purple-200 hover:bg-purple-800/40 hover:border-purple-400/40 transition-all text-left flex items-center gap-1 truncate disabled:opacity-50"
+                    >
+                      <span>🎨</span> <span className="truncate">Презентация</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRunAITuning('bus dense mcu pins шина выводов')}
+                      disabled={isAiLoading}
+                      className="px-1.5 py-1 rounded bg-purple-900/30 border border-purple-500/20 text-purple-200 hover:bg-purple-800/40 hover:border-purple-400/40 transition-all text-left flex items-center gap-1 truncate disabled:opacity-50"
+                    >
+                      <span>🔌</span> <span className="truncate">Шина MCU</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRunAITuning('zero straight laser bends минимум поворотов')}
+                      disabled={isAiLoading}
+                      className="px-1.5 py-1 rounded bg-purple-900/30 border border-purple-500/20 text-purple-200 hover:bg-purple-800/40 hover:border-purple-400/40 transition-all text-left flex items-center gap-1 truncate disabled:opacity-50"
+                    >
+                      <span>📏</span> <span className="truncate">0-Изгибов</span>
+                    </button>
+                  </div>
+
+                  {/* Custom Prompt Input & Trigger */}
+                  <div className="flex gap-1.5">
+                    <input
+                      type="text"
+                      value={aiPrompt}
+                      onChange={e => setAiPrompt(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && !isAiLoading) {
+                          handleRunAITuning();
+                        }
+                      }}
+                      placeholder="Промпт: напр. компактно для ГОСТ..."
+                      className="flex-1 px-2 py-1 text-[11px] rounded bg-[var(--surface-sunken)] border border-purple-500/30 text-[var(--text-primary)] placeholder-[var(--text-tertiary)] focus:outline-none focus:border-purple-400"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleRunAITuning()}
+                      disabled={isAiLoading}
+                      className="px-2.5 py-1 rounded bg-purple-600 hover:bg-purple-500 text-white text-[11px] font-semibold flex items-center gap-1 shadow-sm transition-all disabled:opacity-50"
+                      title="Запустить автоподбор параметров"
+                    >
+                      {isAiLoading ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Wand2 className="w-3.5 h-3.5" />
+                      )}
+                      <span>AI</span>
+                    </button>
+                  </div>
+
+                  {/* AI Explanation / Reasoning Output */}
+                  {aiResult && (
+                    <div className="p-2 rounded bg-purple-950/40 border border-purple-500/20 text-[10px] space-y-1">
+                      <div className="flex items-center justify-between text-purple-300 font-semibold font-mono">
+                        <span className="truncate">✨ {aiResult.profileName}</span>
+                        <span className="text-[8px] uppercase tracking-wider px-1 py-0.5 rounded bg-purple-500/20 text-purple-300">
+                          {aiResult.source === 'gemini_llm' ? 'Gemini 2.5' : 'Heuristics'}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-purple-200/80 leading-snug">
+                        {aiResult.reasoning}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Clearance */}

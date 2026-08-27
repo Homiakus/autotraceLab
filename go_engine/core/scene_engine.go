@@ -54,24 +54,64 @@ type SceneResult struct {
 }
 
 type sceneState struct {
-	revision int
-	nodes    map[string]BlockNode
+	mu        sync.RWMutex
+	revision  int
+	nodes     map[string]BlockNode
 	nodeOrder []string
-	edges    map[string]EdgeConnection
+	edges     map[string]EdgeConnection
 	edgeOrder []string
-	options  RoutingOptions
-	metrics  BenchmarkMetrics
+	options   RoutingOptions
+	metrics   BenchmarkMetrics
+}
+
+type EngineOption func(*Engine)
+
+func WithRouterRegistry(registry *RouterRegistry) EngineOption {
+	return func(e *Engine) {
+		e.routerRegistry = registry
+	}
+}
+
+func WithDefaultRouter(routerName string) EngineOption {
+	return func(e *Engine) {
+		e.defaultRouter = routerName
+	}
 }
 
 // Engine owns revisioned graph scenes and reuses routes that remain valid after
-// a patch. It is safe for concurrent native callers; the WASM bridge uses one
-// process-wide instance so scene state survives across protocol calls.
+// a patch. It uses per-scene locking so independent scenes execute concurrently.
 type Engine struct {
-	mu     sync.RWMutex
-	scenes map[string]*sceneState
+	mu             sync.RWMutex
+	scenes         map[string]*sceneState
+	routerRegistry *RouterRegistry
+	defaultRouter  string
 }
 
-func NewEngine() *Engine { return &Engine{scenes: make(map[string]*sceneState)} }
+func NewEngine(opts ...EngineOption) *Engine {
+	e := &Engine{
+		scenes:        make(map[string]*sceneState),
+		defaultRouter: "orthogonal-a-star",
+	}
+	for _, opt := range opts {
+		opt(e)
+	}
+	if e.routerRegistry == nil {
+		e.routerRegistry = DefaultRouterRegistry()
+	}
+	return e
+}
+
+func (e *Engine) routeEdges(ctx context.Context, nodes []BlockNode, edges []EdgeConnection, options RoutingOptions) ([]EdgeConnection, error) {
+	if len(edges) == 0 {
+		return append([]EdgeConnection(nil), edges...), nil
+	}
+	if e.routerRegistry != nil {
+		if router, ok := e.routerRegistry.Get(e.defaultRouter); ok {
+			return router.Route(ctx, nodes, edges, options)
+		}
+	}
+	return RouteOrthogonalAStarWithContext(ctx, nodes, edges, options)
+}
 
 func (e *Engine) Open(request SceneOpenRequest) (SceneResult, error) {
 	return e.OpenWithContext(context.Background(), request)
@@ -91,18 +131,22 @@ func (e *Engine) OpenWithContext(ctx context.Context, request SceneOpenRequest) 
 		return SceneResult{}, err
 	}
 	started := time.Now()
-	routed := RouteOrthogonalAStar(request.Nodes, request.Edges, request.Options)
-	if err := ctx.Err(); err != nil {
+	routed, err := e.routeEdges(ctx, request.Nodes, request.Edges, request.Options)
+	if err != nil {
 		return SceneResult{}, err
 	}
 	duration := elapsedMs(started)
 	metrics := CalculateDetailedMetrics(request.Nodes, routed, "preserve-input-layout", "orthogonal-a-star", duration, &request.Options)
 	state := newSceneState(request.Revision, request.Nodes, routed, request.Options, metrics)
+
 	e.mu.Lock()
 	e.scenes[request.GraphID] = state
 	e.mu.Unlock()
+
 	ids := make([]string, 0, len(routed))
-	for _, edge := range routed { ids = append(ids, edge.ID) }
+	for _, edge := range routed {
+		ids = append(ids, edge.ID)
+	}
 	return sceneResult(request.GraphID, state, duration, 0, len(routed), ids), nil
 }
 
@@ -117,12 +161,18 @@ func (e *Engine) PatchWithContext(ctx context.Context, request ScenePatchRequest
 	if request.GraphID == "" {
 		return SceneResult{}, fmt.Errorf("graph id is required")
 	}
-	e.mu.Lock()
-	defer e.mu.Unlock()
+
+	e.mu.RLock()
 	state, ok := e.scenes[request.GraphID]
+	e.mu.RUnlock()
+
 	if !ok {
 		return SceneResult{}, fmt.Errorf("%w: %s", ErrSceneNotFound, request.GraphID)
 	}
+
+	state.mu.Lock()
+	defer state.mu.Unlock()
+
 	patch := request.Patch
 	if patch.BaseRevision != state.revision {
 		return SceneResult{}, &RevisionConflictError{GraphID: request.GraphID, Expected: patch.BaseRevision, Actual: state.revision}
@@ -150,14 +200,22 @@ func (e *Engine) PatchWithContext(ctx context.Context, request ScenePatchRequest
 		dirtyNodes[id] = struct{}{}
 	}
 	for _, node := range patch.ChangedBlocks {
-		if node.ID == "" { return SceneResult{}, fmt.Errorf("changed block id is required") }
-		if _, exists := nodes[node.ID]; !exists { nodeOrder = append(nodeOrder, node.ID) }
+		if node.ID == "" {
+			return SceneResult{}, fmt.Errorf("changed block id is required")
+		}
+		if _, exists := nodes[node.ID]; !exists {
+			nodeOrder = append(nodeOrder, node.ID)
+		}
 		nodes[node.ID] = cloneNode(node)
 		dirtyNodes[node.ID] = struct{}{}
 	}
 	for _, edge := range patch.ChangedEdges {
-		if edge.ID == "" { return SceneResult{}, fmt.Errorf("changed edge id is required") }
-		if _, exists := edges[edge.ID]; !exists { edgeOrder = append(edgeOrder, edge.ID) }
+		if edge.ID == "" {
+			return SceneResult{}, fmt.Errorf("changed edge id is required")
+		}
+		if _, exists := edges[edge.ID]; !exists {
+			edgeOrder = append(edgeOrder, edge.ID)
+		}
 		edges[edge.ID] = cloneEdge(edge)
 		dirtyEdges[edge.ID] = struct{}{}
 	}
@@ -169,15 +227,20 @@ func (e *Engine) PatchWithContext(ctx context.Context, request ScenePatchRequest
 	}
 
 	clearance := state.options.ObstacleClearance
-	if clearance <= 0 { clearance = 15 }
+	if clearance <= 0 {
+		clearance = 15
+	}
 	dirtyObstacles := make([]BlockNode, 0, len(dirtyNodes))
 	for id := range dirtyNodes {
-		if node, exists := nodes[id]; exists { dirtyObstacles = append(dirtyObstacles, node) }
+		if node, exists := nodes[id]; exists {
+			dirtyObstacles = append(dirtyObstacles, node)
+		}
 	}
 
-	routed := make([]EdgeConnection, 0, len(edgeList))
-	reroutedIDs := make([]string, 0)
-	reused := 0
+	dirtyEdgesToReroute := make([]EdgeConnection, 0)
+	dirtyEdgeIndexMap := make(map[string]int)
+	cleanEdgesMap := make(map[string]EdgeConnection)
+
 	for _, edge := range edgeList {
 		previous, hadPrevious := state.edges[edge.ID]
 		_, explicitlyChanged := dirtyEdges[edge.ID]
@@ -189,19 +252,52 @@ func (e *Engine) PatchWithContext(ctx context.Context, request ScenePatchRequest
 		}
 		if !needsRoute {
 			for _, obstacle := range dirtyObstacles {
-				if obstacle.ID == edge.SourceBlockID || obstacle.ID == edge.TargetBlockID { continue }
-				if pathTouchesObstacle(previous.Path, obstacle, clearance) { needsRoute = true; break }
+				if obstacle.ID == edge.SourceBlockID || obstacle.ID == edge.TargetBlockID {
+					continue
+				}
+				if pathTouchesObstacle(previous.Path, obstacle, clearance) {
+					needsRoute = true
+					break
+				}
 			}
 		}
 		if needsRoute {
-			one := RouteOrthogonalAStar(nodeList, []EdgeConnection{edge}, state.options)
-			if len(one) == 1 { edge = one[0] }
-			reroutedIDs = append(reroutedIDs, edge.ID)
+			dirtyEdgeIndexMap[edge.ID] = len(dirtyEdgesToReroute)
+			dirtyEdgesToReroute = append(dirtyEdgesToReroute, edge)
 		} else {
-			edge = cloneEdge(previous)
-			reused++
+			cleanEdgesMap[edge.ID] = cloneEdge(previous)
 		}
-		routed = append(routed, edge)
+	}
+
+	var routedDirty []EdgeConnection
+	if len(dirtyEdgesToReroute) > 0 {
+		var err error
+		routedDirty, err = e.routeEdges(ctx, nodeList, dirtyEdgesToReroute, state.options)
+		if err != nil {
+			return SceneResult{}, err
+		}
+	}
+
+	routedDirtyMap := make(map[string]EdgeConnection, len(routedDirty))
+	for _, edge := range routedDirty {
+		routedDirtyMap[edge.ID] = edge
+	}
+
+	routed := make([]EdgeConnection, 0, len(edgeList))
+	reroutedIDs := make([]string, 0, len(dirtyEdgesToReroute))
+	reusedCount := 0
+
+	for _, edge := range edgeList {
+		if dirtyEdge, isDirty := routedDirtyMap[edge.ID]; isDirty {
+			routed = append(routed, dirtyEdge)
+			reroutedIDs = append(reroutedIDs, edge.ID)
+		} else if cleanEdge, isClean := cleanEdgesMap[edge.ID]; isClean {
+			routed = append(routed, cleanEdge)
+			reusedCount++
+		} else {
+			routed = append(routed, edge)
+			reroutedIDs = append(reroutedIDs, edge.ID)
+		}
 	}
 
 	duration := elapsedMs(started)
@@ -211,9 +307,11 @@ func (e *Engine) PatchWithContext(ctx context.Context, request ScenePatchRequest
 	state.nodeOrder = nodeOrder
 	state.edges = make(map[string]EdgeConnection, len(routed))
 	state.edgeOrder = edgeOrder
-	for _, edge := range routed { state.edges[edge.ID] = cloneEdge(edge) }
+	for _, edge := range routed {
+		state.edges[edge.ID] = cloneEdge(edge)
+	}
 	state.metrics = metrics
-	return sceneResult(request.GraphID, state, duration, reused, len(reroutedIDs), reroutedIDs), nil
+	return sceneResult(request.GraphID, state, duration, reusedCount, len(reroutedIDs), reroutedIDs), nil
 }
 
 func (e *Engine) UpdateOptions(graphID string, options RoutingOptions) (SceneResult, error) {
@@ -224,20 +322,25 @@ func (e *Engine) UpdateOptionsWithContext(ctx context.Context, graphID string, o
 	if err := ctx.Err(); err != nil {
 		return SceneResult{}, err
 	}
-	e.mu.Lock()
-	defer e.mu.Unlock()
+
+	e.mu.RLock()
 	state, ok := e.scenes[graphID]
+	e.mu.RUnlock()
+
 	if !ok {
 		return SceneResult{}, fmt.Errorf("%w: %s", ErrSceneNotFound, graphID)
 	}
+
+	state.mu.Lock()
+	defer state.mu.Unlock()
 
 	started := time.Now()
 	state.options = options
 	nodeList := orderedNodes(state.nodes, state.nodeOrder)
 	edgeList := orderedEdges(state.edges, state.edgeOrder)
 
-	routed := RouteOrthogonalAStar(nodeList, edgeList, options)
-	if err := ctx.Err(); err != nil {
+	routed, err := e.routeEdges(ctx, nodeList, edgeList, options)
+	if err != nil {
 		return SceneResult{}, err
 	}
 	duration := elapsedMs(started)
@@ -260,72 +363,141 @@ func (e *Engine) UpdateOptionsWithContext(ctx context.Context, graphID string, o
 
 func (e *Engine) Snapshot(graphID string) (SceneResult, error) {
 	e.mu.RLock()
-	defer e.mu.RUnlock()
 	state, ok := e.scenes[graphID]
-	if !ok { return SceneResult{}, fmt.Errorf("%w: %s", ErrSceneNotFound, graphID) }
+	e.mu.RUnlock()
+
+	if !ok {
+		return SceneResult{}, fmt.Errorf("%w: %s", ErrSceneNotFound, graphID)
+	}
+
+	state.mu.RLock()
+	defer state.mu.RUnlock()
+
 	return sceneResult(graphID, state, 0, len(state.edges), 0, nil), nil
 }
 
 func (e *Engine) Close(graphID string) bool {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	if _, ok := e.scenes[graphID]; !ok { return false }
+	if _, ok := e.scenes[graphID]; !ok {
+		return false
+	}
 	delete(e.scenes, graphID)
 	return true
 }
 
 func newSceneState(revision int, nodes []BlockNode, edges []EdgeConnection, options RoutingOptions, metrics BenchmarkMetrics) *sceneState {
 	state := &sceneState{revision: revision, nodes: make(map[string]BlockNode, len(nodes)), edges: make(map[string]EdgeConnection, len(edges)), options: options, metrics: metrics}
-	for _, node := range nodes { state.nodes[node.ID] = cloneNode(node); state.nodeOrder = append(state.nodeOrder, node.ID) }
-	for _, edge := range edges { state.edges[edge.ID] = cloneEdge(edge); state.edgeOrder = append(state.edgeOrder, edge.ID) }
+	for _, node := range nodes {
+		state.nodes[node.ID] = cloneNode(node)
+		state.nodeOrder = append(state.nodeOrder, node.ID)
+	}
+	for _, edge := range edges {
+		state.edges[edge.ID] = cloneEdge(edge)
+		state.edgeOrder = append(state.edgeOrder, edge.ID)
+	}
 	return state
 }
 
 func sceneResult(graphID string, state *sceneState, duration float64, reused, rerouted int, reroutedIDs []string) SceneResult {
 	return SceneResult{
-		GraphID: graphID,
-		Revision: state.revision,
-		Nodes: orderedNodes(state.nodes, state.nodeOrder),
-		Edges: orderedEdges(state.edges, state.edgeOrder),
-		Metrics: state.metrics,
-		DurationMs: duration,
-		ReusedEdges: reused,
-		ReroutedEdges: rerouted,
+		GraphID:         graphID,
+		Revision:        state.revision,
+		Nodes:           orderedNodes(state.nodes, state.nodeOrder),
+		Edges:           orderedEdges(state.edges, state.edgeOrder),
+		Metrics:         state.metrics,
+		DurationMs:      duration,
+		ReusedEdges:     reused,
+		ReroutedEdges:   rerouted,
 		ReroutedEdgeIDs: append([]string(nil), reroutedIDs...),
-		Engine: EngineID,
+		Engine:          EngineID,
 		ContractVersion: ContractVersion,
 	}
 }
 
 func orderedNodes(values map[string]BlockNode, order []string) []BlockNode {
 	result := make([]BlockNode, 0, len(values))
-	for _, id := range order { if value, ok := values[id]; ok { result = append(result, cloneNode(value)) } }
+	for _, id := range order {
+		if value, ok := values[id]; ok {
+			result = append(result, cloneNode(value))
+		}
+	}
 	return result
 }
 
 func orderedEdges(values map[string]EdgeConnection, order []string) []EdgeConnection {
 	result := make([]EdgeConnection, 0, len(values))
-	for _, id := range order { if value, ok := values[id]; ok { result = append(result, cloneEdge(value)) } }
+	for _, id := range order {
+		if value, ok := values[id]; ok {
+			result = append(result, cloneEdge(value))
+		}
+	}
 	return result
 }
 
 func cloneNodeMap(input map[string]BlockNode) map[string]BlockNode {
-	result := make(map[string]BlockNode, len(input)); for id, value := range input { result[id] = cloneNode(value) }; return result
+	result := make(map[string]BlockNode, len(input))
+	for id, value := range input {
+		result[id] = cloneNode(value)
+	}
+	return result
 }
+
 func cloneEdgeMap(input map[string]EdgeConnection) map[string]EdgeConnection {
-	result := make(map[string]EdgeConnection, len(input)); for id, value := range input { result[id] = cloneEdge(value) }; return result
+	result := make(map[string]EdgeConnection, len(input))
+	for id, value := range input {
+		result[id] = cloneEdge(value)
+	}
+	return result
 }
+
+func clonePort(p Port) Port {
+	if p.AllowedSides != nil {
+		p.AllowedSides = append([]PortSide(nil), p.AllowedSides...)
+	}
+	return p
+}
+
 func cloneNode(node BlockNode) BlockNode {
-	node.Inputs = append([]Port(nil), node.Inputs...)
-	node.Outputs = append([]Port(nil), node.Outputs...)
-	node.Ports = append([]Port(nil), node.Ports...)
+	inputs := make([]Port, len(node.Inputs))
+	for i, p := range node.Inputs {
+		inputs[i] = clonePort(p)
+	}
+	node.Inputs = inputs
+
+	outputs := make([]Port, len(node.Outputs))
+	for i, p := range node.Outputs {
+		outputs[i] = clonePort(p)
+	}
+	node.Outputs = outputs
+
+	ports := make([]Port, len(node.Ports))
+	for i, p := range node.Ports {
+		ports[i] = clonePort(p)
+	}
+	node.Ports = ports
+
 	return node
 }
-func cloneEdge(edge EdgeConnection) EdgeConnection { edge.Path = append([]Point(nil), edge.Path...); return edge }
-func removeID(values []string, target string) []string {
-	result := values[:0]; for _, value := range values { if value != target { result = append(result, value) } }; return result
+
+func cloneEdge(edge EdgeConnection) EdgeConnection {
+	edge.Path = append([]Point(nil), edge.Path...)
+	return edge
 }
-func elapsedMs(started time.Time) float64 { return float64(time.Since(started).Microseconds()) / 1000 }
+
+func removeID(values []string, target string) []string {
+	result := values[:0]
+	for _, value := range values {
+		if value != target {
+			result = append(result, value)
+		}
+	}
+	return result
+}
+
+func elapsedMs(started time.Time) float64 {
+	return float64(time.Since(started).Microseconds()) / 1000
+}
 
 func pathTouchesObstacle(path []Point, node BlockNode, clearance float64) bool {
 	minX, maxX := node.X-clearance, node.X+node.Width+clearance
@@ -334,7 +506,9 @@ func pathTouchesObstacle(path []Point, node BlockNode, clearance float64) bool {
 		a, b := path[i], path[i+1]
 		segMinX, segMaxX := math.Min(a.X, b.X), math.Max(a.X, b.X)
 		segMinY, segMaxY := math.Min(a.Y, b.Y), math.Max(a.Y, b.Y)
-		if segMaxX >= minX && segMinX <= maxX && segMaxY >= minY && segMinY <= maxY { return true }
+		if segMaxX >= minX && segMinX <= maxX && segMaxY >= minY && segMinY <= maxY {
+			return true
+		}
 	}
 	return false
 }

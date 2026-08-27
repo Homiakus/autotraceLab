@@ -7,14 +7,14 @@ import (
 
 func incrementalFixture() SceneOpenRequest {
 	return SceneOpenRequest{
-		GraphID: "scene-1",
+		GraphID:  "scene-1",
 		Revision: 1,
 		Nodes: []BlockNode{
 			{ID: "a", Title: "A", X: 0, Y: 0, Width: 80, Height: 50, Outputs: []Port{{ID: "out", Side: SideRight, Type: "output"}}},
-			{ID: "b", Title: "B", X: 360, Y: 0, Width: 80, Height: 50, Inputs: []Port{{ID: "in", Side: SideLeft, Type: "input"}}},
+			{ID: "b", Title: "B", X: 360, Y: 0, Width: 80, Height: 50, Inputs: []Port{{ID: "in", Side: SideLeft, Type: "input"}}, Outputs: []Port{{ID: "out_b", Side: SideRight, Type: "output"}}},
 			{ID: "c", Title: "C", X: 160, Y: 220, Width: 80, Height: 60},
 		},
-		Edges: []EdgeConnection{{ID: "e1", SourceBlockID: "a", SourcePortID: "out", TargetBlockID: "b", TargetPortID: "in"}},
+		Edges:   []EdgeConnection{{ID: "e1", SourceBlockID: "a", SourcePortID: "out", TargetBlockID: "b", TargetPortID: "in"}},
 		Options: RoutingOptions{GridSize: 10, ObstacleClearance: 10, ArtifactCleaning: OptBool(true)},
 	}
 }
@@ -64,16 +64,38 @@ func TestSceneEngineRejectsDanglingEdgeAfterBlockRemoval(t *testing.T) {
 
 func TestSceneEngineCloseAndSnapshotIsolation(t *testing.T) {
 	engine := NewEngine()
-	if _, err := engine.Open(incrementalFixture()); err != nil { t.Fatal(err) }
+	fix := incrementalFixture()
+	fix.Nodes[0].Inputs = []Port{{ID: "in0", Side: SideLeft, AllowedSides: []PortSide{SideLeft, SideTop}}}
+	if _, err := engine.Open(fix); err != nil {
+		t.Fatal(err)
+	}
 	first, err := engine.Snapshot("scene-1")
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	first.Nodes[0].Title = "mutated outside"
 	first.Edges[0].Path[0].X = 99999
+	if len(first.Nodes[0].Inputs) > 0 && len(first.Nodes[0].Inputs[0].AllowedSides) > 0 {
+		first.Nodes[0].Inputs[0].AllowedSides[0] = SideBottom
+	}
 	second, err := engine.Snapshot("scene-1")
-	if err != nil { t.Fatal(err) }
-	if second.Nodes[0].Title == "mutated outside" || second.Edges[0].Path[0].X == 99999 { t.Fatal("snapshot leaked mutable state") }
-	if !engine.Close("scene-1") { t.Fatal("expected close to remove scene") }
-	if _, err := engine.Snapshot("scene-1"); !errors.Is(err, ErrSceneNotFound) { t.Fatalf("expected scene not found, got %v", err) }
+	if err != nil {
+		t.Fatal(err)
+	}
+	if second.Nodes[0].Title == "mutated outside" || second.Edges[0].Path[0].X == 99999 {
+		t.Fatal("snapshot leaked mutable state for title or path")
+	}
+	if len(second.Nodes[0].Inputs) > 0 && len(second.Nodes[0].Inputs[0].AllowedSides) > 0 {
+		if second.Nodes[0].Inputs[0].AllowedSides[0] == SideBottom {
+			t.Fatal("snapshot leaked mutable array for Port.AllowedSides")
+		}
+	}
+	if !engine.Close("scene-1") {
+		t.Fatal("expected close to remove scene")
+	}
+	if _, err := engine.Snapshot("scene-1"); !errors.Is(err, ErrSceneNotFound) {
+		t.Fatalf("expected scene not found, got %v", err)
+	}
 }
 
 func TestSceneEngine_IncrementalMathematicalEquivalence(t *testing.T) {
@@ -118,7 +140,7 @@ func TestSceneEngine_IncrementalMathematicalEquivalence(t *testing.T) {
 				},
 			},
 			ChangedEdges: []EdgeConnection{
-				{ID: "e2", SourceBlockID: "b", SourcePortID: "in", TargetBlockID: "d", TargetPortID: "in_d"},
+				{ID: "e2", SourceBlockID: "b", SourcePortID: "out_b", TargetBlockID: "d", TargetPortID: "in_d"},
 			},
 		},
 	})
@@ -158,6 +180,14 @@ func TestSceneEngine_IncrementalMathematicalEquivalence(t *testing.T) {
 			t.Errorf("Node mismatch at %d: inc=(%s, %.1f, %.1f) vs fresh=(%s, %.1f, %.1f)",
 				i, nInc.ID, nInc.X, nInc.Y, nFresh.ID, nFresh.X, nFresh.Y)
 		}
+	}
+
+	// Quality gate: ensure hard violations and overlaps are 0 in both incremental and full
+	if patch2.Metrics.QualityVector.HardViolations != 0 {
+		t.Errorf("Incremental state has hard violations: %d", patch2.Metrics.QualityVector.HardViolations)
+	}
+	if patch2.Metrics.CollinearOverlapCount != 0 {
+		t.Errorf("Incremental state has collinear overlaps: %d", patch2.Metrics.CollinearOverlapCount)
 	}
 
 	for i := range patch2.Edges {

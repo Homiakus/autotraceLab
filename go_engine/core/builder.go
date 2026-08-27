@@ -85,9 +85,9 @@ func (b *RoutingOptionsBuilder) WithOptimizationWeights(weights OptimizationWeig
 	return b
 }
 
-// Build returns the finalized RoutingOptions structure.
+// Build returns the finalized, validated and normalized RoutingOptions structure.
 func (b *RoutingOptionsBuilder) Build() RoutingOptions {
-	return b.opts
+	return b.opts.Normalize()
 }
 
 // NLPOptimizationParamsBuilder provides a fluent builder for NLPOptimizationParams.

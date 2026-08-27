@@ -1,19 +1,38 @@
 {
-  "name": "react-example",
-  "private": true,
-  "version": "0.0.0",
+  "name": "@autotrace/sdk",
+  "version": "1.0.0",
+  "description": "Deterministic Orthogonal Diagram Routing, Layout and Multi-Objective Optimization Core & SDK",
   "type": "module",
+  "main": "./dist/lib/index.cjs",
+  "module": "./dist/lib/index.js",
+  "types": "./dist/lib/sdk/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/lib/sdk/index.d.ts",
+      "import": "./dist/lib/index.js",
+      "require": "./dist/lib/index.cjs"
+    }
+  },
+  "files": [
+    "dist/lib",
+    "dist/autotrace"
+  ],
+  "sideEffects": false,
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
-    "build:lib": "vite build --config vite.lib.config.ts",
+    "build:lib": "vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
     "test": "tsx src/tests/runAllTests.ts",
     "test:sdk": "tsx src/tests/sdkTest.ts",
     "parity": "tsx scripts/runDifferentialParity.ts",
-    "export-fixtures": "tsx scripts/exportParityFixtures.ts"
+    "export-fixtures": "tsx scripts/exportParityFixtures.ts",
+    "stress": "tsx scripts/stressTestMaster.ts",
+    "visual:test": "tsx scripts/visualTester.ts",
+    "converge:loop": "tsx scripts/cyclicConvergenceLoop.ts",
+    "fuzz:1000": "tsx scripts/fuzz1000Runs.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

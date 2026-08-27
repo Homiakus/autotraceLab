@@ -250,21 +250,32 @@ type LabelPlacement struct {
 	Penalty         float64 `json:"penalty"`
 }
 
+const (
+	ProtocolVersion = 2
+	ContractVersion = 1
+	EngineID        = "autotrace-core-go"
+)
+
 type BenchmarkMetrics struct {
-	TotalWirelength        float64       `json:"totalWirelength"`
-	BendCount              int           `json:"bendCount"`
-	CrossingsCount         int           `json:"crossingsCount"`
-	CollinearOverlapCount  int           `json:"collinearOverlapCount"`
-	CollinearOverlapLength float64       `json:"collinearOverlapLength"`
-	LabelsOnArrowCount     int           `json:"labelsOnArrowCount"`
-	TotalLabelsCount       int           `json:"totalLabelsCount"`
-	LabelsOnArrowRatio     float64       `json:"labelsOnArrowRatio"`
-	LabelCollisionCount    int           `json:"labelCollisionCount"`
-	ExecutionTimeMs        float64       `json:"executionTimeMs"`
-	CompositeScore         float64       `json:"compositeOptimalityScore"`
-	LayoutAlgorithm        string        `json:"layoutAlgorithm"`
-	RoutingAlgorithm       string        `json:"routingAlgorithm"`
-	QualityVector          QualityVector `json:"qualityVector,omitempty"`
+	AlgorithmName           string        `json:"algorithmName,omitempty"`
+	RoutingName             string        `json:"routingName,omitempty"`
+	LayoutAlgorithm         string        `json:"layoutAlgorithm,omitempty"`
+	RoutingAlgorithm        string        `json:"routingAlgorithm,omitempty"`
+	ExecutionTimeMs         float64       `json:"executionTimeMs"`
+	TotalWirelength         float64       `json:"totalWirelength"`
+	BendCount               int           `json:"bendCount"`
+	CrossingsCount          int           `json:"crossingsCount"`
+	OverlapCount            int           `json:"overlapCount,omitempty"`
+	CollinearOverlapCount   int           `json:"collinearOverlapCount"`
+	CollinearOverlapLength  float64       `json:"collinearOverlapLength"`
+	LabelsOnArrowCount      int           `json:"labelsOnArrowCount"`
+	TotalLabelsCount        int           `json:"totalLabelsCount"`
+	LabelsOnArrowRatio      float64       `json:"labelsOnArrowRatio"`
+	LabelsOnArrowPercentage float64       `json:"labelsOnArrowPercentage,omitempty"`
+	LabelCollisionCount     int           `json:"labelCollisionCount"`
+	PortAlignmentScore      float64       `json:"portAlignmentScore,omitempty"`
+	CompositeScore          float64       `json:"compositeOptimalityScore"`
+	QualityVector           QualityVector `json:"qualityVector,omitempty"`
 }
 
 type Scene struct {
