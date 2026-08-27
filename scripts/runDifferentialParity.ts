@@ -38,19 +38,31 @@ function generateParityReport() {
   const exportOut = runCommand('npx tsx scripts/exportParityFixtures.ts');
   console.log(exportOut.trim());
 
-  // 2. Run Go Parity Tests
-  console.log('\n🐹 [2/3] Executing Go Core Parity Test Suite...');
+  // 2. Run Go Parity & Metamorphic Tests
+  console.log('\n🐹 [2/3] Executing Go Core Parity & Metamorphic Test Suite...');
   const goEngineDir = path.resolve(process.cwd(), 'go_engine');
-  const goTestOut = runCommand('go test -v ./core -run TestParity', goEngineDir);
+  const goTestOut = runCommand('go test -v ./core -run "TestParity|TestMetamorphic"', goEngineDir);
   console.log(goTestOut.trim());
 
   const goSizingPassed = goTestOut.includes('--- PASS: TestParityGeometrySizing');
   const goCleanerPassed = goTestOut.includes('--- PASS: TestParityWireCleaner');
+  const goMetamorphicPassed = goTestOut.includes('--- PASS: TestMetamorphicTranslationInvariance') &&
+                              goTestOut.includes('--- PASS: TestMetamorphicPermutationStability') &&
+                              goTestOut.includes('--- PASS: TestMetamorphicCleanerIdempotence') &&
+                              goTestOut.includes('--- PASS: TestMetamorphicScenePatchEquivalence') &&
+                              goTestOut.includes('--- PASS: TestMetamorphicMetricDeterminism');
 
   // 3. Evaluate Parity Coverage
   console.log('\n📊 [3/3] Evaluating Parity Coverage & Differential Alignment...');
 
   const details = [
+    {
+      family: 'Metamorphic Invariance Suite',
+      target: 'go_engine/core/metamorphic_test.go',
+      level: 'P0, P1, P2, P3',
+      status: (goMetamorphicPassed ? 'PASS' : 'FAIL') as 'PASS' | 'FAIL',
+      notes: 'Translation invariance, permutation stability, cleaner idempotence, patch equivalence, and metric determinism verified.',
+    },
     {
       family: 'Block Geometry & Auto-Sizing',
       target: 'go_engine/core/block_geometry.go',

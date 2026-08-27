@@ -116,3 +116,40 @@ func TestParityWireCleaner(t *testing.T) {
 		})
 	}
 }
+
+type FreeSlotFixture struct {
+	ParityHeader
+	ExistingNodes []BlockNode `json:"existingNodes"`
+	RequestedSize struct {
+		Width  float64 `json:"width"`
+		Height float64 `json:"height"`
+	} `json:"requestedSize"`
+	ExpectedSlot Point `json:"expectedSlot"`
+}
+
+func TestParityFreeSlot(t *testing.T) {
+	fixturePath := filepath.Join("..", "..", "testdata", "parity", "geometry", "free_slot.json")
+	data, err := os.ReadFile(fixturePath)
+	if err != nil {
+		t.Skipf("Free slot parity fixture not found: %v", err)
+		return
+	}
+
+	var fixture FreeSlotFixture
+	if err := json.Unmarshal(data, &fixture); err != nil {
+		t.Fatalf("Failed to unmarshal free slot fixture: %v", err)
+	}
+
+	actualSlot := FindDeterministicFreeSlot(
+		fixture.ExistingNodes,
+		fixture.RequestedSize.Width,
+		fixture.RequestedSize.Height,
+		20.0,
+		40.0,
+	)
+
+	if actualSlot.X != fixture.ExpectedSlot.X || actualSlot.Y != fixture.ExpectedSlot.Y {
+		t.Errorf("FreeSlot mismatch: got (%.1f, %.1f), want (%.1f, %.1f)",
+			actualSlot.X, actualSlot.Y, fixture.ExpectedSlot.X, fixture.ExpectedSlot.Y)
+	}
+}

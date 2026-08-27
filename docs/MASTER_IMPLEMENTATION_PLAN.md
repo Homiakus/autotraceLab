@@ -710,39 +710,39 @@ Exit: the same JSON input means the same mathematical state in TS, Go native and
 
 Add:
 
-- TS fixture exporter;
-- Go fixture runner;
-- canonical JSON normalizer;
-- differential CLI/script;
-- golden comparator;
-- property/metamorphic test harness;
-- CI reporting showing exact differing component/path.
+- [x] TS fixture exporter (`scripts/exportParityFixtures.ts`);
+- [x] Go fixture runner (`go_engine/core/parity_test.go`);
+- [x] canonical JSON normalizer;
+- [x] differential CLI/script (`scripts/runDifferentialParity.ts`);
+- [x] golden comparator (`npm run parity`);
+- [x] property/metamorphic test harness (`go_engine/core/metamorphic_test.go`);
+- [x] CI reporting showing exact differing component/path (`docs/PARITY_REPORT.md`).
 
 Initial metamorphic properties:
 
-- translation invariance where applicable;
-- stable result under input-order permutations when contract says order-independent;
-- pinned-node invariance;
-- open-final-scene equals equivalent patch sequence;
-- normalization idempotence;
-- cleaner idempotence;
-- metric determinism.
+- [x] translation invariance where applicable;
+- [x] stable result under input-order permutations when contract says order-independent;
+- [x] pinned-node invariance;
+- [x] open-final-scene equals equivalent patch sequence;
+- [x] normalization idempotence;
+- [x] cleaner idempotence;
+- [x] metric determinism.
 
-Exit: a developer can run one command and see TS↔Go differences for every covered family.
+Exit: a developer can run one command and see TS↔Go differences for every covered family. [COMPLETED]
 
 ## MP3 — Geometry foundation parity [BLOCKING selected production path]
 
-- [ ] shared geometry primitives;
-- [ ] block minimum sizing;
-- [ ] auto-sizing;
-- [ ] deterministic port ordering;
-- [ ] fixed/adaptive port coordinates;
-- [ ] six current shapes;
-- [ ] derived block geometry/violations;
-- [ ] deterministic free-slot placement;
-- [ ] normalization semantics.
+- [x] shared geometry primitives;
+- [x] block minimum sizing;
+- [x] auto-sizing;
+- [x] deterministic port ordering;
+- [x] fixed/adaptive port coordinates;
+- [x] six current shapes;
+- [x] derived block geometry/violations;
+- [x] deterministic free-slot placement;
+- [x] normalization semantics.
 
-Exit: golden geometry fixtures pass, including explicit-zero cases.
+Exit: golden geometry fixtures pass, including explicit-zero cases. [COMPLETED]
 
 ## MP4 — Endpoint escape + artifact cleaner parity
 

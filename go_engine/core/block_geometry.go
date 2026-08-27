@@ -168,8 +168,104 @@ func BuildDerivedBlockGeometry(node BlockNode, clearance float64) DerivedBlockGe
 }
 
 func NormalizeModel(nodes []BlockNode, edges []EdgeConnection) ([]BlockNode, []EdgeConnection, []string) {
-	var warnings []string; nodeMap:=map[string]bool{}; portMap:=map[string]bool{}
-	for _,n:=range nodes { if nodeMap[n.ID] { warnings=append(warnings,"Duplicate block ID: "+n.ID) }; nodeMap[n.ID]=true; all:=append(append([]Port(nil),n.Inputs...),n.Outputs...); for _,p:=range all { key:=n.ID+"::"+p.ID; if portMap[key] { warnings=append(warnings,"Duplicate port ID in block: "+key) }; portMap[key]=true } }
-	valid:=make([]EdgeConnection,0,len(edges)); for _,e:=range edges { if !nodeMap[e.SourceBlockID]||!nodeMap[e.TargetBlockID] { warnings=append(warnings,"Edge connects to nonexistent block: "+e.ID); continue }; if e.SourceBlockID==e.TargetBlockID && !strings.HasPrefix(e.ID,"loop_") { /* feedback allowed */ }; valid=append(valid,e) }
-	return nodes,valid,warnings
+	var warnings []string; nodeMap := map[string]bool{}; portMap := map[string]bool{}
+	for _, n := range nodes {
+		if nodeMap[n.ID] { warnings = append(warnings, "Duplicate block ID: "+n.ID) }
+		nodeMap[n.ID] = true
+		all := append(append([]Port(nil), n.Inputs...), n.Outputs...)
+		for _, p := range all {
+			key := n.ID + "::" + p.ID
+			if portMap[key] { warnings = append(warnings, "Duplicate port ID in block: "+key) }
+			portMap[key] = true
+		}
+	}
+	valid := make([]EdgeConnection, 0, len(edges))
+	for _, e := range edges {
+		if !nodeMap[e.SourceBlockID] || !nodeMap[e.TargetBlockID] {
+			warnings = append(warnings, "Edge connects to nonexistent block: "+e.ID)
+			continue
+		}
+		if e.SourceBlockID == e.TargetBlockID && !strings.HasPrefix(e.ID, "loop_") {
+			/* feedback allowed */
+		}
+		valid = append(valid, e)
+	}
+	return nodes, valid, warnings
+}
+
+// FindDeterministicFreeSlot implements deterministic non-random slot placement
+func FindDeterministicFreeSlot(existingNodes []BlockNode, width, height, grid, margin float64) Point {
+	if width <= 0 { width = 180 }
+	if height <= 0 { height = 110 }
+	if grid <= 0 { grid = 20 }
+	if margin <= 0 { margin = 40 }
+
+	if len(existingNodes) == 0 {
+		return Point{X: 80, Y: 80}
+	}
+
+	snap := func(v float64) float64 {
+		return math.Round(v/grid) * grid
+	}
+
+	isFree := func(cx, cy float64) bool {
+		rLeft := cx - margin
+		rRight := cx + width + margin
+		rTop := cy - margin
+		rBottom := cy + height + margin
+
+		for _, n := range existingNodes {
+			nLeft := n.X
+			nRight := n.X + n.Width
+			nTop := n.Y
+			nBottom := n.Y + n.Height
+
+			collides := !(rRight < nLeft || rLeft > nRight || rBottom < nTop || rTop > nBottom)
+			if collides {
+				return false
+			}
+		}
+		return true
+	}
+
+	maxX := 80.0
+	avgY := 80.0
+	for _, n := range existingNodes {
+		if n.X+n.Width > maxX {
+			maxX = n.X + n.Width
+		}
+		avgY += n.Y
+	}
+	avgY = snap(avgY / float64(len(existingNodes)))
+
+	candidateX := snap(maxX + 80)
+	if isFree(candidateX, avgY) {
+		return Point{X: candidateX, Y: avgY}
+	}
+
+	startX := snap(candidateX)
+	startY := snap(avgY)
+	maxRadius := 3000.0
+	step := 40.0
+
+	for r := step; r < maxRadius; r += step {
+		candidates := []Point{
+			{X: startX + r, Y: startY},
+			{X: startX, Y: startY + r},
+			{X: startX - r, Y: startY},
+			{X: startX, Y: startY - r},
+			{X: startX + r, Y: startY + r},
+			{X: startX - r, Y: startY + r},
+			{X: startX + r, Y: startY - r},
+			{X: startX - r, Y: startY - r},
+		}
+
+		for _, pt := range candidates {
+			if pt.X >= 40 && pt.Y >= 40 && isFree(pt.X, pt.Y) {
+				return pt
+			}
+		}
+	}
+
+	return Point{X: snap(maxX + 80), Y: snap(avgY)}
 }
