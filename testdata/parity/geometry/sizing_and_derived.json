@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "generatedAt": "2026-08-27T07:07:48.831Z",
+  "generatedAt": "2026-08-27T07:10:56.686Z",
   "generator": "scripts/exportParityFixtures.ts (TS Oracle)",
   "oracleCommit": "371cbc0935c3168babb58c755cae17bb76860dff",
   "testCases": [

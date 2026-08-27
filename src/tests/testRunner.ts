@@ -16,6 +16,9 @@ import {
 } from '../engine/protocol';
 import { EngineClient } from '../engine/EngineClient';
 import { CONTRACT_PROTOCOL_VERSION } from '../engine/types';
+import { RegistryStore } from '../registry/RegistryClient';
+import { resolveBlockStyle } from '../registry/resolve';
+import { classifyBlockChange, classifyEdgeChange } from '../registry/invalidation';
 
 export interface TestResult {
   suite: string;
@@ -975,6 +978,123 @@ export function runAllDiagnosticTests(): TestSuiteSummary {
       'Shadow router executed successfully alongside TS baseline'
     );
     client.destroy();
+  }
+
+  // =========================================================================
+  // SUITE 11: Declarative Registry Foundation & Invalidation (MP13 & MP14)
+  // =========================================================================
+  {
+    const suite = 'Declarative Registry Foundation & Invalidation (MP13 & MP14)';
+
+    // 1. Built-in registry store lookup
+    const store = new RegistryStore();
+    const procType = store.getBlockType('core/block/process');
+    assert(
+      suite,
+      'Loads built-in declarative block types from core registry package',
+      procType !== undefined && procType.name === 'Process Block' && procType.shapeId === 'core/shape/rectangle',
+      `Loaded block type: ${procType?.name}`
+    );
+
+    // 2. Custom package import
+    store.importPackage({
+      id: 'custom/package/instruments',
+      name: 'Custom Instruments',
+      version: '1.0.0',
+      shapes: [
+        { id: 'custom/shape/meter', name: 'Meter Face', baseShape: 'circle', status: 'published', version: '1.0.0' },
+      ],
+      blockTypes: [
+        {
+          id: 'custom/block/voltmeter',
+          name: 'Voltmeter',
+          category: 'processor',
+          status: 'published',
+          version: '1.0.0',
+          shapeId: 'custom/shape/meter',
+          defaultWidth: 100,
+          defaultHeight: 100,
+          minWidth: 60,
+          minHeight: 60,
+          ports: [
+            { id: 'probe_plus', name: 'V+', type: 'input', preferredSide: 'left' },
+            { id: 'probe_minus', name: 'V-', type: 'input', preferredSide: 'right' },
+          ],
+        },
+      ],
+    });
+
+    const meterType = store.getBlockType('custom/block/voltmeter');
+    assert(
+      suite,
+      'Imports custom registry package and retrieves namespaced types',
+      meterType !== undefined && meterType.shapeId === 'custom/shape/meter',
+      `Imported custom block type: ${meterType?.name}`
+    );
+
+    // 3. Declarative block resolution with fallback and port templates
+    const rawNode: BlockNode = {
+      id: 'vm1',
+      title: 'Bus Voltmeter',
+      category: 'processor',
+      semanticType: 'custom/block/voltmeter',
+      x: 100,
+      y: 100,
+      width: 120,
+      height: 120,
+      inputs: [],
+      outputs: [],
+    };
+
+    const resolved = resolveBlockStyle(rawNode, store);
+    assert(
+      suite,
+      'Resolves instance properties against registry definition and instantiates port templates',
+      resolved.shape.baseShape === 'circle' &&
+        resolved.width === 120 &&
+        resolved.inputs.length === 2 &&
+        resolved.inputs[0].name === 'V+',
+      `Resolved block with baseShape=${resolved.shape.baseShape}, inputs=${resolved.inputs.length}`
+    );
+
+    // 4. Invalidation classification: Render only (0 wire reroutes)
+    const nodeA: BlockNode = { ...rawNode, title: 'Old Title' };
+    const nodeB: BlockNode = { ...rawNode, title: 'New Renamed Title' };
+    const invTitle = classifyBlockChange(nodeA, nodeB);
+    assert(
+      suite,
+      'Classifies title/label text changes as InvalidationRender (0 wire reroutes)',
+      invTitle === 'render',
+      `Title change classified as: ${invTitle}`
+    );
+
+    // 5. Invalidation classification: Geometric position move (reroutes affected wires)
+    const nodeMoved: BlockNode = { ...rawNode, x: 250 };
+    const invMove = classifyBlockChange(nodeA, nodeMoved);
+    assert(
+      suite,
+      'Classifies position change as InvalidationRoutingGeometry',
+      invMove === 'routing_geometry',
+      `Position move classified as: ${invMove}`
+    );
+
+    // 6. Invalidation classification: Edge label change
+    const edgeA: EdgeConnection = {
+      id: 'e1',
+      sourceBlockId: 'a',
+      sourcePortId: 'out',
+      targetBlockId: 'b',
+      targetPortId: 'in',
+      label: 'Old Label',
+    };
+    const edgeB: EdgeConnection = { ...edgeA, label: 'New Label' };
+    const invEdge = classifyEdgeChange(edgeA, edgeB);
+    assert(
+      suite,
+      'Classifies edge label edits as InvalidationRender (0 reroutes)',
+      invEdge === 'render',
+      `Edge label change classified as: ${invEdge}`
+    );
   }
 
   const durationMs = +(performance.now() - startTime).toFixed(2);

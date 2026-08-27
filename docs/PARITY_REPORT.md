@@ -1,7 +1,7 @@
 # AutoTrace TS ↔ Go Parity CI Report
 
-- **Generated**: 2026-08-27T07:07:49.073Z
-- **Git Commit**: `b547575b7b31c4c0cb3a4895b79e2f682979b0b5`
+- **Generated**: 2026-08-27T07:10:57.128Z
+- **Git Commit**: `3f7867ebe99d00cd1e24c81fdefc03f588a61e89`
 - **Total Algorithmic Surfaces**: 15
 - **Covered Surfaces**: 9
 - **Fully Passed (P0-P2)**: 9

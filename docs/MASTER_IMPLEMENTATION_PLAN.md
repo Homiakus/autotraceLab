@@ -903,19 +903,19 @@ src/registry/invalidation.ts
 
 Implement:
 
-- [ ] block/port/edge/shape/icon/theme/routing-profile schemas;
-- [ ] namespaced IDs;
-- [ ] version pinning;
-- [ ] deterministic resolution precedence;
-- [ ] built-in registry matching current behavior;
-- [ ] instance `typeId` migration adapter;
-- [ ] JSON Schema validation;
-- [ ] import/export;
-- [ ] dependency/conflict validation;
-- [ ] migration framework;
-- [ ] deterministic canonical serialization/hash.
+- [x] block/port/edge/shape/icon/theme/routing-profile schemas;
+- [x] namespaced IDs;
+- [x] version pinning;
+- [x] deterministic resolution precedence;
+- [x] built-in registry matching current behavior;
+- [x] instance `typeId` migration adapter;
+- [x] JSON Schema validation;
+- [x] import/export;
+- [x] dependency/conflict validation;
+- [x] migration framework;
+- [x] deterministic canonical serialization/hash.
 
-Exit: one existing domain block + edge family can be represented entirely by registry data without canvas/core switch branches.
+Exit: one existing domain block + edge family can be represented entirely by registry data without canvas/core switch branches. [COMPLETED]
 
 ## MP14 — Invalidation model + customization vertical slices
 
@@ -931,12 +931,12 @@ semantic
 
 Required proofs:
 
-- edge color -> 0 reroutes;
-- icon -> 0 reroutes;
-- theme -> 0 reroutes unless explicit measured geometry policy says otherwise;
-- block size/port/obstacle geometry -> dependency-local reroute;
-- routing profile -> relevant route-cost reroute;
-- semantic-only rename -> no geometric reroute.
+- [x] edge color -> 0 reroutes;
+- [x] icon -> 0 reroutes;
+- [x] theme -> 0 reroutes unless explicit measured geometry policy says otherwise;
+- [x] block size/port/obstacle geometry -> dependency-local reroute;
+- [x] routing profile -> relevant route-cost reroute;
+- [x] semantic-only rename -> no geometric reroute. [COMPLETED]
 
 Vertical slices:
 
