@@ -46,7 +46,7 @@ func TestGraphProtocolSceneLifecycle(t *testing.T) {
 			{ID: "c", X: 160, Y: 220, Width: 80, Height: 60},
 		},
 		Edges: []core.EdgeConnection{{ID: "e1", SourceBlockID: "a", SourcePortID: "out", TargetBlockID: "b", TargetPortID: "in"}},
-		Options: core.RoutingOptions{GridSize: 10, ObstacleClearance: 10, ArtifactCleaning: true},
+		Options: core.RoutingOptions{GridSize: 10, ObstacleClearance: 10, ArtifactCleaning: core.OptBool(true)},
 	}
 	response := sceneProtocolCall(t, "open", "scene.open", open)
 	if !response.OK || response.Error != nil { t.Fatalf("open failed: %#v", response.Error) }

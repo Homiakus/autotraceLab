@@ -30,17 +30,17 @@ type Port struct {
 	Type             string     `json:"type"`
 	DataType         string     `json:"dataType,omitempty"`
 	PlacementMode    string     `json:"placementMode,omitempty"`
-	RelativePosition float64    `json:"relativePosition,omitempty"`
-	CustomOffset     float64    `json:"customOffset,omitempty"`
-	PinNumber        int        `json:"pinNumber,omitempty"`
+	RelativePosition *float64   `json:"relativePosition,omitempty"`
+	CustomOffset     *float64   `json:"customOffset,omitempty"`
+	PinNumber        *int       `json:"pinNumber,omitempty"`
 	PreferredSide    PortSide   `json:"preferredSide,omitempty"`
 	AllowedSides     []PortSide `json:"allowedSides,omitempty"`
-	Order            int        `json:"order,omitempty"`
+	Order            *int       `json:"order,omitempty"`
 	GroupID          string     `json:"groupId,omitempty"`
 	Color            string     `json:"color,omitempty"`
 	Description      string     `json:"description,omitempty"`
-	MinSpacing       float64    `json:"minSpacing,omitempty"`
-	OffsetPct        float64    `json:"offsetPct,omitempty"`
+	MinSpacing       *float64   `json:"minSpacing,omitempty"`
+	OffsetPct        *float64   `json:"offsetPct,omitempty"`
 }
 
 type BlockCategory string
@@ -60,20 +60,20 @@ type BlockNode struct {
 	Outputs           []Port        `json:"outputs"`
 	Ports             []Port        `json:"ports,omitempty"`
 	IsPinned          bool          `json:"isPinned,omitempty"`
-	Layer             int           `json:"layer,omitempty"`
-	Order             int           `json:"order,omitempty"`
+	Layer             *int          `json:"layer,omitempty"`
+	Order             *int          `json:"order,omitempty"`
 	Color             string        `json:"color,omitempty"`
 	Shape             string        `json:"shape,omitempty"`
-	AutoSize          bool          `json:"autoSize,omitempty"`
-	MinWidth          float64       `json:"minWidth,omitempty"`
-	MinHeight         float64       `json:"minHeight,omitempty"`
+	AutoSize          *bool         `json:"autoSize,omitempty"`
+	MinWidth          *float64      `json:"minWidth,omitempty"`
+	MinHeight         *float64      `json:"minHeight,omitempty"`
 	ImageURL          string        `json:"imageUrl,omitempty"`
 	ImageFit          string        `json:"imageFit,omitempty"`
-	ImageOpacity      float64       `json:"imageOpacity,omitempty"`
+	ImageOpacity      *float64      `json:"imageOpacity,omitempty"`
 	ShowTitleOverlay  bool          `json:"showTitleOverlay,omitempty"`
 	IconName          string        `json:"iconName,omitempty"`
 	PortsAdaptiveMode string        `json:"portsAdaptiveMode,omitempty"`
-	RoutingClearance  float64       `json:"routingClearance,omitempty"`
+	RoutingClearance  *float64      `json:"routingClearance,omitempty"`
 	PreferredFlow     string        `json:"preferredFlow,omitempty"`
 }
 
@@ -110,11 +110,18 @@ type RoutingOptions struct {
 	CrossingPenalty        float64             `json:"crossingPenalty"`
 	ChannelSpacing         float64             `json:"channelSpacing"`
 	PortExitOffset         float64             `json:"portExitOffset"`
-	AdaptivePortExitOffset bool                `json:"adaptivePortExitOffset"`
-	SmoothCorners          bool                `json:"smoothCorners"`
-	JumpBridges            bool                `json:"jumpBridges"`
-	PinAlignment           bool                `json:"pinAlignment"`
-	ArtifactCleaning       bool                `json:"artifactCleaning"`
+	AdaptivePortExitOffset *bool               `json:"adaptivePortExitOffset,omitempty"`
+	SmoothCorners          *bool               `json:"smoothCorners,omitempty"`
+	CornerRadius           *float64            `json:"cornerRadius,omitempty"`
+	AdaptiveCornerRadius   *bool               `json:"adaptiveCornerRadius,omitempty"`
+	LabelClearance         *float64            `json:"labelClearance,omitempty"`
+	StrictLabels           *bool               `json:"strictLabels,omitempty"`
+	MinWireDistance        *float64            `json:"minWireDistance,omitempty"`
+	OptimalBlockDistance   *float64            `json:"optimalBlockDistance,omitempty"`
+	OptimalWireDistance    *float64            `json:"optimalWireDistance,omitempty"`
+	JumpBridges            *bool               `json:"jumpBridges,omitempty"`
+	PinAlignment           *bool               `json:"pinAlignment,omitempty"`
+	ArtifactCleaning       *bool               `json:"artifactCleaning,omitempty"`
 	Weights                OptimizationWeights `json:"weights"`
 }
 

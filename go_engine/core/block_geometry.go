@@ -49,42 +49,98 @@ func CalculateMinimumBlockSize(node BlockNode, cornerMargin, portPitch float64) 
 
 func SortPortsDeterministically(ports []Port) []Port {
 	sorted := append([]Port(nil), ports...)
-	sort.SliceStable(sorted, func(i,j int) bool {
-		a,b:=sorted[i],sorted[j]
-		if a.GroupID!="" && b.GroupID=="" { return true }
-		if a.GroupID=="" && b.GroupID!="" { return false }
-		if a.GroupID!="" && b.GroupID!="" && a.GroupID!=b.GroupID { return a.GroupID<b.GroupID }
-		if a.Order!=b.Order { return a.Order<b.Order }
-		if a.PinNumber!=b.PinNumber { return a.PinNumber<b.PinNumber }
-		return a.ID<b.ID
+	sort.SliceStable(sorted, func(i, j int) bool {
+		a, b := sorted[i], sorted[j]
+		if a.GroupID != "" && b.GroupID == "" { return true }
+		if a.GroupID == "" && b.GroupID != "" { return false }
+		if a.GroupID != "" && b.GroupID != "" && a.GroupID != b.GroupID { return a.GroupID < b.GroupID }
+		if a.Order != nil && b.Order == nil { return true }
+		if a.Order == nil && b.Order != nil { return false }
+		if a.Order != nil && b.Order != nil && *a.Order != *b.Order { return *a.Order < *b.Order }
+		if a.PinNumber != nil && b.PinNumber == nil { return true }
+		if a.PinNumber == nil && b.PinNumber != nil { return false }
+		if a.PinNumber != nil && b.PinNumber != nil && *a.PinNumber != *b.PinNumber { return *a.PinNumber < *b.PinNumber }
+		return a.ID < b.ID
 	})
 	return sorted
 }
 
 func GetPortCoordinatesAccurate(node BlockNode, portID string, isOutputHint bool) PortCoordinates {
 	var allPorts []Port
-	allPorts=append(allPorts,node.Inputs...)
-	allPorts=append(allPorts,node.Outputs...)
-	allPorts=append(allPorts,node.Ports...)
-	var p Port; found:=false
-	for _,candidate:=range allPorts { if candidate.ID==portID { p=candidate; found=true; break } }
-	if !found {
-		isDirect:=portID=="left"||portID=="right"||portID=="top"||portID=="bottom"
-		side:=SideRight; if isDirect { side=PortSide(portID) } else if !isOutputHint { side=SideLeft }
-		p=Port{ID:portID,Name:portID,Side:side,Type:"input",PlacementMode:"adaptive"}; if isOutputHint { p.Type="output" }
+	allPorts = append(allPorts, node.Inputs...)
+	allPorts = append(allPorts, node.Outputs...)
+	allPorts = append(allPorts, node.Ports...)
+	var p Port
+	found := false
+	for _, candidate := range allPorts {
+		if candidate.ID == portID {
+			p = candidate
+			found = true
+			break
+		}
 	}
-	side:=p.Side; if side=="" { if p.Type=="output" { side=SideRight } else { side=SideLeft } }
+	if !found {
+		isDirect := portID == "left" || portID == "right" || portID == "top" || portID == "bottom"
+		side := SideRight
+		if isDirect {
+			side = PortSide(portID)
+		} else if !isOutputHint {
+			side = SideLeft
+		}
+		p = Port{ID: portID, Name: portID, Side: side, Type: "input", PlacementMode: "adaptive"}
+		if isOutputHint {
+			p.Type = "output"
+		}
+	}
+	side := p.Side
+	if side == "" {
+		if p.Type == "output" {
+			side = SideRight
+		} else {
+			side = SideLeft
+		}
+	}
 	var same []Port
-	for _,pt:=range allPorts { s:=pt.Side; if s=="" { if pt.Type=="output" { s=SideRight } else { s=SideLeft } }; if s==side { same=append(same,pt) } }
-	same=SortPortsDeterministically(same); idx:=0
-	for i,pt:=range same { if pt.ID==p.ID { idx=i; break } }
-	count:=len(same); if count<=0 { count=1 }
-	isHorizontal:=side==SideTop||side==SideBottom; sideLength:=node.Height; if isHorizontal { sideLength=node.Width }
-	pos:=0.0
-	if p.PlacementMode=="fixed" && p.RelativePosition>0 && p.RelativePosition<=1 {
-		pos=math.Max(DefaultCornerMargin,math.Min(sideLength-DefaultCornerMargin,sideLength*p.RelativePosition))
-		if p.CustomOffset>0 { pos=math.Max(DefaultCornerMargin,math.Min(sideLength-DefaultCornerMargin,p.CustomOffset)) }
-	} else { t:=float64(idx+1)/float64(count+1); pos=math.Max(DefaultCornerMargin,math.Min(sideLength-DefaultCornerMargin,math.Round(sideLength*t))) }
+	for _, pt := range allPorts {
+		s := pt.Side
+		if s == "" {
+			if pt.Type == "output" {
+				s = SideRight
+			} else {
+				s = SideLeft
+			}
+		}
+		if s == side {
+			same = append(same, pt)
+		}
+	}
+	same = SortPortsDeterministically(same)
+	idx := 0
+	for i, pt := range same {
+		if pt.ID == p.ID {
+			idx = i
+			break
+		}
+	}
+	count := len(same)
+	if count <= 0 {
+		count = 1
+	}
+	isHorizontal := side == SideTop || side == SideBottom
+	sideLength := node.Height
+	if isHorizontal {
+		sideLength = node.Width
+	}
+	pos := 0.0
+	if p.PlacementMode == "fixed" && p.RelativePosition != nil && *p.RelativePosition >= 0 && *p.RelativePosition <= 1 {
+		pos = math.Max(DefaultCornerMargin, math.Min(sideLength-DefaultCornerMargin, sideLength*(*p.RelativePosition)))
+		if p.CustomOffset != nil {
+			pos = math.Max(DefaultCornerMargin, math.Min(sideLength-DefaultCornerMargin, *p.CustomOffset))
+		}
+	} else {
+		t := float64(idx+1) / float64(count+1)
+		pos = math.Max(DefaultCornerMargin, math.Min(sideLength-DefaultCornerMargin, math.Round(sideLength*t)))
+	}
 	var x,y float64; normal:=Direction{Dx:1}
 	switch node.Shape {
 	case "diamond":

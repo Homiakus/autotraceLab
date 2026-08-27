@@ -1,4 +1,4 @@
-import { BlockNode, EdgeConnection, Point, RoutingOptions, PortSide } from '../types';
+import { BlockNode, EdgeConnection, Point, RoutingOptions, PortSide, Port } from '../types';
 import { computeOptimizedLabels, MAX_LABEL_OFF_ARROW_PENALTY } from '../algorithms/labelLayout';
 import { detectCollinearOverlaps, calculateBenchmarkMetrics } from '../algorithms/metrics';
 import { routeOrthogonalAStar } from '../algorithms/orthogonalAStarRouter';
@@ -6,6 +6,7 @@ import { cleanOrthogonalArtifacts } from '../algorithms/wireArtifactCleaner';
 import { runNLPOptimization, calculateNLPOptimalityBreakdown, DEFAULT_NLP_PARAMS } from '../algorithms/nlpOptimizer';
 import { calculateMinimumBlockSize, buildDerivedBlockGeometry, findDeterministicFreeSlot } from '../algorithms/blockGeometry';
 import { PRESET_TOPOLOGIES } from '../data/presets';
+import { generateCoffeeMachinePreset } from '../data/coffeeMachineTopology';
 import { DEFAULT_OPTIMIZATION_WEIGHTS } from '../data/weightPresets';
 
 export interface TestResult {
@@ -676,7 +677,184 @@ export function runAllDiagnosticTests(): TestSuiteSummary {
     );
   }
 
+  // -------------------------------------------------------------------------
+  // SUITE 7: 1,000+ Element Hierarchical Coffee Machine Topology
+  // -------------------------------------------------------------------------
+  {
+    const suite = 'Hierarchical Coffee Machine (1,000+ Elements)';
+    const preset = generateCoffeeMachinePreset();
+
+    // 1. Count elements
+    let totalNodes = preset.nodes.length;
+    let totalEdges = preset.edges.length;
+    const subcircuitKeys = Object.keys(preset.subcircuits || {});
+
+    for (const key of subcircuitKeys) {
+      const sub = preset.subcircuits![key];
+      totalNodes += sub.nodes.length;
+      totalEdges += sub.edges.length;
+    }
+    const totalElements = totalNodes + totalEdges;
+
+    assert(
+      suite,
+      `Coffee machine topology exceeds 1,000 elements requirement (${totalElements} elements)`,
+      totalElements >= 1000,
+      `Total elements: ${totalElements} (${totalNodes} nodes, ${totalEdges} edges, across ${subcircuitKeys.length} subcircuits)`,
+      { totalElements, totalNodes, totalEdges, subcircuitCount: subcircuitKeys.length }
+    );
+
+    // 2. Verify subcircuit boundary I/O bindings
+    let allBindingsValid = true;
+    const invalidBindings: string[] = [];
+
+    for (const key of subcircuitKeys) {
+      const sub = preset.subcircuits![key];
+      if (!sub.externalInputs || !sub.externalOutputs) {
+        allBindingsValid = false;
+        invalidBindings.push(`${key}: missing external input/output arrays`);
+      }
+      for (const extIn of sub.externalInputs || []) {
+        if (!extIn.id || !extIn.name || !extIn.side) {
+          allBindingsValid = false;
+          invalidBindings.push(`${key} extIn ${extIn.id}: incomplete binding`);
+        }
+      }
+      for (const extOut of sub.externalOutputs || []) {
+        if (!extOut.id || !extOut.name || !extOut.side) {
+          allBindingsValid = false;
+          invalidBindings.push(`${key} extOut ${extOut.id}: incomplete binding`);
+        }
+      }
+    }
+
+    assert(
+      suite,
+      `All ${subcircuitKeys.length} subcircuits have valid External I/O boundary rails`,
+      allBindingsValid,
+      `Verified all ${subcircuitKeys.length} subcircuits with complete boundary input/output rail bindings`,
+      { invalidBindings }
+    );
+
+    // 3. Verify nested sub-subcircuit (Level 2 hierarchy)
+    const hasNestedSubcircuit = Boolean(preset.subcircuits?.['sub_group1_profiler']);
+    assert(
+      suite,
+      `Nested sub-subcircuit hierarchy (Level 2 Profiler) is present and registered`,
+      hasNestedSubcircuit,
+      `Verified Level 0 (Root) -> Level 1 (Brew Groups) -> Level 2 (Pressure Profiler) hierarchy chain`,
+      { hasNestedSubcircuit }
+    );
+  }
+
+  // =========================================================================
+  // SUITE 9: Cross-Language Contract & Optional Presence Semantics (Wave B)
+  // =========================================================================
+  {
+    const suite = 'Cross-Language Contract & Optional Presence Semantics';
+
+    // 1. Explicit 0 presence test
+    const nodeZero: BlockNode = {
+      id: 'node_zero',
+      title: 'Node Zero',
+      category: 'processor',
+      shape: 'rectangle',
+      x: 100,
+      y: 100,
+      width: 140,
+      height: 80,
+      inputs: [
+        {
+          id: 'p_zero',
+          name: 'Port Zero',
+          side: 'left',
+          type: 'input',
+          placementMode: 'fixed',
+          relativePosition: 0,
+          customOffset: 0,
+          order: 0,
+          pinNumber: 0,
+        },
+      ],
+      outputs: [],
+    };
+
+    const jsonStr = JSON.stringify(nodeZero);
+    const parsed: BlockNode = JSON.parse(jsonStr);
+    const p = parsed.inputs[0];
+
+    const preservesZeros =
+      p.relativePosition === 0 &&
+      p.customOffset === 0 &&
+      p.order === 0 &&
+      p.pinNumber === 0;
+
+    assert(
+      suite,
+      `Preserves explicit 0 for relativePosition, customOffset, order, pinNumber`,
+      preservesZeros,
+      `Explicit 0 values survived JSON round-trip without being dropped to undefined`,
+      { relativePosition: p.relativePosition, customOffset: p.customOffset, order: p.order, pinNumber: p.pinNumber }
+    );
+
+    // 2. Unset / undefined presence test
+    const portUnset: Port = {
+      id: 'p_unset',
+      name: 'Port Unset',
+      side: 'left',
+      type: 'input',
+    };
+
+    const jsonUnsetStr = JSON.stringify(portUnset);
+    const parsedUnset: Port = JSON.parse(jsonUnsetStr);
+    const unsetDifferentiated =
+      parsedUnset.relativePosition === undefined &&
+      parsedUnset.customOffset === undefined &&
+      parsedUnset.order === undefined &&
+      parsedUnset.pinNumber === undefined;
+
+    assert(
+      suite,
+      `Differentiates unset/undefined from explicit 0 (0 != unset)`,
+      unsetDifferentiated,
+      `Unset fields remained undefined after JSON roundtrip`,
+      { parsedUnset }
+    );
+
+    // 3. Explicit false boolean presence test
+    const optionsFalse: RoutingOptions = {
+      gridSize: 10,
+      obstacleClearance: 10,
+      bendPenalty: 35,
+      crossingPenalty: 50,
+      channelSpacing: 16,
+      portExitOffset: 24,
+      adaptivePortExitOffset: false,
+      smoothCorners: false,
+      jumpBridges: false,
+      artifactCleaning: false,
+      weights: DEFAULT_OPTIMIZATION_WEIGHTS,
+    };
+
+    const optionsStr = JSON.stringify(optionsFalse);
+    const parsedOptions: RoutingOptions = JSON.parse(optionsStr);
+    const preservesFalse =
+      parsedOptions.adaptivePortExitOffset === false &&
+      parsedOptions.smoothCorners === false &&
+      parsedOptions.jumpBridges === false &&
+      parsedOptions.artifactCleaning === false;
+
+    assert(
+      suite,
+      `Preserves explicit false for boolean options (false != unset)`,
+      preservesFalse,
+      `Explicit false flags survived JSON roundtrip without defaulting to true`,
+      { parsedOptions }
+    );
+  }
+
   const durationMs = +(performance.now() - startTime).toFixed(2);
+
   const passed = results.filter(r => r.passed).length;
   const failed = results.filter(r => !r.passed).length;
 

@@ -15,7 +15,7 @@ func incrementalFixture() SceneOpenRequest {
 			{ID: "c", Title: "C", X: 160, Y: 220, Width: 80, Height: 60},
 		},
 		Edges: []EdgeConnection{{ID: "e1", SourceBlockID: "a", SourcePortID: "out", TargetBlockID: "b", TargetPortID: "in"}},
-		Options: RoutingOptions{GridSize: 10, ObstacleClearance: 10, ArtifactCleaning: true},
+		Options: RoutingOptions{GridSize: 10, ObstacleClearance: 10, ArtifactCleaning: OptBool(true)},
 	}
 }
 

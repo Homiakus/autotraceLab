@@ -256,7 +256,10 @@ func cloneEdgeMap(input map[string]EdgeConnection) map[string]EdgeConnection {
 	result := make(map[string]EdgeConnection, len(input)); for id, value := range input { result[id] = cloneEdge(value) }; return result
 }
 func cloneNode(node BlockNode) BlockNode {
-	node.Inputs = append([]Port(nil), node.Inputs...); node.Outputs = append([]Port(nil), node.Outputs...); return node
+	node.Inputs = append([]Port(nil), node.Inputs...)
+	node.Outputs = append([]Port(nil), node.Outputs...)
+	node.Ports = append([]Port(nil), node.Ports...)
+	return node
 }
 func cloneEdge(edge EdgeConnection) EdgeConnection { edge.Path = append([]Point(nil), edge.Path...); return edge }
 func removeID(values []string, target string) []string {

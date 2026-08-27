@@ -8,7 +8,7 @@ func TestRouteSimpleGraph(t *testing.T) {
 		{ID:"b",Title:"B",X:300,Y:0,Width:80,Height:50,Inputs:[]Port{{ID:"in",Name:"in",Side:SideLeft,Type:"input"}}},
 	}
 	edges:=[]EdgeConnection{{ID:"e1",SourceBlockID:"a",SourcePortID:"out",TargetBlockID:"b",TargetPortID:"in"}}
-	result,err:=Route(RouteRequest{GraphID:"g",Nodes:nodes,Edges:edges,Options:RoutingOptions{GridSize:10,ObstacleClearance:10,ArtifactCleaning:true}})
+	result, err := Route(RouteRequest{GraphID: "g", Nodes: nodes, Edges: edges, Options: RoutingOptions{GridSize: 10, ObstacleClearance: 10, ArtifactCleaning: OptBool(true)}})
 	if err!=nil { t.Fatal(err) }
 	if result.ContractVersion!=ContractVersion || result.Engine!=EngineID { t.Fatalf("unexpected identity: %#v",result) }
 	if len(result.Edges)!=1 || len(result.Edges[0].Path)<2 { t.Fatalf("route missing: %#v",result.Edges) }

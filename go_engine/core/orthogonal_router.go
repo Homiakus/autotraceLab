@@ -40,7 +40,9 @@ func RouteOrthogonalAStar(nodes []BlockNode, edges []EdgeConnection, options Rou
 		if !okS||!okT { result[i]=edge; continue }
 		s:=GetPortCoordinates(source,edge.SourcePortID,true); t:=GetPortCoordinates(target,edge.TargetPortID,false)
 		path:=routeOne(nodes,source.ID,target.ID,s,t,grid,clearance,bendPenalty)
-		if options.ArtifactCleaning { path=CleanOrthogonalArtifacts(path,&s,&t,nodes,clearance,options.PortExitOffset,options.PortExitOffset) }
+		if BoolVal(options.ArtifactCleaning, true) {
+			path = CleanOrthogonalArtifacts(path, &s, &t, nodes, clearance, options.PortExitOffset, options.PortExitOffset)
+		}
 		edge.Path=path; edge.Bends=countBends(path); edge.Length=pathLength(path); result[i]=edge
 	}
 	return result

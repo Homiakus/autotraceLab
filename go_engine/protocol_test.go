@@ -25,7 +25,7 @@ func TestGraphProtocolRoutesSimpleGraph(t *testing.T) {
 			{ID: "b", Title: "B", Category: "sink", X: 300, Y: 0, Width: 80, Height: 50, Inputs: []core.Port{{ID: "in", Name: "in", Side: core.SideLeft, Type: "input"}}},
 		},
 		Edges:   []core.EdgeConnection{{ID: "e1", SourceBlockID: "a", SourcePortID: "out", TargetBlockID: "b", TargetPortID: "in"}},
-		Options: core.RoutingOptions{GridSize: 10, ObstacleClearance: 10, ArtifactCleaning: true},
+		Options: core.RoutingOptions{GridSize: 10, ObstacleClearance: 10, ArtifactCleaning: core.OptBool(true)},
 	}
 	encoded, _ := json.Marshal(payload)
 	req, _ := json.Marshal(graphProtocolRequest{Protocol: graphProtocolVersion, RequestID: "r1", Operation: "layout", Payload: encoded})
@@ -86,7 +86,7 @@ func BenchmarkGraphProtocolLayout(b *testing.B) {
 			{ID: "b", X: 400, Y: 120, Width: 80, Height: 50, Inputs: []core.Port{{ID: "in", Side: core.SideLeft, Type: "input"}}},
 		},
 		Edges:   []core.EdgeConnection{{ID: "e", SourceBlockID: "a", SourcePortID: "out", TargetBlockID: "b", TargetPortID: "in"}},
-		Options: core.RoutingOptions{GridSize: 10, ObstacleClearance: 10, ArtifactCleaning: true},
+		Options: core.RoutingOptions{GridSize: 10, ObstacleClearance: 10, ArtifactCleaning: core.OptBool(true)},
 	}
 	encoded, _ := json.Marshal(payload)
 	req, _ := json.Marshal(graphProtocolRequest{Protocol: 1, RequestID: "bench", Operation: "layout", Payload: encoded})

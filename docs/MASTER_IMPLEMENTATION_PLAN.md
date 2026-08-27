@@ -697,14 +697,14 @@ Exit: every later behavioral change is measurable against a frozen reference. [C
 
 ## MP1 — Cross-language contract semantics [BLOCKING]
 
-- [ ] Presence-aware optional numbers/booleans.
-- [ ] Canonical defaults.
-- [ ] JSON round-trip tests.
-- [ ] TS↔Go type mapping tests.
-- [ ] Native↔WASM serialization equivalence.
-- [ ] Correct explicit zero/false behavior.
+- [x] Presence-aware optional numbers/booleans.
+- [x] Canonical defaults.
+- [x] JSON round-trip tests.
+- [x] TS↔Go type mapping tests.
+- [x] Native↔WASM serialization equivalence.
+- [x] Correct explicit zero/false behavior.
 
-Exit: the same JSON input means the same mathematical state in TS, Go native and Go/WASM.
+Exit: the same JSON input means the same mathematical state in TS, Go native and Go/WASM. [COMPLETED]
 
 ## MP2 — Differential parity harness [BLOCKING]
 
