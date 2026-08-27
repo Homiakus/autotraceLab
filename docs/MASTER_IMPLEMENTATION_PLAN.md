@@ -775,13 +775,13 @@ Exit: A* differential fixtures and hard invariants green. [COMPLETED]
 
 ## MP6 — Alternate routers parity
 
-- [ ] Manhattan channel;
-- [ ] Lee wave;
-- [ ] G¹ spline geometry;
-- [ ] route validation for each;
-- [ ] classify each as production/reference/research by benchmark evidence.
+- [x] Manhattan channel (`RouteManhattanChannel`);
+- [x] Lee wave (`RouteLeeWave`);
+- [x] G¹ spline geometry (`RouteSmoothSplines`);
+- [x] route validation for each;
+- [x] classify each as production/reference/research by benchmark evidence.
 
-Exit: no TS-only routing family remains undocumented/unported.
+Exit: no TS-only routing family remains undocumented/unported. [COMPLETED]
 
 ## MP7 — Layout parity
 
