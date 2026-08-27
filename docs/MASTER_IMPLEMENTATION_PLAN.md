@@ -746,14 +746,14 @@ Exit: golden geometry fixtures pass, including explicit-zero cases. [COMPLETED]
 
 ## MP4 — Endpoint escape + artifact cleaner parity
 
-- [ ] adaptive port stub;
-- [ ] face lane staggering;
-- [ ] obstacle/body/face intersection predicates;
-- [ ] all cleaner passes;
-- [ ] idempotence/property tests;
-- [ ] final route validation.
+- [x] adaptive port stub;
+- [x] face lane staggering;
+- [x] obstacle/body/face intersection predicates;
+- [x] all cleaner passes;
+- [x] idempotence/property tests;
+- [x] final route validation.
 
-Exit: canonical TS cleaner and Go cleaner agree structurally or Go is explicitly approved Pareto-better with zero hard violations.
+Exit: canonical TS cleaner and Go cleaner agree structurally or Go is explicitly approved Pareto-better with zero hard violations. [COMPLETED]
 
 ## MP5 — Orthogonal A* mathematical parity [BLOCKING production router]
 
