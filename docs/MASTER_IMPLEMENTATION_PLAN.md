@@ -974,31 +974,31 @@ Only now replace parity-oriented internals with faster/better algorithms under P
 
 ### Scene spatial index
 
-- [ ] precompute inflated obstacles;
-- [ ] occupancy rows/bitsets/intervals or benchmark-selected structure;
-- [ ] O(1)/O(log n) blocked queries;
-- [ ] cached port geometry;
-- [ ] local invalidation;
-- [ ] reusable A* buffers.
+- [x] precompute inflated obstacles;
+- [x] occupancy rows/bitsets/intervals or benchmark-selected structure;
+- [x] O(1)/O(log n) blocked queries;
+- [x] cached port geometry;
+- [x] local invalidation;
+- [x] reusable A* buffers.
 
 ### Sparse orthogonal visibility graph
 
-- [ ] port escape/corner/channel vertices;
-- [ ] horizontal/vertical sweep edges;
-- [ ] scene reuse;
-- [ ] incremental invalidation;
-- [ ] sparse A*;
-- [ ] verified grid A* fallback until quality gate passes.
+- [x] port escape/corner/channel vertices;
+- [x] horizontal/vertical sweep edges;
+- [x] scene reuse;
+- [x] incremental invalidation;
+- [x] sparse A*;
+- [x] verified grid A* fallback until quality gate passes.
 
 ### Global routing
 
-- [ ] deterministic difficult-edge-first ordering;
-- [ ] congestion occupancy;
-- [ ] crossing/shared-path costs;
-- [ ] bounded top-k rip-up/reroute;
-- [ ] no-improvement stopping condition;
-- [ ] orthogonal nudging;
-- [ ] route stability/churn penalty.
+- [x] deterministic difficult-edge-first ordering;
+- [x] congestion occupancy;
+- [x] crossing/shared-path costs;
+- [x] bounded top-k rip-up/reroute;
+- [x] no-improvement stopping condition;
+- [x] orthogonal nudging;
+- [x] route stability/churn penalty.
 
 Performance hypotheses to validate, not blindly enforce:
 
@@ -1010,7 +1010,7 @@ Performance hypotheses to validate, not blindly enforce:
 
 Any threshold may change only through documented benchmark/ADR evidence.
 
-Exit: Go is measurably faster/scalable and equal or Pareto-better on canonical quality vectors.
+Exit: Go is measurably faster/scalable and equal or Pareto-better on canonical quality vectors. [COMPLETED]
 
 ## MP16 — Full customization/admin workspace
 
