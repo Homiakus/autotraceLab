@@ -20,6 +20,8 @@ export interface UniversalMonteCarloResult {
   p95WaitSeconds: ProcessMonteCarloDistribution;
   changeoverSeconds: ProcessMonteCarloDistribution;
   reworkRatePercent: ProcessMonteCarloDistribution;
+  averageBatchFillPercent: ProcessMonteCarloDistribution;
+  partialBatchRatePercent: ProcessMonteCarloDistribution;
   slaProbabilityPercent: number | null;
   warnings: string[];
   errors: string[];
@@ -102,6 +104,8 @@ function emptyResult(iterations: number, errors: string[], warnings: string[] = 
     p95WaitSeconds: empty,
     changeoverSeconds: empty,
     reworkRatePercent: empty,
+    averageBatchFillPercent: empty,
+    partialBatchRatePercent: empty,
     slaProbabilityPercent: null,
     warnings,
     errors,
@@ -124,9 +128,10 @@ export function runUniversalProcessMonteCarlo(
   const p95Wait: number[] = [];
   const changeovers: number[] = [];
   const reworkRate: number[] = [];
+  const batchFill: number[] = [];
+  const partialBatchRate: number[] = [];
   let slaHits = 0;
 
-  // Fail fast before an expensive loop. Seed choice does not repair an invalid profile.
   const baseline = simulateUniversalScenario(profile, baseSeed);
   if (!baseline.ok) return emptyResult(iterations, baseline.errors, baseline.warnings);
 
@@ -144,6 +149,8 @@ export function runUniversalProcessMonteCarlo(
     p95Wait.push(result.stats.p95WaitSeconds);
     changeovers.push(result.policyStats.totalChangeoverSeconds);
     reworkRate.push(result.core.stats.reworkRatePercent);
+    batchFill.push(result.stats.averageBatchFillPercent);
+    partialBatchRate.push(result.stats.partialBatchRate * 100);
     if (sla != null && result.stats.makespanSeconds <= sla) slaHits += 1;
   }
 
@@ -163,6 +170,8 @@ export function runUniversalProcessMonteCarlo(
     p95WaitSeconds: distribution(p95Wait),
     changeoverSeconds: distribution(changeovers),
     reworkRatePercent: distribution(reworkRate),
+    averageBatchFillPercent: distribution(batchFill),
+    partialBatchRatePercent: distribution(partialBatchRate),
     slaProbabilityPercent: sla != null && completedIterations ? (slaHits / completedIterations) * 100 : null,
     warnings,
     errors,
