@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://autotrace.dev/schemas/process-domain-pack/1.0",
+  "title": "AutoTrace Process Domain Pack",
+  "type": "object",
+  "required": ["schemaVersion", "id", "version", "name"],
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "id": { "type": "string", "minLength": 1 },
+    "version": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "vocabulary": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    },
+    "jobAttributes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/attribute" }
+    },
+    "profileTemplates": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/template" }
+    },
+    "defaultObjectives": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/objective" }
+    },
+    "metadata": { "type": "object", "additionalProperties": true }
+  },
+  "additionalProperties": true,
+  "$defs": {
+    "value": { "type": ["string", "number", "boolean", "null"] },
+    "attribute": {
+      "type": "object",
+      "required": ["key", "dataType"],
+      "properties": {
+        "key": { "type": "string", "minLength": 1 },
+        "label": { "type": "string" },
+        "description": { "type": "string" },
+        "dataType": { "enum": ["string", "number", "boolean", "enum"] },
+        "required": { "type": "boolean" },
+        "allowedValues": { "type": "array", "items": { "$ref": "#/$defs/value" } },
+        "defaultValue": { "$ref": "#/$defs/value" },
+        "unit": { "type": "string" },
+        "group": { "type": "string" },
+        "metadata": { "type": "object", "additionalProperties": true }
+      },
+      "additionalProperties": true
+    },
+    "template": {
+      "type": "object",
+      "required": ["id", "name", "profile"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "profile": { "type": "object" },
+        "tags": { "type": "array", "items": { "type": "string" }, "uniqueItems": true }
+      },
+      "additionalProperties": true
+    },
+    "objective": {
+      "type": "object",
+      "required": ["id", "metric", "goal", "weight"],
+      "properties": {
+        "id": { "type": "string" },
+        "metric": { "type": "string" },
+        "goal": { "enum": ["maximize", "minimize", "target"] },
+        "weight": { "type": "number", "minimum": 0 },
+        "target": { "type": "number" },
+        "tolerance": { "type": "number", "minimum": 0 }
+      },
+      "additionalProperties": false
+    }
+  }
+}
