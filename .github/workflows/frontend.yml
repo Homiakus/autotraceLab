@@ -59,5 +59,8 @@ jobs:
       - name: Digital twin calendar integration test
         run: npx tsx src/tests/processDigitalTwinCalendarTest.ts
 
+      - name: Reliability MTBF MTTR unit test
+        run: npx tsx src/tests/processReliabilityTest.ts
+
       - name: Production build
         run: npm run build
