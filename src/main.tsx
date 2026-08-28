@@ -14,6 +14,7 @@ import UniversalProcessBatchApp from './UniversalProcessBatchApp.tsx';
 import ProcessDigitalTwinApp from './ProcessDigitalTwinApp.tsx';
 import UniversalProcessDigitalTwinApp from './UniversalProcessDigitalTwinApp.tsx';
 import ProcessReliabilityApp from './ProcessReliabilityApp.tsx';
+import UniversalProcessReliabilityApp from './UniversalProcessReliabilityApp.tsx';
 import ProcessUnifiedTwinApp from './ProcessUnifiedTwinApp.tsx';
 import ProcessUnifiedOptimizerApp from './ProcessUnifiedOptimizerApp.tsx';
 import UniversalProcessLabApp from './UniversalProcessLabApp.tsx';
@@ -37,6 +38,7 @@ const showLegacyProcessBatchRisk = view === 'process-batch-risk-legacy' || windo
 const showProcessDigitalTwin = view === 'process-digital-twin' || window.location.hash === '#process-digital-twin';
 const showLegacyProcessDigitalTwin = view === 'process-digital-twin-legacy' || window.location.hash === '#process-digital-twin-legacy';
 const showProcessReliability = view === 'process-reliability' || window.location.hash === '#process-reliability';
+const showLegacyProcessReliability = view === 'process-reliability-legacy' || window.location.hash === '#process-reliability-legacy';
 const showProcessUnifiedTwin = view === 'process-unified-twin' || window.location.hash === '#process-unified-twin';
 const showProcessUnifiedOptimizer = view === 'process-unified-opt' || window.location.hash === '#process-unified-opt';
 const showUniversalProcessLab = view === 'process-universal' || window.location.hash === '#process-universal';
@@ -50,8 +52,10 @@ createRoot(document.getElementById('root')!).render(
         <ProcessUnifiedOptimizerApp />
       ) : showProcessUnifiedTwin ? (
         <ProcessUnifiedTwinApp />
-      ) : showProcessReliability ? (
+      ) : showLegacyProcessReliability ? (
         <ProcessReliabilityApp />
+      ) : showProcessReliability ? (
+        <UniversalProcessReliabilityApp />
       ) : showLegacyProcessDigitalTwin ? (
         <ProcessDigitalTwinApp />
       ) : showProcessDigitalTwin ? (
