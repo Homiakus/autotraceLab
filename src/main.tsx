@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import LbcWorkflowWorkbench from './LbcWorkflowWorkbench.tsx';
 import GenericProcessMathApp from './GenericProcessMathApp.tsx';
+import NativeProcessMathOverlay from './NativeProcessMathOverlay.tsx';
 import { ThemeProvider } from './context/ThemeContext.tsx';
 import './index.css';
 
@@ -19,7 +20,10 @@ createRoot(document.getElementById('root')!).render(
       ) : showLbcWorkflowAtlas ? (
         <LbcWorkflowWorkbench />
       ) : (
-        <App />
+        <>
+          <App />
+          <NativeProcessMathOverlay />
+        </>
       )}
     </ThemeProvider>
   </StrictMode>,
