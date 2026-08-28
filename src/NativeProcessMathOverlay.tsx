@@ -5,6 +5,7 @@ import {
   ProcessAutomationKind,
   analyzeGraphProcess,
 } from './processGraphMath';
+import { inferCanvasTopology } from './nativeCanvasTopology';
 
 const STORAGE_KEY = 'autotrace:native-canvas-process-math:v1';
 
@@ -73,6 +74,7 @@ export default function NativeProcessMathOverlay() {
   const [batchSize, setBatchSize] = useState(1);
   const [summaryFormula, setSummaryFormula] = useState('critical.time / batch.count');
   const [collapsed, setCollapsed] = useState(false);
+  const [topologyNotice, setTopologyNotice] = useState('');
   const lastSignature = useRef('');
 
   const persist = (next: Record<string, NativeMathConfig>) => {
@@ -181,12 +183,36 @@ export default function NativeProcessMathOverlay() {
       persist(next);
       return next;
     });
+    setTopologyNotice(`Последовательность построена по экранному порядку для ${ordered.length} блоков.`);
+  };
+
+  const syncDependenciesFromCanvasArrows = () => {
+    const inferred = inferCanvasTopology();
+    setConfigs(current => {
+      const next = { ...current };
+      let updated = 0;
+      for (const block of blocks) {
+        const existing = next[block.id];
+        if (!existing?.enabled) continue;
+        const dependencies = (inferred.dependenciesByTarget[block.id] || [])
+          .filter(dep => next[dep]?.enabled && dep !== block.id);
+        next[block.id] = { ...existing, dependencies };
+        updated += 1;
+      }
+      persist(next);
+      return next;
+    });
+    const warningSuffix = inferred.warnings.length
+      ? ` Предупреждений: ${inferred.warnings.length}.`
+      : '';
+    setTopologyNotice(`По SVG-стрелкам распознано ${inferred.edges.length} связей.${warningSuffix}`);
   };
 
   const clearAllMath = () => {
     setConfigs({});
     localStorage.removeItem(STORAGE_KEY);
     setSelectedId(null);
+    setTopologyNotice('Math-конфигурация очищена.');
   };
 
   if (!enabled) {
@@ -232,6 +258,7 @@ export default function NativeProcessMathOverlay() {
         .npm-eval { border-radius:9px; border:1px solid #334155; background:#111827; padding:8px; font-size:9px; color:#94A3B8; }
         .npm-eval b { display:block; margin-top:2px; color:#F8FAFC; font-size:15px; }
         .npm-error { margin-top:5px; color:#FCA5A5; font-size:8px; line-height:1.4; }
+        .npm-notice { margin-top:7px; color:#93C5FD; font-size:8px; line-height:1.4; }
         .npm-stats { margin-top:10px; border-top:1px solid rgba(255,255,255,.1); padding-top:10px; }
         .npm-stat-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
         .npm-stat { padding:7px; border-radius:8px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.08); }
@@ -239,6 +266,7 @@ export default function NativeProcessMathOverlay() {
         .npm-stat b { display:block; margin-top:2px; font-size:10px; color:#F8FAFC; }
         .npm-tools { display:flex; gap:5px; flex-wrap:wrap; margin-top:9px; }
         .npm-tools button { border:1px solid #334155; background:#111827; color:#CBD5E1; border-radius:7px; padding:5px 7px; font-size:8px; cursor:pointer; }
+        .npm-tools button.primary { border-color:#2563EB; color:#BFDBFE; background:#172554; }
         .npm-formula-help { color:#64748B; font-size:8px; line-height:1.45; margin-top:4px; }
         .npm-empty { color:#94A3B8; font-size:10px; line-height:1.5; padding:6px 0; }
         @media(max-width:700px){ .npm-panel{right:8px;left:8px;top:auto;bottom:8px;width:auto;max-height:56vh}.npm-badge{display:none} }
@@ -402,8 +430,10 @@ export default function NativeProcessMathOverlay() {
               </div>
               {analysis.summaryFormula && <div className="npm-eval" style={{ marginTop: 7 }}>Σ formula <b>{analysis.summaryFormula.ok ? roundSmart(analysis.summaryFormula.value ?? 0) : '—'}</b>{!analysis.summaryFormula.ok && <div className="npm-error">{analysis.summaryFormula.error}</div>}</div>}
               {stats.hasCycle && <div className="npm-error">Цикл зависимостей: {stats.cycleBlockIds.join(', ')}</div>}
+              {topologyNotice && <div className="npm-notice">{topologyNotice}</div>}
 
               <div className="npm-tools">
+                <button className="primary" onClick={syncDependenciesFromCanvasArrows}>Связи ← SVG-стрелки</button>
                 <button onClick={autoLinkByCanvasOrder}>Автосвязь слева → вправо</button>
                 <button onClick={() => window.location.assign(`${window.location.pathname}?view=process-math`)}>Полный Workbench ↗</button>
                 <button onClick={clearAllMath}>Очистить Math</button>
