@@ -65,5 +65,8 @@ jobs:
       - name: Unified stochastic batch twin unit test
         run: npx tsx src/tests/processUnifiedTwinTest.ts
 
+      - name: Unified batch optimizer unit test
+        run: npx tsx src/tests/processUnifiedOptimizerTest.ts
+
       - name: Production build
         run: npm run build
