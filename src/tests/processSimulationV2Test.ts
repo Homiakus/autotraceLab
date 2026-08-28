@@ -82,7 +82,7 @@ import { simulateResourceConstrainedProcess } from '../processSimulation';
 
   profile.failures = [{ resourceId: 'extra', mtbfSeconds: 100, mttrSeconds: 10 }];
   profile.changeovers = [{ id: 'setup', resourceId: 'extra', stateAttributes: ['family'], defaultSeconds: 2 }];
-  profile.calendars = { extra: { workingWindows: [{ startSeconds: 0, endSeconds: 1000 }] } };
+  profile.calendars = { extra: { cycleSeconds: 1000, workingWindows: [{ startOffsetSeconds: 0, endOffsetSeconds: 1000 }] } };
   profile = removeProcessResourceFromScenario(profile, 'extra');
   assert.equal(profile.resources.some(resource => resource.id === 'extra'), false);
   assert.equal(Object.values(profile.requirementsByBlock || {}).flat().some(requirement => requirement.resourceId === 'extra'), false);
