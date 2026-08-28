@@ -140,6 +140,17 @@ export {
   evaluateProcessSimulationReadiness,
 } from '../processSimulationProfile';
 
+export type { ProcessBatchReadiness } from '../processBatchProfile';
+export {
+  LEGACY_BATCH_SIMULATION_STORAGE_KEY,
+  getBatchPolicy,
+  setProcessBatchPolicy,
+  removeProcessBatchPolicy,
+  migrateLegacyBatchPolicies,
+  defaultBatchPolicyForBlock,
+  evaluateProcessBatchReadiness,
+} from '../processBatchProfile';
+
 export type {
   LegacyResourceSimulationModel,
   LegacyResourceAdapterOptions,

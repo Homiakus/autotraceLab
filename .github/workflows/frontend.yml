@@ -89,6 +89,9 @@ jobs:
       - name: Universal Process Risk v2 test
         run: npx tsx src/tests/processUniversalRiskV2Test.ts
 
+      - name: Universal Process Batch v2 parity and compatibility test
+        run: npx tsx src/tests/processUniversalBatchV2Test.ts
+
       - name: Production build
         run: npm run build
 

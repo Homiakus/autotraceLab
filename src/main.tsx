@@ -10,6 +10,7 @@ import ProcessRiskApp from './ProcessRiskApp.tsx';
 import UniversalProcessRiskApp from './UniversalProcessRiskApp.tsx';
 import ProcessBatchApp from './ProcessBatchApp.tsx';
 import ProcessBatchRiskApp from './ProcessBatchRiskApp.tsx';
+import UniversalProcessBatchApp from './UniversalProcessBatchApp.tsx';
 import ProcessDigitalTwinApp from './ProcessDigitalTwinApp.tsx';
 import ProcessReliabilityApp from './ProcessReliabilityApp.tsx';
 import ProcessUnifiedTwinApp from './ProcessUnifiedTwinApp.tsx';
@@ -30,6 +31,8 @@ const showProcessRisk = view === 'process-risk' || window.location.hash === '#pr
 const showLegacyProcessRisk = view === 'process-risk-legacy' || window.location.hash === '#process-risk-legacy';
 const showProcessBatch = view === 'process-batch' || window.location.hash === '#process-batch';
 const showProcessBatchRisk = view === 'process-batch-risk' || window.location.hash === '#process-batch-risk';
+const showLegacyProcessBatch = view === 'process-batch-legacy' || window.location.hash === '#process-batch-legacy';
+const showLegacyProcessBatchRisk = view === 'process-batch-risk-legacy' || window.location.hash === '#process-batch-risk-legacy';
 const showProcessDigitalTwin = view === 'process-digital-twin' || window.location.hash === '#process-digital-twin';
 const showProcessReliability = view === 'process-reliability' || window.location.hash === '#process-reliability';
 const showProcessUnifiedTwin = view === 'process-unified-twin' || window.location.hash === '#process-unified-twin';
@@ -49,10 +52,12 @@ createRoot(document.getElementById('root')!).render(
         <ProcessReliabilityApp />
       ) : showProcessDigitalTwin ? (
         <ProcessDigitalTwinApp />
-      ) : showProcessBatchRisk ? (
+      ) : showLegacyProcessBatchRisk ? (
         <ProcessBatchRiskApp />
-      ) : showProcessBatch ? (
+      ) : showLegacyProcessBatch ? (
         <ProcessBatchApp />
+      ) : showProcessBatchRisk || showProcessBatch ? (
+        <UniversalProcessBatchApp />
       ) : showLegacyProcessRisk ? (
         <ProcessRiskApp />
       ) : showProcessRisk ? (
