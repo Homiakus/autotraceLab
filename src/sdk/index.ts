@@ -11,11 +11,12 @@ import { LayoutResultValue } from '../engine/types';
 import { RegistryStore } from '../registry/RegistryClient';
 import { AutoTraceSDKConfig, AutoTraceSession, StorageAdapter, TelemetryAdapter, SceneOpenInput } from './types';
 import { InMemoryStorageAdapter, LocalStorageAdapter } from './storage';
-import { SceneSession, getSceneBounds, renderEdgeToSvgPath } from './SceneSession';
+import { SceneSession } from './SceneSession';
 
 export * from './types';
 export * from './storage';
 export * from './SceneSession';
+export * from '../process/index';
 export { EngineClient } from '../engine/EngineClient';
 export { RegistryStore } from '../registry/RegistryClient';
 export { generateOrthogonalPathWithBridges, renderG1ContinuousStraightPath } from '../algorithms/bridgeJumps';
