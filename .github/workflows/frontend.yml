@@ -62,5 +62,8 @@ jobs:
       - name: Reliability MTBF MTTR unit test
         run: npx tsx src/tests/processReliabilityTest.ts
 
+      - name: Unified stochastic batch twin unit test
+        run: npx tsx src/tests/processUnifiedTwinTest.ts
+
       - name: Production build
         run: npm run build
