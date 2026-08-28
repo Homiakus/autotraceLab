@@ -17,6 +17,9 @@ export * from './types';
 export * from './storage';
 export * from './SceneSession';
 export * from '../process/index';
+// Domain packs are extensions over the universal core. LBC is exported by the SDK
+// for convenient reuse, but it is intentionally not re-exported by src/process/index.ts.
+export * from '../domainPacks/lbc';
 export { EngineClient } from '../engine/EngineClient';
 export { RegistryStore } from '../registry/RegistryClient';
 export { generateOrthogonalPathWithBridges, renderG1ContinuousStraightPath } from '../algorithms/bridgeJumps';
