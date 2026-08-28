@@ -7,6 +7,7 @@ import UniversalProcessMathApp from './UniversalProcessMathApp.tsx';
 import ProcessSimulationApp from './ProcessSimulationApp.tsx';
 import UniversalProcessSimulationApp from './UniversalProcessSimulationApp.tsx';
 import ProcessRiskApp from './ProcessRiskApp.tsx';
+import UniversalProcessRiskApp from './UniversalProcessRiskApp.tsx';
 import ProcessBatchApp from './ProcessBatchApp.tsx';
 import ProcessBatchRiskApp from './ProcessBatchRiskApp.tsx';
 import ProcessDigitalTwinApp from './ProcessDigitalTwinApp.tsx';
@@ -26,6 +27,7 @@ const showLegacyProcessMathWorkbench = view === 'process-math-legacy' || window.
 const showProcessSimulation = view === 'process-sim' || window.location.hash === '#process-sim';
 const showLegacyProcessSimulation = view === 'process-sim-legacy' || window.location.hash === '#process-sim-legacy';
 const showProcessRisk = view === 'process-risk' || window.location.hash === '#process-risk';
+const showLegacyProcessRisk = view === 'process-risk-legacy' || window.location.hash === '#process-risk-legacy';
 const showProcessBatch = view === 'process-batch' || window.location.hash === '#process-batch';
 const showProcessBatchRisk = view === 'process-batch-risk' || window.location.hash === '#process-batch-risk';
 const showProcessDigitalTwin = view === 'process-digital-twin' || window.location.hash === '#process-digital-twin';
@@ -51,8 +53,10 @@ createRoot(document.getElementById('root')!).render(
         <ProcessBatchRiskApp />
       ) : showProcessBatch ? (
         <ProcessBatchApp />
-      ) : showProcessRisk ? (
+      ) : showLegacyProcessRisk ? (
         <ProcessRiskApp />
+      ) : showProcessRisk ? (
+        <UniversalProcessRiskApp />
       ) : showLegacyProcessSimulation ? (
         <ProcessSimulationApp />
       ) : showProcessSimulation ? (

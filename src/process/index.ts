@@ -50,6 +50,20 @@ export type {
 export { compileUniversalScenario, simulateUniversalScenario } from '../processUniversalCompiler';
 
 export type {
+  UniversalMonteCarloOptions,
+  UniversalMonteCarloResult,
+  UniversalCapacityScenario,
+  UniversalCapacityPlannerResult,
+} from '../processUniversalRisk';
+export {
+  runUniversalProcessMonteCarlo,
+  planUniversalResourceCapacity,
+  symmetricUncertainty,
+  uncertaintyPercent,
+  setSymmetricBlockUncertainty,
+} from '../processUniversalRisk';
+
+export type {
   ProcessMetricSnapshot,
   ProcessObjectiveScore,
   ProcessScenarioScore,
@@ -135,7 +149,7 @@ export { legacyResourceModelToProcessScenario } from '../processLegacyAdapters';
 // Supporting policy contracts used by ProcessScenarioProfile.
 export type { ProcessResource, ProcessResourceRequirement } from '../processSimulation';
 export type { ProcessBatchConfig } from '../processBatchSimulation';
-export type { ProcessBlockUncertainty } from '../processRisk';
+export type { ProcessBlockUncertainty, ProcessMonteCarloDistribution } from '../processRisk';
 export type {
   DigitalTwinArrivalKind,
   DigitalTwinArrivalConfig,
