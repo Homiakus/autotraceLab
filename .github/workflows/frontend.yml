@@ -86,6 +86,9 @@ jobs:
       - name: Universal Process Simulation v2 parity test
         run: npx tsx src/tests/processSimulationV2Test.ts
 
+      - name: Universal Process Risk v2 test
+        run: npx tsx src/tests/processUniversalRiskV2Test.ts
+
       - name: Production build
         run: npm run build
 
