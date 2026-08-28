@@ -34,14 +34,28 @@ function normalizeWindows(policy: ProcessResourceCalendarPolicy): ProcessWorking
 }
 
 function normalizeDowntime(policy: ProcessResourceCalendarPolicy): ProcessDowntimeWindow[] {
-  return (policy.plannedDowntime || [])
+  const sorted = (policy.plannedDowntime || [])
     .map(window => ({
       ...window,
       startSeconds: Math.max(0, Number(window.startSeconds) || 0),
       endSeconds: Math.max(0, Number(window.endSeconds) || 0),
     }))
     .filter(window => window.endSeconds > window.startSeconds)
-    .sort((a, b) => a.startSeconds - b.startSeconds);
+    .sort((a, b) => a.startSeconds - b.startSeconds || a.endSeconds - b.endSeconds);
+
+  const merged: ProcessDowntimeWindow[] = [];
+  for (const window of sorted) {
+    const previous = merged.at(-1);
+    if (!previous || window.startSeconds > previous.endSeconds) {
+      merged.push({ ...window });
+      continue;
+    }
+    previous.endSeconds = Math.max(previous.endSeconds, window.endSeconds);
+    if (window.reason && previous.reason !== window.reason) {
+      previous.reason = [previous.reason, window.reason].filter(Boolean).join(' + ');
+    }
+  }
+  return merged;
 }
 
 function overlaps(start: number, finish: number, blockedStart: number, blockedFinish: number): boolean {
