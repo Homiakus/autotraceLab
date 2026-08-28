@@ -95,6 +95,9 @@ jobs:
       - name: Universal Digital Twin v2 profile semantics test
         run: npx tsx src/tests/processDigitalTwinV2Test.ts
 
+      - name: Universal Reliability v2 paired analysis test
+        run: npx tsx src/tests/processUniversalReliabilityV2Test.ts
+
       - name: Production build
         run: npm run build
 
