@@ -1,6 +1,11 @@
 import { GraphProcessBlock, analyzeGraphProcess } from './processGraphMath';
 import { ProcessBlockUncertainty } from './processRisk';
 import { ProcessResource, ProcessResourceRequirement } from './processSimulation';
+import {
+  ProcessResourceCalendarPolicy,
+  availableSecondsWithin,
+  nextResourceAvailableStart,
+} from './processResourceCalendar';
 
 export type DigitalTwinArrivalKind = 'fixed' | 'poisson';
 
@@ -31,6 +36,7 @@ export interface DigitalTwinOptions {
   uncertaintyByBlock?: Record<string, ProcessBlockUncertainty>;
   reworkByBlock?: Record<string, DigitalTwinReworkPolicy>;
   priority?: DigitalTwinPriorityConfig;
+  resourceCalendars?: Record<string, ProcessResourceCalendarPolicy>;
 }
 
 export interface DigitalTwinTaskRun {
@@ -64,6 +70,8 @@ export interface DigitalTwinResourceStats {
   name: string;
   capacity: number;
   busyUnitSeconds: number;
+  availableUnitSeconds: number;
+  availabilityPercent: number;
   utilizationPercent: number;
   peakUnits: number;
 }
@@ -118,6 +126,7 @@ interface Reservation {
 
 interface ResourceCalendar {
   resource: ProcessResource;
+  policy?: ProcessResourceCalendarPolicy;
   lanes: Reservation[][];
 }
 
@@ -186,8 +195,7 @@ function sampleFactor(random: () => number, uncertainty: ProcessBlockUncertainty
 }
 
 function exponential(random: () => number, mean: number): number {
-  const u = Math.max(Number.EPSILON, 1 - random());
-  return -Math.log(u) * mean;
+  return -Math.log(Math.max(Number.EPSILON, 1 - random())) * mean;
 }
 
 function percentile(values: number[], p: number): number {
@@ -236,6 +244,7 @@ function overlaps(start: number, finish: number, reservation: Reservation): bool
 }
 
 function freeLanes(calendar: ResourceCalendar, start: number, duration: number): number[] {
+  if (nextResourceAvailableStart(calendar.policy, start, duration).startSeconds !== start) return [];
   const finish = start + duration;
   const free: number[] = [];
   calendar.lanes.forEach((lane, index) => {
@@ -251,39 +260,48 @@ function findAllocation(
   duration: number,
 ): Allocation | null {
   if (!requirements.length || duration === 0) return { start: ready, laneIndexesByResource: {} };
-  const candidates = new Set<number>([ready]);
-  for (const requirement of requirements) {
-    const calendar = calendars.get(requirement.resourceId);
-    if (!calendar) return null;
-    for (const lane of calendar.lanes) {
-      for (const reservation of lane) if (reservation.finish >= ready) candidates.add(reservation.finish);
+  let candidate = ready;
+
+  for (let guard = 0; guard < 100000; guard += 1) {
+    let calendarAdjusted = candidate;
+    for (const requirement of requirements) {
+      const calendar = calendars.get(requirement.resourceId);
+      if (!calendar) return null;
+      const available = nextResourceAvailableStart(calendar.policy, candidate, duration).startSeconds;
+      if (!Number.isFinite(available)) return null;
+      calendarAdjusted = Math.max(calendarAdjusted, available);
     }
-  }
-  for (const start of Array.from(candidates).sort((a, b) => a - b)) {
+    if (calendarAdjusted > candidate) {
+      candidate = calendarAdjusted;
+      continue;
+    }
+
     const laneIndexesByResource: Record<string, number[]> = {};
     let feasible = true;
     for (const requirement of requirements) {
-      const free = freeLanes(calendars.get(requirement.resourceId)!, start, duration);
+      const calendar = calendars.get(requirement.resourceId)!;
+      const free = freeLanes(calendar, candidate, duration);
       if (free.length < requirement.units) {
         feasible = false;
         break;
       }
       laneIndexesByResource[requirement.resourceId] = free.slice(0, requirement.units);
     }
-    if (feasible) return { start, laneIndexesByResource };
+    if (feasible) return { start: candidate, laneIndexesByResource };
+
+    let nextCandidate = Number.POSITIVE_INFINITY;
+    for (const requirement of requirements) {
+      const calendar = calendars.get(requirement.resourceId)!;
+      for (const lane of calendar.lanes) {
+        for (const reservation of lane) {
+          if (reservation.finish > candidate) nextCandidate = Math.min(nextCandidate, reservation.finish);
+        }
+      }
+    }
+    if (!Number.isFinite(nextCandidate)) return null;
+    candidate = nextCandidate;
   }
-  let start = ready;
-  for (const requirement of requirements) {
-    const calendar = calendars.get(requirement.resourceId)!;
-    for (const lane of calendar.lanes) for (const reservation of lane) start = Math.max(start, reservation.finish);
-  }
-  const laneIndexesByResource: Record<string, number[]> = {};
-  for (const requirement of requirements) {
-    const free = freeLanes(calendars.get(requirement.resourceId)!, start, duration);
-    if (free.length < requirement.units) return null;
-    laneIndexesByResource[requirement.resourceId] = free.slice(0, requirement.units);
-  }
-  return { start, laneIndexesByResource };
+  return null;
 }
 
 function reserve(
@@ -364,6 +382,9 @@ export function simulateStochasticDigitalTwin(
   const graph = analyzeGraphProcess(blocks, { batchSize: 1 });
   const baseSeconds: Record<string, number> = {};
 
+  for (const resourceId of Object.keys(options.resourceCalendars || {})) {
+    if (!resourceById.has(resourceId)) warnings.push(`Календарь ресурса ${resourceId} проигнорирован: ресурс не найден`);
+  }
   if (graph.stats.hasCycle) errors.push(`Digital Twin невозможен: цикл DAG (${graph.stats.cycleBlockIds.join(', ')})`);
   for (const block of blocks) {
     const result = graph.results[block.id];
@@ -386,7 +407,13 @@ export function simulateStochasticDigitalTwin(
   const blockById = new Map(blocks.map(block => [block.id, block]));
   const rank = new Map(topology.order.map((id, index) => [id, index]));
   const calendars = new Map<string, ResourceCalendar>();
-  for (const resource of resources) calendars.set(resource.id, { resource, lanes: Array.from({ length: resource.capacity }, () => []) });
+  for (const resource of resources) {
+    calendars.set(resource.id, {
+      resource,
+      policy: options.resourceCalendars?.[resource.id],
+      lanes: Array.from({ length: resource.capacity }, () => []),
+    });
+  }
 
   const completedFinish = new Map<string, number>();
   const attempts = new Map<string, number>();
@@ -426,22 +453,13 @@ export function simulateStochasticDigitalTwin(
         const requirements = normalizeRequirements(options.requirementsByBlock?.[blockId]);
         const allocation = findAllocation(calendars, requirements, ready, duration);
         if (!allocation) continue;
-        const candidate: Candidate = {
-          jobIndex,
-          block,
-          attempt: currentAttempt,
-          priority: priorities[jobIndex],
-          ready,
-          duration,
-          requirements,
-          allocation,
-        };
+        const candidate: Candidate = { jobIndex, block, attempt: currentAttempt, priority: priorities[jobIndex], ready, duration, requirements, allocation };
         if (chooseBetter(candidate, chosen, rank)) chosen = candidate;
       }
     }
 
     if (!chosen) {
-      errors.push('Digital Twin scheduler не нашёл доступную задачу; проверьте зависимости/ресурсы');
+      errors.push('Digital Twin scheduler не нашёл доступную задачу; проверьте зависимости, ресурсы и рабочие окна');
       break;
     }
 
@@ -502,8 +520,9 @@ export function simulateStochasticDigitalTwin(
   const lastCompletion = Math.max(...jobs.map(job => job.completionSeconds));
   const totalWait = runs.reduce((sum, run) => sum + run.waitSeconds, 0);
   const totalReworkRuns = runs.filter(run => run.reworkTriggered).length;
-  const statJobs = jobs.filter(job => job.priority > (Number(options.priority?.routinePriority) || 0));
-  const routineJobs = jobs.filter(job => job.priority <= (Number(options.priority?.routinePriority) || 0));
+  const routinePriority = Number(options.priority?.routinePriority) || 0;
+  const statJobs = jobs.filter(job => job.priority > routinePriority);
+  const routineJobs = jobs.filter(job => job.priority <= routinePriority);
   const average = (values: number[]) => values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null;
   const statAverageCycle = average(statJobs.map(job => job.cycleSeconds));
   const routineAverageCycle = average(routineJobs.map(job => job.cycleSeconds));
@@ -511,12 +530,16 @@ export function simulateStochasticDigitalTwin(
   const resourceStats: DigitalTwinResourceStats[] = resources.map(resource => {
     const calendar = calendars.get(resource.id)!;
     const busyUnitSeconds = calendar.lanes.reduce((sum, lane) => sum + lane.reduce((laneSum, reservation) => laneSum + reservation.finish - reservation.start, 0), 0);
+    const availablePerLane = availableSecondsWithin(calendar.policy, makespanSeconds);
+    const availableUnitSeconds = availablePerLane * resource.capacity;
     return {
       id: resource.id,
       name: resource.name,
       capacity: resource.capacity,
       busyUnitSeconds,
-      utilizationPercent: makespanSeconds > 0 ? (busyUnitSeconds / (makespanSeconds * resource.capacity)) * 100 : 0,
+      availableUnitSeconds,
+      availabilityPercent: makespanSeconds > 0 ? (availablePerLane / makespanSeconds) * 100 : 100,
+      utilizationPercent: availableUnitSeconds > 0 ? (busyUnitSeconds / availableUnitSeconds) * 100 : 0,
       peakUnits: peakUnits(calendar),
     };
   });
@@ -539,14 +562,13 @@ export function simulateStochasticDigitalTwin(
 
   const throughputWindow = Math.max(0, makespanSeconds - firstRelease);
   const outputWindow = Math.max(0, lastCompletion - firstCompletion);
-  const averageCycleSeconds = jobs.reduce((sum, job) => sum + job.cycleSeconds, 0) / jobs.length;
   const stats: DigitalTwinStats = {
     makespanSeconds,
     completedJobs: jobs.length,
     totalRuns: runs.length,
     totalReworkRuns,
     reworkRatePercent: runs.length ? (totalReworkRuns / runs.length) * 100 : 0,
-    averageCycleSeconds,
+    averageCycleSeconds: jobs.reduce((sum, job) => sum + job.cycleSeconds, 0) / jobs.length,
     p95CycleSeconds: percentile(jobs.map(job => job.cycleSeconds), 0.95),
     averageWaitSeconds: runs.length ? totalWait / runs.length : 0,
     p95WaitSeconds: percentile(runs.map(run => run.waitSeconds), 0.95),
@@ -564,6 +586,7 @@ export function simulateStochasticDigitalTwin(
 
   if (jobsCount > 1000) warnings.push('Большая партия может заметно нагружать браузер, особенно при rework и большом DAG');
   if ((options.arrivals?.kind || 'fixed') === 'poisson') warnings.push('Poisson-поток моделирует случайные интервалы поступления и воспроизводится через seed');
+  if (Object.keys(options.resourceCalendars || {}).length) warnings.push('Utilization ресурсов нормализован по доступному рабочему времени, а не по календарному makespan');
 
   return { ok: true, runs, jobs, resourceStats, blockStats, stats, warnings, errors };
 }
