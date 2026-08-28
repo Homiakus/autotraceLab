@@ -11,6 +11,7 @@ import ProcessDigitalTwinApp from './ProcessDigitalTwinApp.tsx';
 import ProcessReliabilityApp from './ProcessReliabilityApp.tsx';
 import ProcessUnifiedTwinApp from './ProcessUnifiedTwinApp.tsx';
 import ProcessUnifiedOptimizerApp from './ProcessUnifiedOptimizerApp.tsx';
+import UniversalProcessLabApp from './UniversalProcessLabApp.tsx';
 import NativeProcessMathOverlay from './NativeProcessMathOverlay.tsx';
 import { ThemeProvider } from './context/ThemeContext.tsx';
 import './index.css';
@@ -27,11 +28,14 @@ const showProcessDigitalTwin = view === 'process-digital-twin' || window.locatio
 const showProcessReliability = view === 'process-reliability' || window.location.hash === '#process-reliability';
 const showProcessUnifiedTwin = view === 'process-unified-twin' || window.location.hash === '#process-unified-twin';
 const showProcessUnifiedOptimizer = view === 'process-unified-opt' || window.location.hash === '#process-unified-opt';
+const showUniversalProcessLab = view === 'process-universal' || window.location.hash === '#process-universal';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
-      {showProcessUnifiedOptimizer ? (
+      {showUniversalProcessLab ? (
+        <UniversalProcessLabApp />
+      ) : showProcessUnifiedOptimizer ? (
         <ProcessUnifiedOptimizerApp />
       ) : showProcessUnifiedTwin ? (
         <ProcessUnifiedTwinApp />

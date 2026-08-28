@@ -68,5 +68,8 @@ jobs:
       - name: Unified batch optimizer unit test
         run: npx tsx src/tests/processUnifiedOptimizerTest.ts
 
+      - name: Universal process domain unit test
+        run: npx tsx src/tests/processUniversalDomainTest.ts
+
       - name: Production build
         run: npm run build
