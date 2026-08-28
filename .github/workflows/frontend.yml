@@ -53,5 +53,11 @@ jobs:
       - name: Stochastic digital twin unit test
         run: npx tsx src/tests/processDigitalTwinTest.ts
 
+      - name: Resource calendar unit test
+        run: npx tsx src/tests/processResourceCalendarTest.ts
+
+      - name: Digital twin calendar integration test
+        run: npx tsx src/tests/processDigitalTwinCalendarTest.ts
+
       - name: Production build
         run: npm run build
