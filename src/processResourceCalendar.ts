@@ -3,10 +3,13 @@ export interface ProcessWorkingWindow {
   endOffsetSeconds: number;
 }
 
+export type ProcessDowntimeMode = 'block-overlap' | 'block-start';
+
 export interface ProcessDowntimeWindow {
   startSeconds: number;
   endSeconds: number;
   reason?: string;
+  mode?: ProcessDowntimeMode;
 }
 
 export interface ProcessResourceCalendarPolicy {
@@ -37,6 +40,7 @@ function normalizeDowntime(policy: ProcessResourceCalendarPolicy): ProcessDownti
   const sorted = (policy.plannedDowntime || [])
     .map(window => ({
       ...window,
+      mode: window.mode || 'block-overlap' as ProcessDowntimeMode,
       startSeconds: Math.max(0, Number(window.startSeconds) || 0),
       endSeconds: Math.max(0, Number(window.endSeconds) || 0),
     }))
@@ -46,7 +50,9 @@ function normalizeDowntime(policy: ProcessResourceCalendarPolicy): ProcessDownti
   const merged: ProcessDowntimeWindow[] = [];
   for (const window of sorted) {
     const previous = merged.at(-1);
-    if (!previous || window.startSeconds > previous.endSeconds) {
+    // Merge only windows with the same scheduling semantics. Different modes may overlap but
+    // must remain distinct because block-start and block-overlap have different effects.
+    if (!previous || window.startSeconds > previous.endSeconds || previous.mode !== window.mode) {
       merged.push({ ...window });
       continue;
     }
@@ -60,6 +66,15 @@ function normalizeDowntime(policy: ProcessResourceCalendarPolicy): ProcessDownti
 
 function overlaps(start: number, finish: number, blockedStart: number, blockedFinish: number): boolean {
   return start < blockedFinish && finish > blockedStart;
+}
+
+function downtimeConflicts(
+  window: ProcessDowntimeWindow,
+  start: number,
+  finish: number,
+): boolean {
+  if (window.mode === 'block-start') return start >= window.startSeconds && start < window.endSeconds;
+  return overlaps(start, finish, window.startSeconds, window.endSeconds);
 }
 
 function nextWorkingStart(
@@ -105,7 +120,7 @@ export function nextResourceAvailableStart(
     if (working.start > candidate) reason = 'working-window';
     candidate = working.start;
     const finish = candidate + durationSeconds;
-    const conflict = downtime.find(window => overlaps(candidate, finish, window.startSeconds, window.endSeconds));
+    const conflict = downtime.find(window => downtimeConflicts(window, candidate, finish));
     if (!conflict) {
       return {
         startSeconds: candidate,
@@ -147,7 +162,19 @@ export function availableSecondsWithin(
     }
   }
 
-  for (const downtime of normalizeDowntime(policy)) {
+  // Availability is a physical property, so both downtime modes remove clock availability.
+  // Merge all overlaps again irrespective of scheduling mode to avoid double-subtraction.
+  const allDowntime = normalizeDowntime(policy)
+    .map(window => ({ startSeconds: window.startSeconds, endSeconds: window.endSeconds }))
+    .sort((a, b) => a.startSeconds - b.startSeconds);
+  const mergedAvailabilityDowntime: Array<{ startSeconds: number; endSeconds: number }> = [];
+  for (const window of allDowntime) {
+    const previous = mergedAvailabilityDowntime.at(-1);
+    if (!previous || window.startSeconds > previous.endSeconds) mergedAvailabilityDowntime.push({ ...window });
+    else previous.endSeconds = Math.max(previous.endSeconds, window.endSeconds);
+  }
+
+  for (const downtime of mergedAvailabilityDowntime) {
     const start = Math.max(0, Math.min(horizon, downtime.startSeconds));
     const end = Math.max(0, Math.min(horizon, downtime.endSeconds));
     if (end <= start) continue;
