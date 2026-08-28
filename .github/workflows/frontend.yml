@@ -98,6 +98,9 @@ jobs:
       - name: Universal Reliability v2 paired analysis test
         run: npx tsx src/tests/processUniversalReliabilityV2Test.ts
 
+      - name: Universal Optimizer v2 parity and policy preservation test
+        run: npx tsx src/tests/processUniversalOptimizerV2Test.ts
+
       - name: Production build
         run: npm run build
 

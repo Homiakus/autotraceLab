@@ -76,6 +76,15 @@ export {
 } from '../processUniversalReliability';
 
 export type {
+  UniversalBatchPolicySearch,
+  UniversalOptimizerWeights,
+  UniversalOptimizerOptions,
+  UniversalOptimizerScenario,
+  UniversalOptimizerResult,
+} from '../processUniversalOptimizer';
+export { optimizeUniversalBatchPolicy } from '../processUniversalOptimizer';
+
+export type {
   ProcessMetricSnapshot,
   ProcessObjectiveScore,
   ProcessScenarioScore,
