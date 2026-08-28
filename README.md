@@ -6,6 +6,26 @@
 
 Интерактивная лаборатория для построения, трассировки и анализа сложных схем.
 
+## Universal Process Domain — одно ядро для разных применений
+
+Process Math / Simulation / Digital Twin / Batch / Reliability / Optimizer развиваются как **domain-neutral core**. LBC является одним из профилей применения, а не архитектурой ядра.
+
+```text
+http://localhost:3000/?view=process-universal
+```
+
+или:
+
+```text
+http://localhost:3000/#process-universal
+```
+
+Универсальный контракт использует `job`, `operation`, `resource`, `batch`, `calendar`, `priority`, `retry`, `failure`, `compatibility`, `changeover` и `objective`. Предметная специфика хранится в произвольных job attributes и Domain Profile/Pack, поэтому новый домен подключается данными и адаптером без форка scheduler.
+
+Встроенные демонстрационные профили: generic manufacturing cell, service queue и compute pipeline. Совместимость партий задаётся декларативными правилами по любым атрибутам (`recipe`, `color`, `material`, `program`, `tenant`, `lot`), переналадка — setup-state атрибутами и матрицей `from → to → seconds`, а цели оптимизации — списком `metric / maximize|minimize|target / weight`.
+
+Подробности: [`docs/UNIVERSAL_PROCESS_DOMAIN_RU.md`](docs/UNIVERSAL_PROCESS_DOMAIN_RU.md).
+
 ## Unified Stochastic Batch Twin — единый цифровой двойник линии
 
 Новый интегрированный режим объединяет per-sample stochasticity, batch/rack/rotor cycles, resource capacity, смены, STAT priority, rework и MTBF/MTTR в **одном** discrete-event scheduler.
@@ -40,7 +60,7 @@ http://localhost:3000/?view=process-digital-twin
 http://localhost:3000/#process-digital-twin
 ```
 
-Digital Twin читает последнюю сохранённую Resource Simulation модель. Для каждого этапа можно задать triangular-разброс времени `±%`, вероятность повторной обработки и максимальное число повторов. Поток поступления может быть фиксированным либо Poisson; одинаковый `seed` воспроизводит тот же сценарий. STAT priority является non-preemptive: уже начатая операция не прерывается, но STAT получает следующий совместимый свободный слот.
+Digital Twin читает последнюю Resource Simulation модель. Для каждого этапа можно задать triangular-разброс времени `±%`, вероятность повторной обработки и максимальное число повторов. Поток поступления может быть фиксированным либо Poisson; одинаковый `seed` воспроизводит тот же сценарий. STAT priority является non-preemptive: уже начатая операция не прерывается, но STAT получает следующий совместимый свободный слот.
 
 Рассчитываются makespan, average/P95 cycle time, average/P95 wait, throughput/output rate, rework rate, STAT vs routine cycle time, utilization, peak units, resource bottleneck и статистика каждого этапа.
 
