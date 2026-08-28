@@ -64,6 +64,18 @@ export {
 } from '../processUniversalRisk';
 
 export type {
+  UniversalReliabilityOptions,
+  UniversalReliabilityResourceStats,
+  UniversalReliabilityResult,
+  FailurePolicyInput,
+} from '../processUniversalReliability';
+export {
+  runUniversalReliabilityMonteCarlo,
+  setResourceFailurePolicy,
+  failurePolicyForResource,
+} from '../processUniversalReliability';
+
+export type {
   ProcessMetricSnapshot,
   ProcessObjectiveScore,
   ProcessScenarioScore,
