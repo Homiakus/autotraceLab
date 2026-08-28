@@ -13,5 +13,13 @@
       "@/*": ["./*"]
     }
   },
-  "include": ["src/sdk/**/*", "src/engine/**/*", "src/types.ts", "src/registry/**/*", "src/algorithms/**/*"]
+  "include": [
+    "src/sdk/**/*",
+    "src/process/**/*",
+    "src/process*.ts",
+    "src/engine/**/*",
+    "src/types.ts",
+    "src/registry/**/*",
+    "src/algorithms/**/*"
+  ]
 }
