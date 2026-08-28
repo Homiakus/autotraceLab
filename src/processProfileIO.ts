@@ -27,13 +27,17 @@ function parseObject(text: string): ProcessParseResult<Record<string, unknown>> 
   }
 }
 
+function parseFailure<T>(parsed: ProcessParseResult<Record<string, unknown>>): ProcessParseResult<T> {
+  return { ok: false, errors: [...parsed.errors], warnings: [...parsed.warnings] };
+}
+
 /**
  * Strict version gate. Future migrations should be explicit functions rather than
  * silently interpreting an unknown schema with today's semantics.
  */
 export function parseProcessScenario(text: string): ProcessParseResult<ProcessScenarioProfile> {
   const parsed = parseObject(text);
-  if (!parsed.ok || !parsed.value) return parsed as ProcessParseResult<ProcessScenarioProfile>;
+  if (!parsed.ok || !parsed.value) return parseFailure<ProcessScenarioProfile>(parsed);
   if (parsed.value.schemaVersion !== '1.0') {
     return { ok: false, errors: [`Unsupported process scenario schemaVersion: ${String(parsed.value.schemaVersion)}`], warnings: [] };
   }
@@ -55,7 +59,7 @@ export function serializeProcessScenario(profile: ProcessScenarioProfile, pretty
 
 export function parseProcessDomainPack(text: string): ProcessParseResult<ProcessDomainPackManifest> {
   const parsed = parseObject(text);
-  if (!parsed.ok || !parsed.value) return parsed as ProcessParseResult<ProcessDomainPackManifest>;
+  if (!parsed.ok || !parsed.value) return parseFailure<ProcessDomainPackManifest>(parsed);
   if (parsed.value.schemaVersion !== '1.0') {
     return { ok: false, errors: [`Unsupported process domain pack schemaVersion: ${String(parsed.value.schemaVersion)}`], warnings: [] };
   }
