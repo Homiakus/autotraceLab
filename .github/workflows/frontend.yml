@@ -44,5 +44,8 @@ jobs:
       - name: Process risk unit test
         run: npx tsx src/tests/processRiskTest.ts
 
+      - name: Batch-cycle simulation unit test
+        run: npx tsx src/tests/processBatchSimulationTest.ts
+
       - name: Production build
         run: npm run build
