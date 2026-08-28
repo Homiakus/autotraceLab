@@ -14,7 +14,7 @@ const primaryViews = [
   'UniversalProcessLabApp.tsx',
 ];
 
-const forbidden = [
+const forbiddenRuntimeMarkers = [
   'autotrace:generic-process-math:v1',
   'autotrace:resource-simulation:v1',
   'autotrace:batch-simulation:v1',
@@ -25,18 +25,25 @@ const forbidden = [
   'runReliabilityMonteCarlo(',
   'simulateUnifiedStochasticBatchTwin(',
   'optimizeUnifiedBatchPolicy(',
-  'LBC_PLATFORMS',
 ];
 
 for (const file of primaryViews) {
   const content = readFileSync(resolve(root, file), 'utf8');
-  for (const token of forbidden) {
+  for (const token of forbiddenRuntimeMarkers) {
     assert.equal(
       content.includes(token),
       false,
-      `${file} must not depend on legacy/domain-specific production token: ${token}`,
+      `${file} must not depend on legacy production token: ${token}`,
     );
   }
+
+  // LBC is allowed only through the Domain Pack boundary. Mentions in explanatory UI prose
+  // are harmless; importing the raw platform catalog into a primary universal view is not.
+  assert.equal(
+    /import\s*{[^}]*\bLBC_PLATFORMS\b[^}]*}\s*from\s*['"][^'"]+['"]/.test(content),
+    false,
+    `${file} must not import raw LBC_PLATFORMS; use LBC_DOMAIN_PACK instead`,
+  );
 }
 
 const main = readFileSync(resolve(root, 'main.tsx'), 'utf8');
