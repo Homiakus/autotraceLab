@@ -95,14 +95,14 @@ metadata
 
 ## Priority
 
-Новый универсальный API использует:
+Универсальный API использует:
 
 ```text
 job.priority: number
 job.priorityClass?: string
 ```
 
-Старые `STAT / routine` поля остаются backward-compatible адаптером существующего Digital Twin, но наружу Universal API возвращает нейтральные:
+Старые `STAT / routine` поля остаются только backward-compatible представлением существующего Digital Twin. Universal API возвращает нейтральные:
 
 ```text
 highPriorityAverageCycleSeconds
@@ -112,7 +112,7 @@ priorityAdvantagePercent
 
 ## Batch compatibility
 
-Совместимость задаётся декларативно.
+Совместимость задаётся декларативно и теперь **исполняется Universal Policy Scheduler при формировании каждого физического batch**.
 
 Примеры:
 
@@ -144,9 +144,9 @@ priorityAdvantagePercent
 }
 ```
 
-Один и тот же механизм подходит для:
+Один механизм подходит для:
 
-- общего rotor/rack;
+- rotor/rack;
 - печи;
 - окраски;
 - мойки;
@@ -157,6 +157,8 @@ priorityAdvantagePercent
 - multi-tenant jobs.
 
 Функции `areJobsCompatible`, `isJobCompatibleWithBatch` и `partitionCompatibleJobs` не содержат domain-specific условий.
+
+Scheduler рассматривает несколько возможных anchor jobs. Поэтому одна несовместимая ранняя job не должна блокировать формирование другой совместимой партии.
 
 ## Changeover
 
@@ -188,11 +190,54 @@ GPU model small → large
 reagent lot A → lot B
 ```
 
-`orderJobsByChangeover` предоставляет детерминированную nearest-changeover эвристику для planner/UI.
+### Исполнение в scheduler
+
+`src/processUniversalScheduler.ts` хранит setup-state **по каждой lane ресурса отдельно**.
+
+Если `capacity = 3`, это не один общий state на три машины: каждая из трёх единиц может оставаться настроенной на свой продукт/рецепт/инструмент.
+
+Для каждой candidate operation scheduler рассчитывает:
+
+```text
+previous lane state
+        ↓
+sequence-dependent setup cost
+        ↓
+setup interval on resource lane
+        ↓
+common operation start
+        ↓
+operation interval
+        ↓
+new lane state
+```
+
+Setup входит в busy time и utilization ресурса.
+
+Для операции с несколькими ресурсами ищется общий operation start, при котором setup + operation допустимы одновременно по календарям всех требуемых ресурсов.
+
+Для batch setup-state строится по jobs внутри партии. Если все jobs дают один state — используется он. Если batch по правилам допускает разные setup-state, используется детерминированный aggregate state; таким образом поведение остаётся определённым без знания предметной области.
+
+`orderJobsByChangeover` остаётся отдельной детерминированной nearest-changeover эвристикой для planner/UI, тогда как DES самостоятельно выбирает следующее задание по фактическому earliest feasible start.
+
+## Calendars и failures
+
+Universal scheduler использует те же нейтральные контракты:
+
+- повторяющиеся working windows;
+- planned downtime;
+- MTBF/MTTR failure windows;
+- resource capacity.
+
+Changeover не обходит календарь: setup + operation должны помещаться в допустимое окно ресурса.
+
+## Retry / rework
+
+`retryByBlock` — универсальная политика повторного выполнения operation.
+
+Для batch rework остаётся per-job: общий batch может завершиться успешно для большинства jobs, а отдельная job возвращается в очередь и участвует в формировании следующей совместимой партии.
 
 ## Objectives
-
-Оптимизатор больше не обязан быть связан с фиксированным набором бизнес-терминов.
 
 `ProcessOptimizationObjective` задаёт:
 
@@ -217,6 +262,20 @@ tolerance?
 - utilizationPercent.
 
 Host-приложение может передать дополнительные числовые метрики через custom metric snapshot без изменения core schema.
+
+## Policy stats
+
+Universal scheduler дополнительно возвращает:
+
+```text
+totalChangeoverSeconds
+changeoverCount
+changeover seconds/count by resource
+compatibilityPoliciesApplied
+changeoverPoliciesApplied
+```
+
+Это позволяет строить отдельную экономику переналадок и видеть, где sequence-dependent setup становится bottleneck.
 
 ## Profile / Pack архитектура
 
@@ -248,9 +307,19 @@ Domain Pack может определять:
 
 Он не должен форкать scheduler.
 
-## Примеры, включённые в репозиторий
+## Portable schema
 
-`src/processProfiles.ts` содержит три разных класса применения одного и того же API:
+Machine-readable контракт:
+
+```text
+schemas/process-scenario.schema.json
+```
+
+JSON Schema позволяет создавать и валидировать профили вне React/TypeScript: в Go, Node, CLI, CI, Electron/Tauri или внешнем сервисе.
+
+## Примеры
+
+`src/processProfiles.ts` содержит три разных класса применения одного API:
 
 1. Generic manufacturing cell;
 2. Generic service queue;
@@ -268,8 +337,6 @@ Domain Pack может определять:
 /#process-universal
 ```
 
-Экран показывает profile JSON, jobs/attributes, operations/resources, simulation result, objectives, compatibility grouping и changeover preview.
-
 ## Backward compatibility
 
 Существующие режимы не удаляются:
@@ -285,26 +352,14 @@ process-unified-opt
 lbc
 ```
 
-Universal Profile компилируется в существующий Unified Twin через `processUniversalCompiler.ts`.
+Legacy режимы продолжают работать через прежний scheduler.
 
-Это позволяет мигрировать без big-bang rewrite.
+`processUniversalCompiler.ts` переводит Universal Profile в новый `processUniversalScheduler.ts`, но сохраняет backward-compatible `UnifiedTwinOptions` adapter payload для host-приложений, которые ещё используют старый контракт.
 
-## Текущая граница интеграции
+Это позволяет мигрировать постепенно, без big-bang rewrite.
 
-На этой итерации `compatibility` и `changeovers` являются стабильными domain-neutral контрактами, имеют валидатор, planner-функции, UI preview и tests.
+## Архитектурный инвариант
 
-Они **ещё не резервируют время непосредственно внутри lane-level Unified DES**. Compiler явно выдаёт предупреждение, если эти политики присутствуют.
+Новая предметная область подключается **данными и адаптером**, а не `if (domain === ...)` внутри scheduler.
 
-Это сделано намеренно: сначала фиксируется универсальный контракт, затем scheduler интегрирует его без появления отраслевых условий в hot path.
-
-Следующая scheduler-итерация должна:
-
-1. фильтровать состав batch через `isJobCompatibleWithBatch`;
-2. хранить setup state на resource lane;
-3. резервировать changeover как отдельный временной интервал перед operation/batch;
-4. учитывать sequence-dependent setup в optimizer;
-5. сохранять прежнее поведение при отсутствии compatibility/changeover policies.
-
-## Инвариант
-
-Новая предметная область должна подключаться **данными и адаптером**, а не изменением алгоритма scheduler.
+В scheduler запрещено добавлять отраслевые ветвления. Новая семантика должна выражаться через универсальное расширение контракта или policy interface.
