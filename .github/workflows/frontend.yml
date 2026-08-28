@@ -74,5 +74,8 @@ jobs:
       - name: Universal policy scheduler unit test
         run: npx tsx src/tests/processUniversalSchedulerTest.ts
 
+      - name: Domain pack registry and IO unit test
+        run: npx tsx src/tests/processDomainPackTest.ts
+
       - name: Production build
         run: npm run build
