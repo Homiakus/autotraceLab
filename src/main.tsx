@@ -12,6 +12,7 @@ import ProcessBatchApp from './ProcessBatchApp.tsx';
 import ProcessBatchRiskApp from './ProcessBatchRiskApp.tsx';
 import UniversalProcessBatchApp from './UniversalProcessBatchApp.tsx';
 import ProcessDigitalTwinApp from './ProcessDigitalTwinApp.tsx';
+import UniversalProcessDigitalTwinApp from './UniversalProcessDigitalTwinApp.tsx';
 import ProcessReliabilityApp from './ProcessReliabilityApp.tsx';
 import ProcessUnifiedTwinApp from './ProcessUnifiedTwinApp.tsx';
 import ProcessUnifiedOptimizerApp from './ProcessUnifiedOptimizerApp.tsx';
@@ -34,6 +35,7 @@ const showProcessBatchRisk = view === 'process-batch-risk' || window.location.ha
 const showLegacyProcessBatch = view === 'process-batch-legacy' || window.location.hash === '#process-batch-legacy';
 const showLegacyProcessBatchRisk = view === 'process-batch-risk-legacy' || window.location.hash === '#process-batch-risk-legacy';
 const showProcessDigitalTwin = view === 'process-digital-twin' || window.location.hash === '#process-digital-twin';
+const showLegacyProcessDigitalTwin = view === 'process-digital-twin-legacy' || window.location.hash === '#process-digital-twin-legacy';
 const showProcessReliability = view === 'process-reliability' || window.location.hash === '#process-reliability';
 const showProcessUnifiedTwin = view === 'process-unified-twin' || window.location.hash === '#process-unified-twin';
 const showProcessUnifiedOptimizer = view === 'process-unified-opt' || window.location.hash === '#process-unified-opt';
@@ -50,8 +52,10 @@ createRoot(document.getElementById('root')!).render(
         <ProcessUnifiedTwinApp />
       ) : showProcessReliability ? (
         <ProcessReliabilityApp />
-      ) : showProcessDigitalTwin ? (
+      ) : showLegacyProcessDigitalTwin ? (
         <ProcessDigitalTwinApp />
+      ) : showProcessDigitalTwin ? (
+        <UniversalProcessDigitalTwinApp />
       ) : showLegacyProcessBatchRisk ? (
         <ProcessBatchRiskApp />
       ) : showLegacyProcessBatch ? (
