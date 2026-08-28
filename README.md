@@ -6,6 +6,26 @@
 
 Интерактивная лаборатория для построения, трассировки и анализа сложных схем.
 
+## Unified Stochastic Batch Twin — единый цифровой двойник линии
+
+Новый интегрированный режим объединяет per-sample stochasticity, batch/rack/rotor cycles, resource capacity, смены, STAT priority, rework и MTBF/MTTR в **одном** discrete-event scheduler.
+
+```text
+http://localhost:3000/?view=process-unified-twin
+```
+
+или:
+
+```text
+http://localhost:3000/#process-unified-twin
+```
+
+Batch-операция резервирует физический аппарат один раз на общий цикл, но каждая проба сохраняет собственные `ready time`, priority, attempt и rework history. Поэтому после общего центрифужного или staining cycle отдельная проба может вернуться на повтор и попасть уже в другую следующую партию.
+
+Режим читает сохранённую Resource Simulation модель и существующие batch-политики. В одном UI задаются stochastic spread, rework, batch capacity/min batch/max wait, смены ресурсов и MTBF/MTTR. Рассчитываются makespan, P95 cycle/wait, throughput, fill rate, partial cycles, utilization, availability, generated failures и bottleneck.
+
+Подробности: [`docs/PROCESS_UNIFIED_TWIN_RU.md`](docs/PROCESS_UNIFIED_TWIN_RU.md).
+
 ## Process Digital Twin — per-sample stochastic DES
 
 Новый уровень моделирования рассчитывает уже не только детерминированный DAG и ограниченные ресурсы, а поведение каждой отдельной пробы: индивидуальное время операций, случайный поток поступления, очередь, приоритет STAT и rework.

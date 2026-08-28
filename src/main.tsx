@@ -9,6 +9,7 @@ import ProcessBatchApp from './ProcessBatchApp.tsx';
 import ProcessBatchRiskApp from './ProcessBatchRiskApp.tsx';
 import ProcessDigitalTwinApp from './ProcessDigitalTwinApp.tsx';
 import ProcessReliabilityApp from './ProcessReliabilityApp.tsx';
+import ProcessUnifiedTwinApp from './ProcessUnifiedTwinApp.tsx';
 import NativeProcessMathOverlay from './NativeProcessMathOverlay.tsx';
 import { ThemeProvider } from './context/ThemeContext.tsx';
 import './index.css';
@@ -23,11 +24,14 @@ const showProcessBatch = view === 'process-batch' || window.location.hash === '#
 const showProcessBatchRisk = view === 'process-batch-risk' || window.location.hash === '#process-batch-risk';
 const showProcessDigitalTwin = view === 'process-digital-twin' || window.location.hash === '#process-digital-twin';
 const showProcessReliability = view === 'process-reliability' || window.location.hash === '#process-reliability';
+const showProcessUnifiedTwin = view === 'process-unified-twin' || window.location.hash === '#process-unified-twin';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
-      {showProcessReliability ? (
+      {showProcessUnifiedTwin ? (
+        <ProcessUnifiedTwinApp />
+      ) : showProcessReliability ? (
         <ProcessReliabilityApp />
       ) : showProcessDigitalTwin ? (
         <ProcessDigitalTwinApp />
