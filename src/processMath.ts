@@ -42,12 +42,7 @@ export interface ProcessStats {
   throughputPerHour: number | null;
 }
 
-const UNIT_TO_SECONDS: Record<ProcessTimeUnit, number> = {
-  ms: 0.001,
-  s: 1,
-  min: 60,
-  h: 3600,
-};
+const UNIT_TO_SECONDS: Record<ProcessTimeUnit, number> = { ms: 0.001, s: 1, min: 60, h: 3600 };
 
 export function toSeconds(value: number, unit: ProcessTimeUnit): number {
   return value * UNIT_TO_SECONDS[unit];
@@ -73,17 +68,11 @@ export function roundSmart(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-/**
- * Tries to extract a single useful duration from a human-readable timing string.
- * It intentionally returns null for ranges because choosing a midpoint would invent precision.
- */
 export function extractInitialDuration(text: string): ProcessTimeInput {
   const normalized = text.toLowerCase().replace(',', '.');
   if (/\d\s*[–—-]\s*\d/.test(normalized)) return { value: null, unit: 'min' };
-
   const match = normalized.match(/(?:<|до|≈|~)?\s*(\d+(?:\.\d+)?)\s*(мс|ms|сек|с\b|мин|минут|ч\b|час)/i);
   if (!match) return { value: null, unit: 'min' };
-
   const value = Number(match[1]);
   const rawUnit = match[2];
   if (!Number.isFinite(value)) return { value: null, unit: 'min' };
@@ -94,10 +83,7 @@ export function extractInitialDuration(text: string): ProcessTimeInput {
 }
 
 type TokenType = 'number' | 'identifier' | 'operator' | 'lparen' | 'rparen' | 'comma' | 'eof';
-interface Token {
-  type: TokenType;
-  value: string;
-}
+interface Token { type: TokenType; value: string; }
 
 class FormulaTokenizer {
   private index = 0;
@@ -106,7 +92,6 @@ class FormulaTokenizer {
   next(): Token {
     while (this.index < this.input.length && /\s/.test(this.input[this.index])) this.index += 1;
     if (this.index >= this.input.length) return { type: 'eof', value: '' };
-
     const char = this.input[this.index];
     if (/[0-9.]/.test(char)) {
       const start = this.index;
@@ -119,13 +104,11 @@ class FormulaTokenizer {
       if (dots > 1 || raw === '.') throw new Error(`Некорректное число: ${raw}`);
       return { type: 'number', value: raw };
     }
-
     if (/[A-Za-zА-Яа-яЁё_]/.test(char)) {
       const start = this.index;
       while (this.index < this.input.length && /[A-Za-zА-Яа-яЁё0-9_.]/.test(this.input[this.index])) this.index += 1;
       return { type: 'identifier', value: this.input.slice(start, this.index) };
     }
-
     this.index += 1;
     if ('+-*/^'.includes(char)) return { type: 'operator', value: char };
     if (char === '(') return { type: 'lparen', value: char };
@@ -188,54 +171,41 @@ class FormulaParser {
   }
 
   private parseUnary(): number {
-    if (this.current.type === 'operator' && this.current.value === '-') {
-      this.advance();
-      return -this.parseUnary();
-    }
-    if (this.current.type === 'operator' && this.current.value === '+') {
-      this.advance();
-      return this.parseUnary();
-    }
+    if (this.current.type === 'operator' && this.current.value === '-') { this.advance(); return -this.parseUnary(); }
+    if (this.current.type === 'operator' && this.current.value === '+') { this.advance(); return this.parseUnary(); }
     return this.parsePrimary();
   }
 
   private parsePrimary(): number {
     if (this.current.type === 'number') return Number(this.advance().value);
-
     if (this.current.type === 'identifier') {
       const name = this.advance().value;
-      if (this.current.type === 'lparen') return this.parseFunction(name);
+      if ((this.current.type as TokenType) === 'lparen') return this.parseFunction(name);
       if (!(name in this.context)) throw new Error(`Неизвестная переменная: ${name}`);
       return this.context[name];
     }
-
     if (this.current.type === 'lparen') {
       this.advance();
       const value = this.parseExpression();
-      if (this.current.type !== 'rparen') throw new Error('Ожидалась закрывающая скобка');
+      if ((this.current.type as TokenType) !== 'rparen') throw new Error('Ожидалась закрывающая скобка');
       this.advance();
       return value;
     }
-
     throw new Error(`Ожидалось число, переменная или функция, получено: ${this.current.value || 'конец формулы'}`);
   }
 
   private parseFunction(name: string): number {
-    this.advance(); // (
+    this.advance();
     const args: number[] = [];
     if (this.current.type !== 'rparen') {
       while (true) {
         args.push(this.parseExpression());
-        if (this.current.type === 'comma') {
-          this.advance();
-          continue;
-        }
+        if (this.current.type === 'comma') { this.advance(); continue; }
         break;
       }
     }
     if (this.current.type !== 'rparen') throw new Error(`Функция ${name}: ожидалась )`);
     this.advance();
-
     switch (name.toLowerCase()) {
       case 'sum': return args.reduce((a, b) => a + b, 0);
       case 'avg': return args.length ? args.reduce((a, b) => a + b, 0) / args.length : 0;
@@ -266,10 +236,6 @@ export function evaluateFormula(expression: string, context: ProcessFormulaConte
   }
 }
 
-/**
- * Resolves stages left-to-right. A formula therefore can refer to any already resolved stage as `<stageId>.time`.
- * All formula values are expressed in seconds. This keeps units dimensionally predictable.
- */
 export function resolveStageTimes(stages: ProcessStageMathState[], extraContext: ProcessFormulaContext = {}): {
   secondsByStage: Record<string, number>;
   errorsByStage: Record<string, string>;
@@ -278,11 +244,9 @@ export function resolveStageTimes(stages: ProcessStageMathState[], extraContext:
   const context: ProcessFormulaContext = { ...extraContext };
   const secondsByStage: Record<string, number> = {};
   const errorsByStage: Record<string, string> = {};
-
   for (const stage of stages) {
     const expression = stage.time.formula?.trim();
     let seconds: number | null = null;
-
     if (expression) {
       const result = evaluateFormula(expression, context);
       if (result.ok && result.value != null) seconds = result.value;
@@ -290,7 +254,6 @@ export function resolveStageTimes(stages: ProcessStageMathState[], extraContext:
     } else if (stage.time.value != null && Number.isFinite(stage.time.value)) {
       seconds = toSeconds(stage.time.value, stage.time.unit);
     }
-
     if (seconds != null && Number.isFinite(seconds) && seconds >= 0) {
       secondsByStage[stage.id] = seconds;
       context[`${stage.id}.time`] = seconds;
@@ -299,35 +262,18 @@ export function resolveStageTimes(stages: ProcessStageMathState[], extraContext:
       errorsByStage[stage.id] = 'Время не может быть отрицательным';
     }
   }
-
   return { secondsByStage, errorsByStage, context };
 }
 
-export function calculateProcessStats(
-  stages: ProcessStageMathState[],
-  secondsByStage: Record<string, number>,
-  batchSize = 1,
-): ProcessStats {
-  let totalSeconds = 0;
-  let manualSeconds = 0;
-  let automaticSeconds = 0;
-  let mixedSeconds = 0;
-  let waitSeconds = 0;
-  let externalSeconds = 0;
-  let qcSeconds = 0;
-  let bottleneckSeconds = 0;
+export function calculateProcessStats(stages: ProcessStageMathState[], secondsByStage: Record<string, number>, batchSize = 1): ProcessStats {
+  let totalSeconds = 0, manualSeconds = 0, automaticSeconds = 0, mixedSeconds = 0, waitSeconds = 0, externalSeconds = 0, qcSeconds = 0, bottleneckSeconds = 0;
   let bottleneckStageId: string | undefined;
   let bottleneckStageTitle: string | undefined;
-
   for (const stage of stages) {
     const seconds = secondsByStage[stage.id];
     if (!Number.isFinite(seconds)) continue;
     totalSeconds += seconds;
-    if (seconds > bottleneckSeconds) {
-      bottleneckSeconds = seconds;
-      bottleneckStageId = stage.id;
-      bottleneckStageTitle = stage.title;
-    }
+    if (seconds > bottleneckSeconds) { bottleneckSeconds = seconds; bottleneckStageId = stage.id; bottleneckStageTitle = stage.title; }
     switch (stage.automation) {
       case 'manual': manualSeconds += seconds; break;
       case 'automatic': automaticSeconds += seconds; break;
@@ -338,15 +284,11 @@ export function calculateProcessStats(
       default: break;
     }
   }
-
   const modeledStages = Object.keys(secondsByStage).length;
   const automationDenominator = manualSeconds + automaticSeconds + mixedSeconds + waitSeconds + externalSeconds;
-  const automationTimeSharePercent = automationDenominator > 0
-    ? (automaticSeconds / automationDenominator) * 100
-    : 0;
+  const automationTimeSharePercent = automationDenominator > 0 ? (automaticSeconds / automationDenominator) * 100 : 0;
   const normalizedBatch = Number.isFinite(batchSize) && batchSize > 0 ? batchSize : 1;
   const throughputPerHour = totalSeconds > 0 ? normalizedBatch / (totalSeconds / 3600) : null;
-
   return {
     totalSeconds,
     serialCriticalPathSeconds: totalSeconds,
