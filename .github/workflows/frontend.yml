@@ -47,5 +47,8 @@ jobs:
       - name: Batch-cycle simulation unit test
         run: npx tsx src/tests/processBatchSimulationTest.ts
 
+      - name: Batch Monte Carlo unit test
+        run: npx tsx src/tests/processBatchRiskTest.ts
+
       - name: Production build
         run: npm run build
