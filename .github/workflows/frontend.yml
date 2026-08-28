@@ -38,5 +38,8 @@ jobs:
       - name: Native canvas topology unit test
         run: npx tsx src/tests/nativeCanvasTopologyTest.ts
 
+      - name: Resource simulation unit test
+        run: npx tsx src/tests/processSimulationTest.ts
+
       - name: Production build
         run: npm run build
