@@ -83,6 +83,9 @@ jobs:
       - name: LBC pack and Process Math migration test
         run: npx tsx src/tests/processDomainPackMigrationTest.ts
 
+      - name: Universal Process Simulation v2 parity test
+        run: npx tsx src/tests/processSimulationV2Test.ts
+
       - name: Production build
         run: npm run build
 

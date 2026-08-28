@@ -5,6 +5,7 @@ import LbcWorkflowWorkbench from './LbcWorkflowWorkbench.tsx';
 import GenericProcessMathApp from './GenericProcessMathApp.tsx';
 import UniversalProcessMathApp from './UniversalProcessMathApp.tsx';
 import ProcessSimulationApp from './ProcessSimulationApp.tsx';
+import UniversalProcessSimulationApp from './UniversalProcessSimulationApp.tsx';
 import ProcessRiskApp from './ProcessRiskApp.tsx';
 import ProcessBatchApp from './ProcessBatchApp.tsx';
 import ProcessBatchRiskApp from './ProcessBatchRiskApp.tsx';
@@ -23,6 +24,7 @@ const showLbcWorkflowAtlas = view === 'lbc' || window.location.hash === '#lbc';
 const showProcessMathWorkbench = view === 'process-math' || window.location.hash === '#process-math';
 const showLegacyProcessMathWorkbench = view === 'process-math-legacy' || window.location.hash === '#process-math-legacy';
 const showProcessSimulation = view === 'process-sim' || window.location.hash === '#process-sim';
+const showLegacyProcessSimulation = view === 'process-sim-legacy' || window.location.hash === '#process-sim-legacy';
 const showProcessRisk = view === 'process-risk' || window.location.hash === '#process-risk';
 const showProcessBatch = view === 'process-batch' || window.location.hash === '#process-batch';
 const showProcessBatchRisk = view === 'process-batch-risk' || window.location.hash === '#process-batch-risk';
@@ -51,8 +53,10 @@ createRoot(document.getElementById('root')!).render(
         <ProcessBatchApp />
       ) : showProcessRisk ? (
         <ProcessRiskApp />
-      ) : showProcessSimulation ? (
+      ) : showLegacyProcessSimulation ? (
         <ProcessSimulationApp />
+      ) : showProcessSimulation ? (
+        <UniversalProcessSimulationApp />
       ) : showLegacyProcessMathWorkbench ? (
         <GenericProcessMathApp />
       ) : showProcessMathWorkbench ? (
