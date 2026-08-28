@@ -90,6 +90,30 @@ export {
 } from '../processProfileIO';
 
 export type {
+  ProcessTemplateCatalogEntry,
+} from '../processTemplateCatalog';
+export {
+  processTemplateRef,
+  parseProcessTemplateRef,
+  buildProcessTemplateCatalog,
+  createScenarioFromTemplateRef,
+} from '../processTemplateCatalog';
+
+export type {
+  LegacyProcessMathModel,
+  ProcessMathProfileMetadata,
+} from '../processMathProfile';
+export {
+  PROCESS_MATH_PROFILE_STORAGE_KEY,
+  LEGACY_PROCESS_MATH_STORAGE_KEY,
+  getProcessMathMetadata,
+  withProcessMathMetadata,
+  createBlankProcessMathScenario,
+  resizeProcessScenarioJobs,
+  migrateLegacyProcessMathModel,
+} from '../processMathProfile';
+
+export type {
   LegacyResourceSimulationModel,
   LegacyResourceAdapterOptions,
 } from '../processLegacyAdapters';
