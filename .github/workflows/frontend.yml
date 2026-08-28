@@ -50,5 +50,8 @@ jobs:
       - name: Batch Monte Carlo unit test
         run: npx tsx src/tests/processBatchRiskTest.ts
 
+      - name: Stochastic digital twin unit test
+        run: npx tsx src/tests/processDigitalTwinTest.ts
+
       - name: Production build
         run: npm run build

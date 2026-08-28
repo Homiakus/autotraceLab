@@ -6,6 +6,26 @@
 
 Интерактивная лаборатория для построения, трассировки и анализа сложных схем.
 
+## Process Digital Twin — per-sample stochastic DES
+
+Новый уровень моделирования рассчитывает уже не только детерминированный DAG и ограниченные ресурсы, а поведение каждой отдельной пробы: индивидуальное время операций, случайный поток поступления, очередь, приоритет STAT и rework.
+
+```text
+http://localhost:3000/?view=process-digital-twin
+```
+
+или:
+
+```text
+http://localhost:3000/#process-digital-twin
+```
+
+Digital Twin читает последнюю сохранённую Resource Simulation модель. Для каждого этапа можно задать triangular-разброс времени `±%`, вероятность повторной обработки и максимальное число повторов. Поток поступления может быть фиксированным либо Poisson; одинаковый `seed` воспроизводит тот же сценарий. STAT priority является non-preemptive: уже начатая операция не прерывается, но STAT получает следующий совместимый свободный слот.
+
+Рассчитываются makespan, average/P95 cycle time, average/P95 wait, throughput/output rate, rework rate, STAT vs routine cycle time, utilization, peak units, resource bottleneck и статистика каждого этапа.
+
+Подробности: [`docs/PROCESS_DIGITAL_TWIN_RU.md`](docs/PROCESS_DIGITAL_TWIN_RU.md).
+
 ## Resource-Constrained Process Simulation — очереди и реальная пропускная способность
 
 Новый режим моделирует несколько образцов/заказов одновременно и учитывает ограниченные ресурсы: операторов, автоматы, центрифуги, станции окраски, QC и любые пользовательские единицы.
