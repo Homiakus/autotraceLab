@@ -92,6 +92,9 @@ jobs:
       - name: Universal Process Batch v2 parity and compatibility test
         run: npx tsx src/tests/processUniversalBatchV2Test.ts
 
+      - name: Universal Digital Twin v2 profile semantics test
+        run: npx tsx src/tests/processDigitalTwinV2Test.ts
+
       - name: Production build
         run: npm run build
 
