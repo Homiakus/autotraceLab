@@ -1,7 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
-import LbcWorkflowApp from './LbcWorkflowApp.tsx';
+import LbcWorkflowWorkbench from './LbcWorkflowWorkbench.tsx';
 import { ThemeProvider } from './context/ThemeContext.tsx';
 import './index.css';
 
@@ -11,7 +11,7 @@ const showLbcWorkflowAtlas = params.get('view') === 'lbc' || window.location.has
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
-      {showLbcWorkflowAtlas ? <LbcWorkflowApp /> : <App />}
+      {showLbcWorkflowAtlas ? <LbcWorkflowWorkbench /> : <App />}
     </ThemeProvider>
   </StrictMode>,
 );

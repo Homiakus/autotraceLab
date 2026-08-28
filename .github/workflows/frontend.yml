@@ -29,5 +29,8 @@ jobs:
       - name: TypeScript check (browser app)
         run: npx tsc -p tsconfig.frontend.json --noEmit
 
+      - name: Process math unit test
+        run: npx tsx src/tests/processMathTest.ts
+
       - name: Production build
         run: npm run build
