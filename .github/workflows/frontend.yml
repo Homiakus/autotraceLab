@@ -88,3 +88,6 @@ jobs:
 
       - name: SDK library build and declarations
         run: npm run build:lib
+
+      - name: Verify packaged Process Core surface
+        run: npx tsx scripts/verifyProcessPackageSurface.ts
