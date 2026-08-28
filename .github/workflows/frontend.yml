@@ -77,5 +77,11 @@ jobs:
       - name: Domain pack registry and IO unit test
         run: npx tsx src/tests/processDomainPackTest.ts
 
+      - name: Public Process Core API unit test
+        run: npx tsx src/tests/processPublicApiTest.ts
+
       - name: Production build
         run: npm run build
+
+      - name: SDK library build and declarations
+        run: npm run build:lib
