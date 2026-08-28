@@ -5,15 +5,16 @@ import {
   ProcessScenarioValidation,
   validateProcessScenario,
 } from './processDomain';
+import { UnifiedTwinOptions, UnifiedTwinResult } from './processUnifiedTwin';
 import {
-  UnifiedTwinOptions,
-  UnifiedTwinResult,
-  simulateUnifiedStochasticBatchTwin,
-} from './processUnifiedTwin';
+  UniversalPolicyStats,
+  simulateUniversalPolicyTwin,
+} from './processUniversalScheduler';
 
 export interface CompiledUniversalScenario {
   profileId: string;
   blocks: GraphProcessBlock[];
+  /** Backward-compatible adapter payload for hosts that still consume UnifiedTwinOptions. */
   twinOptions: UnifiedTwinOptions;
   jobsByIndex: ProcessJobDescriptor[];
   validation: ProcessScenarioValidation;
@@ -37,6 +38,7 @@ export interface UniversalSimulationStats {
 export interface UniversalSimulationResult {
   ok: boolean;
   core: UnifiedTwinResult;
+  policyStats: UniversalPolicyStats;
   stats: UniversalSimulationStats;
   jobsByIndex: ProcessJobDescriptor[];
   warnings: string[];
@@ -49,25 +51,12 @@ function priorityMap(jobs: ProcessJobDescriptor[]): Record<number, number> {
 
 export function compileUniversalScenario(profile: ProcessScenarioProfile): CompiledUniversalScenario {
   const validation = validateProcessScenario(profile);
-  const warnings = [...validation.warnings];
-
-  // Compatibility and sequence-dependent changeovers are first-class contracts.
-  // The current core simulator consumes all neutral scheduling primitives directly;
-  // compatibility/changeover policies are also exposed separately for planners and
-  // host adapters until their lane-level reservations are enabled in the unified DES.
-  if (profile.compatibility?.length) {
-    warnings.push('Compatibility policies are preserved in the universal profile and available to planners; core DES enforcement is staged separately.');
-  }
-  if (profile.changeovers?.length) {
-    warnings.push('Changeover policies are preserved in the universal profile and available to planners; core DES reservation integration is staged separately.');
-  }
-
   return {
     profileId: profile.id,
     blocks: profile.blocks,
     jobsByIndex: profile.jobs,
     validation,
-    warnings,
+    warnings: [...validation.warnings],
     twinOptions: {
       jobs: Math.max(1, profile.jobs.length),
       resources: profile.resources,
@@ -86,36 +75,9 @@ export function compileUniversalScenario(profile: ProcessScenarioProfile): Compi
   };
 }
 
-export function simulateUniversalScenario(profile: ProcessScenarioProfile): UniversalSimulationResult {
+export function simulateUniversalScenario(profile: ProcessScenarioProfile, seed?: number): UniversalSimulationResult {
   const compiled = compileUniversalScenario(profile);
-  if (!compiled.validation.ok) {
-    const empty = simulateUnifiedStochasticBatchTwin([], {
-      jobs: 1,
-      resources: [],
-    });
-    return {
-      ok: false,
-      core: empty,
-      stats: {
-        makespanSeconds: 0,
-        throughputPerHour: null,
-        averageCycleSeconds: 0,
-        p95CycleSeconds: 0,
-        averageWaitSeconds: 0,
-        p95WaitSeconds: 0,
-        averageBatchFillPercent: 0,
-        partialBatchRate: 0,
-        highPriorityAverageCycleSeconds: null,
-        basePriorityAverageCycleSeconds: null,
-        priorityAdvantagePercent: null,
-      },
-      jobsByIndex: compiled.jobsByIndex,
-      warnings: compiled.warnings,
-      errors: compiled.validation.errors,
-    };
-  }
-
-  const core = simulateUnifiedStochasticBatchTwin(compiled.blocks, compiled.twinOptions);
+  const core = simulateUniversalPolicyTwin(profile, seed);
   const partialBatchRate = core.stats.batchCycles > 0
     ? core.stats.partialBatchCycles / core.stats.batchCycles
     : 0;
@@ -123,6 +85,7 @@ export function simulateUniversalScenario(profile: ProcessScenarioProfile): Univ
   return {
     ok: core.ok,
     core,
+    policyStats: core.policyStats,
     jobsByIndex: compiled.jobsByIndex,
     warnings: [...compiled.warnings, ...core.warnings],
     errors: [...core.errors],
@@ -135,8 +98,8 @@ export function simulateUniversalScenario(profile: ProcessScenarioProfile): Univ
       p95WaitSeconds: core.stats.p95WaitSeconds,
       averageBatchFillPercent: core.stats.averageBatchFillPercent,
       partialBatchRate,
-      // These neutral aliases intentionally hide the legacy medical naming used
-      // inside the compatibility layer of the existing engine.
+      // Neutral aliases hide the legacy field names kept on UnifiedTwinResult only
+      // for binary/source compatibility with existing screens.
       highPriorityAverageCycleSeconds: core.stats.statAverageCycleSeconds,
       basePriorityAverageCycleSeconds: core.stats.routineAverageCycleSeconds,
       priorityAdvantagePercent: core.stats.statAdvantagePercent,
