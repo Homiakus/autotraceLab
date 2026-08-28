@@ -151,6 +151,16 @@ export {
   evaluateProcessBatchReadiness,
 } from '../processBatchProfile';
 
+export type { DailyResourceScheduleInput } from '../processDigitalTwinProfile';
+export {
+  setProcessArrival,
+  setProcessRetry,
+  retryPercent,
+  setPeriodicJobPriority,
+  setDailyResourceSchedule,
+  evaluateDigitalTwinReadiness,
+} from '../processDigitalTwinProfile';
+
 export type {
   LegacyResourceSimulationModel,
   LegacyResourceAdapterOptions,
