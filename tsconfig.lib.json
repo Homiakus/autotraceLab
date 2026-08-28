@@ -17,6 +17,8 @@
     "src/sdk/**/*",
     "src/process/**/*",
     "src/process*.ts",
+    "src/domainPacks/**/*",
+    "src/data/lbcWorkflowData.ts",
     "src/engine/**/*",
     "src/types.ts",
     "src/registry/**/*",

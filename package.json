@@ -11,11 +11,24 @@
       "types": "./dist/lib/sdk/index.d.ts",
       "import": "./dist/lib/index.js",
       "require": "./dist/lib/index.cjs"
-    }
+    },
+    "./process": {
+      "types": "./dist/lib/process/index.d.ts",
+      "import": "./dist/lib/index.js",
+      "require": "./dist/lib/index.cjs"
+    },
+    "./domain-packs/lbc": {
+      "types": "./dist/lib/domainPacks/lbc.d.ts",
+      "import": "./dist/lib/index.js",
+      "require": "./dist/lib/index.cjs"
+    },
+    "./schemas/process-scenario.json": "./schemas/process-scenario.schema.json",
+    "./schemas/process-domain-pack.json": "./schemas/process-domain-pack.schema.json"
   },
   "files": [
     "dist/lib",
-    "dist/autotrace"
+    "dist/autotrace",
+    "schemas"
   ],
   "sideEffects": false,
   "scripts": {
