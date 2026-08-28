@@ -4,6 +4,7 @@ import App from './App.tsx';
 import LbcWorkflowWorkbench from './LbcWorkflowWorkbench.tsx';
 import GenericProcessMathApp from './GenericProcessMathApp.tsx';
 import ProcessSimulationApp from './ProcessSimulationApp.tsx';
+import ProcessRiskApp from './ProcessRiskApp.tsx';
 import NativeProcessMathOverlay from './NativeProcessMathOverlay.tsx';
 import { ThemeProvider } from './context/ThemeContext.tsx';
 import './index.css';
@@ -13,11 +14,14 @@ const view = params.get('view');
 const showLbcWorkflowAtlas = view === 'lbc' || window.location.hash === '#lbc';
 const showProcessMathWorkbench = view === 'process-math' || window.location.hash === '#process-math';
 const showProcessSimulation = view === 'process-sim' || window.location.hash === '#process-sim';
+const showProcessRisk = view === 'process-risk' || window.location.hash === '#process-risk';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
-      {showProcessSimulation ? (
+      {showProcessRisk ? (
+        <ProcessRiskApp />
+      ) : showProcessSimulation ? (
         <ProcessSimulationApp />
       ) : showProcessMathWorkbench ? (
         <GenericProcessMathApp />
