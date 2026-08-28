@@ -17,6 +17,7 @@ import ProcessReliabilityApp from './ProcessReliabilityApp.tsx';
 import UniversalProcessReliabilityApp from './UniversalProcessReliabilityApp.tsx';
 import ProcessUnifiedTwinApp from './ProcessUnifiedTwinApp.tsx';
 import ProcessUnifiedOptimizerApp from './ProcessUnifiedOptimizerApp.tsx';
+import UniversalProcessOptimizerApp from './UniversalProcessOptimizerApp.tsx';
 import UniversalProcessLabApp from './UniversalProcessLabApp.tsx';
 import NativeProcessMathOverlay from './NativeProcessMathOverlay.tsx';
 import { ThemeProvider } from './context/ThemeContext.tsx';
@@ -40,7 +41,9 @@ const showLegacyProcessDigitalTwin = view === 'process-digital-twin-legacy' || w
 const showProcessReliability = view === 'process-reliability' || window.location.hash === '#process-reliability';
 const showLegacyProcessReliability = view === 'process-reliability-legacy' || window.location.hash === '#process-reliability-legacy';
 const showProcessUnifiedTwin = view === 'process-unified-twin' || window.location.hash === '#process-unified-twin';
+const showLegacyProcessUnifiedTwin = view === 'process-unified-twin-legacy' || window.location.hash === '#process-unified-twin-legacy';
 const showProcessUnifiedOptimizer = view === 'process-unified-opt' || window.location.hash === '#process-unified-opt';
+const showLegacyProcessUnifiedOptimizer = view === 'process-unified-opt-legacy' || window.location.hash === '#process-unified-opt-legacy';
 const showUniversalProcessLab = view === 'process-universal' || window.location.hash === '#process-universal';
 
 createRoot(document.getElementById('root')!).render(
@@ -48,10 +51,14 @@ createRoot(document.getElementById('root')!).render(
     <ThemeProvider>
       {showUniversalProcessLab ? (
         <UniversalProcessLabApp />
-      ) : showProcessUnifiedOptimizer ? (
+      ) : showLegacyProcessUnifiedOptimizer ? (
         <ProcessUnifiedOptimizerApp />
-      ) : showProcessUnifiedTwin ? (
+      ) : showProcessUnifiedOptimizer ? (
+        <UniversalProcessOptimizerApp />
+      ) : showLegacyProcessUnifiedTwin ? (
         <ProcessUnifiedTwinApp />
+      ) : showProcessUnifiedTwin ? (
+        <UniversalProcessDigitalTwinApp />
       ) : showLegacyProcessReliability ? (
         <ProcessReliabilityApp />
       ) : showProcessReliability ? (
