@@ -6,6 +6,7 @@ import GenericProcessMathApp from './GenericProcessMathApp.tsx';
 import ProcessSimulationApp from './ProcessSimulationApp.tsx';
 import ProcessRiskApp from './ProcessRiskApp.tsx';
 import ProcessBatchApp from './ProcessBatchApp.tsx';
+import ProcessBatchRiskApp from './ProcessBatchRiskApp.tsx';
 import NativeProcessMathOverlay from './NativeProcessMathOverlay.tsx';
 import { ThemeProvider } from './context/ThemeContext.tsx';
 import './index.css';
@@ -17,11 +18,14 @@ const showProcessMathWorkbench = view === 'process-math' || window.location.hash
 const showProcessSimulation = view === 'process-sim' || window.location.hash === '#process-sim';
 const showProcessRisk = view === 'process-risk' || window.location.hash === '#process-risk';
 const showProcessBatch = view === 'process-batch' || window.location.hash === '#process-batch';
+const showProcessBatchRisk = view === 'process-batch-risk' || window.location.hash === '#process-batch-risk';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
-      {showProcessBatch ? (
+      {showProcessBatchRisk ? (
+        <ProcessBatchRiskApp />
+      ) : showProcessBatch ? (
         <ProcessBatchApp />
       ) : showProcessRisk ? (
         <ProcessRiskApp />
