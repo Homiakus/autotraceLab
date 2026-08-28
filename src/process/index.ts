@@ -89,9 +89,7 @@ export {
   serializeProcessDomainPack,
 } from '../processProfileIO';
 
-export type {
-  ProcessTemplateCatalogEntry,
-} from '../processTemplateCatalog';
+export type { ProcessTemplateCatalogEntry } from '../processTemplateCatalog';
 export {
   processTemplateRef,
   parseProcessTemplateRef,
@@ -112,6 +110,21 @@ export {
   resizeProcessScenarioJobs,
   migrateLegacyProcessMathModel,
 } from '../processMathProfile';
+
+export type { ProcessSimulationReadiness } from '../processSimulationProfile';
+export {
+  PROCESS_SIMULATION_PROFILE_STORAGE_KEY,
+  LEGACY_RESOURCE_SIMULATION_STORAGE_KEY,
+  createBlankProcessSimulationScenario,
+  migrateLegacyResourceSimulationModel,
+  resizeSimulationJobs,
+  setFixedArrivalInterval,
+  upsertProcessResource,
+  removeProcessResourceFromScenario,
+  setBlockResourceRequirement,
+  applyAutomationResourceDefaults,
+  evaluateProcessSimulationReadiness,
+} from '../processSimulationProfile';
 
 export type {
   LegacyResourceSimulationModel,
