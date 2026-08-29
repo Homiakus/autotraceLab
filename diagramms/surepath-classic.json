@@ -1,0 +1,412 @@
+{
+  "version": 1,
+  "kind": "lbc-platform-workflow",
+  "name": "BD · SurePath: PrepMate + PrepStain",
+  "platformId": "surepath-classic",
+  "vendor": "BD",
+  "family": "SurePath",
+  "staining": "integrated",
+  "nodes": [
+    {
+      "id": "surepath-classic-stage-0",
+      "title": "Приём виалы, accession и проверка ID",
+      "subtitle": "≈1–3 мин / образец (лабораторная оценка)",
+      "description": "Сверка направления и идентификатора, визуальная оценка виалы, регистрация в LIS. Это лабораторный pre-analytical этап, а не часть заявленного цикла процессора.\n\nЧеловек: Принимает образец, разбирает исключения и несоответствия.\n\nАвтомат: LIS/сканер может автоматически зарегистрировать штрихкод.\n\nПримечание: Не включать эту оценку в паспортное время прибора.",
+      "semanticType": "Приём и идентификация",
+      "category": "processor",
+      "x": 130,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "surepath-classic-stage-0-in",
+          "name": "VIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "surepath-classic-stage-0-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "surepath-classic-stage-1",
+      "title": "Предварительная подготовка и загрузка",
+      "subtitle": "Лабораторно-зависимо",
+      "description": "В классическом SurePath часть pre-processing остаётся у оператора: маркировка, размещение пробирок/реагента плотности, подготовка центрифуги и расходников.\n\nЧеловек: Комплектует партию и выполняет ручные переходы между PrepMate, центрифугой и PrepStain.",
+      "semanticType": "Загрузка / подготовка партии",
+      "category": "source",
+      "x": 380,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#F59E0B",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "surepath-classic-stage-1-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "surepath-classic-stage-1-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "surepath-classic-stage-2",
+      "title": "PrepMate: смешивание и дозирование",
+      "subtitle": "<5 мин / 12 образцов",
+      "description": "PrepMate предсказуемо перемешивает, аспирирует и дозирует заданный объём образца непосредственно на BD Density Reagent.\n\nАвтомат: Автоматическое смешивание и пипетирование.",
+      "semanticType": "Диспергирование / подготовка суспензии",
+      "category": "processor",
+      "x": 630,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "surepath-classic-stage-2-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "surepath-classic-stage-2-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "surepath-classic-stage-3",
+      "title": "Центрифугирование и удаление недиагностических компонентов",
+      "subtitle": "Протокол-зависимо; в опубликованных сравнениях отдельное центрифугирование занимало порядка 10 мин",
+      "description": "Градиент плотности помогает удалить кровь, слизь и избыток воспалительных клеток и получить обогащённый клеточный осадок. В классической линии переходы/центрифуга не полностью интегрированы.\n\nЧеловек: Переносит пробирки, запускает центрифугу и выполняет указанные SOP операции.\n\nАвтомат: Физическое разделение фракций центрифугированием.",
+      "semanticType": "Очистка / обогащение клеток",
+      "category": "processor",
+      "x": 880,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "surepath-classic-stage-3-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "surepath-classic-stage-3-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "surepath-classic-stage-4",
+      "title": "PrepStain: ресуспендирование + седиментация",
+      "subtitle": "Седиментация: обычно 600 с (10 мин); общий цикл prep+stain около 60 мин / 48",
+      "description": "PrepStain ресуспендирует pellet и дозирует суспензию в осадочную камеру на PreCoat-стекле. Типичная пауза седиментации в руководстве — 600 с.\n\nАвтомат: Ресуспендирование, дозирование и естественная седиментация.",
+      "semanticType": "Формирование клеточного пятна",
+      "category": "processor",
+      "x": 130,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "surepath-classic-stage-4-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "surepath-classic-stage-4-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "surepath-classic-stage-5",
+      "title": "Сушка/фиксация перед окраской",
+      "subtitle": "Сушка по умолчанию около 60 с",
+      "description": "После осаждения клеток аппарат выполняет запрограммированные переходы; в руководстве указана типичная пауза сушки 60 с.",
+      "semanticType": "Фиксация",
+      "category": "processor",
+      "x": 380,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "surepath-classic-stage-5-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "surepath-classic-stage-5-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "surepath-classic-stage-6",
+      "title": "PrepStain: встроенная Pap-окраска",
+      "subtitle": "Входит в общий цикл ≈60 мин / 48 стекол",
+      "description": "Автоматическое индивидуальное дозирование красителей и промывок. В руководстве встречаются значения порядка 85 с для гематоксилина и отдельная выдержка EA/OG; точный рецепт задаётся протоколом.\n\nАвтомат: Автоматическая подготовка и окраска партии.",
+      "semanticType": "Окраска по Папаниколау",
+      "category": "processor",
+      "x": 630,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "surepath-classic-stage-6-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "surepath-classic-stage-6-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "surepath-classic-stage-7",
+      "title": "Просветление, покровное стекло и финальный QC",
+      "subtitle": "Лабораторно-зависимо; отдельно от времени LBC-процессора",
+      "description": "После окраски препарат дегидратируют/просветляют по валидированному протоколу, заключают под покровное стекло и проверяют ID, качество окраски, равномерность клеточного пятна и отсутствие дефектов.\n\nЧеловек: Загрузка/выгрузка стейнера или coverslipper, визуальный QC и разбор брака.\n\nАвтомат: При наличии автоматического coverslipper — нанесение среды и покровного стекла автоматически.",
+      "semanticType": "Заключение, QC и выдача стекла",
+      "category": "processor",
+      "x": 880,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "surepath-classic-stage-7-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "surepath-classic-stage-7-out",
+          "name": "SLIDE_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "surepath-classic-flow-0",
+      "sourceBlockId": "surepath-classic-stage-0",
+      "sourcePortId": "surepath-classic-stage-0-out",
+      "targetBlockId": "surepath-classic-stage-1",
+      "targetPortId": "surepath-classic-stage-1-in",
+      "label": "Загрузка / подготовка партии",
+      "dataType": "mechanical",
+      "color": "#d29a43"
+    },
+    {
+      "id": "surepath-classic-flow-1",
+      "sourceBlockId": "surepath-classic-stage-1",
+      "sourcePortId": "surepath-classic-stage-1-out",
+      "targetBlockId": "surepath-classic-stage-2",
+      "targetPortId": "surepath-classic-stage-2-in",
+      "label": "Диспергирование / подготовка суспензии",
+      "dataType": "mechanical",
+      "color": "#d29a43"
+    },
+    {
+      "id": "surepath-classic-flow-2",
+      "sourceBlockId": "surepath-classic-stage-2",
+      "sourcePortId": "surepath-classic-stage-2-out",
+      "targetBlockId": "surepath-classic-stage-3",
+      "targetPortId": "surepath-classic-stage-3-in",
+      "label": "Очистка / обогащение клеток",
+      "dataType": "mechanical",
+      "color": "#d29a43"
+    },
+    {
+      "id": "surepath-classic-flow-3",
+      "sourceBlockId": "surepath-classic-stage-3",
+      "sourcePortId": "surepath-classic-stage-3-out",
+      "targetBlockId": "surepath-classic-stage-4",
+      "targetPortId": "surepath-classic-stage-4-in",
+      "label": "Формирование клеточного пятна",
+      "dataType": "mechanical",
+      "color": "#d29a43"
+    },
+    {
+      "id": "surepath-classic-flow-4",
+      "sourceBlockId": "surepath-classic-stage-4",
+      "sourcePortId": "surepath-classic-stage-4-out",
+      "targetBlockId": "surepath-classic-stage-5",
+      "targetPortId": "surepath-classic-stage-5-in",
+      "label": "Фиксация",
+      "dataType": "mechanical",
+      "color": "#d29a43"
+    },
+    {
+      "id": "surepath-classic-flow-5",
+      "sourceBlockId": "surepath-classic-stage-5",
+      "sourcePortId": "surepath-classic-stage-5-out",
+      "targetBlockId": "surepath-classic-stage-6",
+      "targetPortId": "surepath-classic-stage-6-in",
+      "label": "Окраска по Папаниколау",
+      "dataType": "mechanical",
+      "color": "#d29a43"
+    },
+    {
+      "id": "surepath-classic-flow-6",
+      "sourceBlockId": "surepath-classic-stage-6",
+      "sourcePortId": "surepath-classic-stage-6-out",
+      "targetBlockId": "surepath-classic-stage-7",
+      "targetPortId": "surepath-classic-stage-7-in",
+      "label": "Заключение, QC и выдача стекла",
+      "dataType": "mechanical",
+      "color": "#d29a43"
+    }
+  ],
+  "subcircuits": {}
+}

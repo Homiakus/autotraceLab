@@ -1,14 +1,6 @@
 import React from 'react';
-import LbcWorkflowApp from './LbcWorkflowApp';
-import LbcEngineeringDrilldown from './components/LbcEngineeringDrilldown';
-import ProcessMathWorkbench from './components/ProcessMathWorkbench';
+import LbcWorkflowGraphApp from './LbcWorkflowGraphApp';
 
 export default function LbcWorkflowWorkbench() {
-  return (
-    <>
-      <LbcWorkflowApp />
-      <LbcEngineeringDrilldown />
-      <ProcessMathWorkbench />
-    </>
-  );
+  return <LbcWorkflowGraphApp />;
 }

@@ -1,0 +1,412 @@
+{
+  "version": 1,
+  "kind": "lbc-platform-workflow",
+  "name": "СОЛТ / Максима · CytoReference 12",
+  "platformId": "cytoreference-12",
+  "vendor": "СОЛТ / Максима",
+  "family": "Centrifugation + sedimentation + integrated staining",
+  "staining": "integrated",
+  "nodes": [
+    {
+      "id": "cytoreference-12-stage-0",
+      "title": "Приём виалы, accession и проверка ID",
+      "subtitle": "≈1–3 мин / образец (лабораторная оценка)",
+      "description": "Сверка направления и идентификатора, визуальная оценка виалы, регистрация в LIS. Это лабораторный pre-analytical этап, а не часть заявленного цикла процессора.\n\nЧеловек: Принимает образец, разбирает исключения и несоответствия.\n\nАвтомат: LIS/сканер может автоматически зарегистрировать штрихкод.\n\nПримечание: Не включать эту оценку в паспортное время прибора.",
+      "semanticType": "Приём и идентификация",
+      "category": "processor",
+      "x": 130,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "cytoreference-12-stage-0-in",
+          "name": "VIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "cytoreference-12-stage-0-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "cytoreference-12-stage-1",
+      "title": "Загрузка до 12 образцов и расходников",
+      "subtitle": "Hands-on не опубликован; далее единый 45-минутный цикл",
+      "description": "Оператор формирует партию, устанавливает стекла/образцы/одноразовые наконечники и выбирает протокол.\n\nЧеловек: Загрузка и запуск.\n\nАвтомат: Русифицированный интерфейс, управление рецептом.",
+      "semanticType": "Загрузка / подготовка партии",
+      "category": "processor",
+      "x": 380,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "cytoreference-12-stage-1-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "cytoreference-12-stage-1-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "cytoreference-12-stage-2",
+      "title": "Автоматическое дозирование/подготовка",
+      "subtitle": "Входит в 45 мин",
+      "description": "После запуска подготовка материала выполняется при минимальном участии оператора; одноразовые наконечники снижают риск переноса.",
+      "semanticType": "Диспергирование / подготовка суспензии",
+      "category": "processor",
+      "x": 630,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "cytoreference-12-stage-2-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "cytoreference-12-stage-2-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "cytoreference-12-stage-3",
+      "title": "Фильтрация/концентрирование и центрифугирование",
+      "subtitle": "Отдельно не опубликовано",
+      "description": "Производитель/поставщик указывает фильтрацию и концентрирование; центрифугирование входит в одну сессию с дальнейшей окраской.",
+      "semanticType": "Очистка / обогащение клеток",
+      "category": "processor",
+      "x": 880,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "cytoreference-12-stage-3-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "cytoreference-12-stage-3-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "cytoreference-12-stage-4",
+      "title": "Формирование 13-мм препарата",
+      "subtitle": "Входит в 45 мин",
+      "description": "Подготовленный клеточный материал переносится на стекло с формированием ограниченной диагностической области.",
+      "semanticType": "Формирование клеточного пятна",
+      "category": "processor",
+      "x": 130,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "cytoreference-12-stage-4-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "cytoreference-12-stage-4-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "cytoreference-12-stage-5",
+      "title": "Автоматический переход к staining",
+      "subtitle": "Входит в единый цикл",
+      "description": "Между приготовлением препарата и окраской не требуется ручная перегрузка каждого стекла.",
+      "semanticType": "Фиксация",
+      "category": "processor",
+      "x": 380,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "cytoreference-12-stage-5-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "cytoreference-12-stage-5-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "cytoreference-12-stage-6",
+      "title": "Встроенная окраска по Папаниколау",
+      "subtitle": "Полный цикл: 12 стекол / 45 мин",
+      "description": "Регистрационное наименование прямо включает приготовление и окрашивание; протокол настраивается.",
+      "semanticType": "Окраска по Папаниколау",
+      "category": "processor",
+      "x": 630,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "cytoreference-12-stage-6-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "cytoreference-12-stage-6-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "cytoreference-12-stage-7",
+      "title": "Просветление, покровное стекло и финальный QC",
+      "subtitle": "Лабораторно-зависимо; отдельно от времени LBC-процессора",
+      "description": "После окраски препарат дегидратируют/просветляют по валидированному протоколу, заключают под покровное стекло и проверяют ID, качество окраски, равномерность клеточного пятна и отсутствие дефектов.\n\nЧеловек: Загрузка/выгрузка стейнера или coverslipper, визуальный QC и разбор брака.\n\nАвтомат: При наличии автоматического coverslipper — нанесение среды и покровного стекла автоматически.",
+      "semanticType": "Заключение, QC и выдача стекла",
+      "category": "processor",
+      "x": 880,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "cytoreference-12-stage-7-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "cytoreference-12-stage-7-out",
+          "name": "SLIDE_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "cytoreference-12-flow-0",
+      "sourceBlockId": "cytoreference-12-stage-0",
+      "sourcePortId": "cytoreference-12-stage-0-out",
+      "targetBlockId": "cytoreference-12-stage-1",
+      "targetPortId": "cytoreference-12-stage-1-in",
+      "label": "Загрузка / подготовка партии",
+      "dataType": "mechanical",
+      "color": "#2fb995"
+    },
+    {
+      "id": "cytoreference-12-flow-1",
+      "sourceBlockId": "cytoreference-12-stage-1",
+      "sourcePortId": "cytoreference-12-stage-1-out",
+      "targetBlockId": "cytoreference-12-stage-2",
+      "targetPortId": "cytoreference-12-stage-2-in",
+      "label": "Диспергирование / подготовка суспензии",
+      "dataType": "mechanical",
+      "color": "#2fb995"
+    },
+    {
+      "id": "cytoreference-12-flow-2",
+      "sourceBlockId": "cytoreference-12-stage-2",
+      "sourcePortId": "cytoreference-12-stage-2-out",
+      "targetBlockId": "cytoreference-12-stage-3",
+      "targetPortId": "cytoreference-12-stage-3-in",
+      "label": "Очистка / обогащение клеток",
+      "dataType": "mechanical",
+      "color": "#2fb995"
+    },
+    {
+      "id": "cytoreference-12-flow-3",
+      "sourceBlockId": "cytoreference-12-stage-3",
+      "sourcePortId": "cytoreference-12-stage-3-out",
+      "targetBlockId": "cytoreference-12-stage-4",
+      "targetPortId": "cytoreference-12-stage-4-in",
+      "label": "Формирование клеточного пятна",
+      "dataType": "mechanical",
+      "color": "#2fb995"
+    },
+    {
+      "id": "cytoreference-12-flow-4",
+      "sourceBlockId": "cytoreference-12-stage-4",
+      "sourcePortId": "cytoreference-12-stage-4-out",
+      "targetBlockId": "cytoreference-12-stage-5",
+      "targetPortId": "cytoreference-12-stage-5-in",
+      "label": "Фиксация",
+      "dataType": "mechanical",
+      "color": "#2fb995"
+    },
+    {
+      "id": "cytoreference-12-flow-5",
+      "sourceBlockId": "cytoreference-12-stage-5",
+      "sourcePortId": "cytoreference-12-stage-5-out",
+      "targetBlockId": "cytoreference-12-stage-6",
+      "targetPortId": "cytoreference-12-stage-6-in",
+      "label": "Окраска по Папаниколау",
+      "dataType": "mechanical",
+      "color": "#2fb995"
+    },
+    {
+      "id": "cytoreference-12-flow-6",
+      "sourceBlockId": "cytoreference-12-stage-6",
+      "sourcePortId": "cytoreference-12-stage-6-out",
+      "targetBlockId": "cytoreference-12-stage-7",
+      "targetPortId": "cytoreference-12-stage-7-in",
+      "label": "Заключение, QC и выдача стекла",
+      "dataType": "mechanical",
+      "color": "#2fb995"
+    }
+  ],
+  "subcircuits": {}
+}

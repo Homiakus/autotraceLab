@@ -1,0 +1,412 @@
+{
+  "version": 1,
+  "kind": "lbc-platform-workflow",
+  "name": "Lituo Biotechnology · LTS-3000 A / B",
+  "platformId": "lts-3000",
+  "vendor": "Lituo Biotechnology",
+  "family": "Density gradient + sedimentation + integrated staining",
+  "staining": "integrated",
+  "nodes": [
+    {
+      "id": "lts-3000-stage-0",
+      "title": "Приём виалы, accession и проверка ID",
+      "subtitle": "≈1–3 мин / образец (лабораторная оценка)",
+      "description": "Сверка направления и идентификатора, визуальная оценка виалы, регистрация в LIS. Это лабораторный pre-analytical этап, а не часть заявленного цикла процессора.\n\nЧеловек: Принимает образец, разбирает исключения и несоответствия.\n\nАвтомат: LIS/сканер может автоматически зарегистрировать штрихкод.\n\nПримечание: Не включать эту оценку в паспортное время прибора.",
+      "semanticType": "Приём и идентификация",
+      "category": "processor",
+      "x": 130,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "lts-3000-stage-0-in",
+          "name": "VIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "lts-3000-stage-0-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "lts-3000-stage-1",
+      "title": "Пакетная загрузка образцов и стекол",
+      "subtitle": "Hands-on зависит от партии",
+      "description": "Оператор загружает расходники и выбирает параметры. Модель B рассчитана на batch processing до 24 specimens per hour.",
+      "semanticType": "Загрузка / подготовка партии",
+      "category": "processor",
+      "x": 380,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "lts-3000-stage-1-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "lts-3000-stage-1-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "lts-3000-stage-2",
+      "title": "Автоматическая обработка образца",
+      "subtitle": "Входит в общий цикл",
+      "description": "Инструмент выполняет specimen process и cell transfer под управлением микропроцессора.",
+      "semanticType": "Диспергирование / подготовка суспензии",
+      "category": "processor",
+      "x": 630,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "lts-3000-stage-2-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "lts-3000-stage-2-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "lts-3000-stage-3",
+      "title": "Density-gradient centrifugation",
+      "subtitle": "Параметры центрифугирования настраиваются; отдельная длительность не опубликована",
+      "description": "Система использует градиент плотности для отделения недиагностических компонентов.",
+      "semanticType": "Очистка / обогащение клеток",
+      "category": "processor",
+      "x": 880,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "lts-3000-stage-3-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "lts-3000-stage-3-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "lts-3000-stage-4",
+      "title": "Natural sedimentation + charge capture",
+      "subtitle": "Входит в общий цикл",
+      "description": "После переноса клеточный материал естественно оседает и удерживается на стекле.",
+      "semanticType": "Формирование клеточного пятна",
+      "category": "processor",
+      "x": 130,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "lts-3000-stage-4-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "lts-3000-stage-4-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "lts-3000-stage-5",
+      "title": "Автоматический переход к staining",
+      "subtitle": "Входит в 30–60 мин batch cycle",
+      "description": "Подготовка и staining объединены в одном приборе.",
+      "semanticType": "Фиксация",
+      "category": "processor",
+      "x": 380,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "lts-3000-stage-5-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "lts-3000-stage-5-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "lts-3000-stage-6",
+      "title": "Встроенная окраска",
+      "subtitle": "LTS-3000B: 24 готовых препарата/ч; A: около 8/30 мин по данным поставщиков",
+      "description": "Производитель прямо указывает «centrifuge, cell transfer, sedimentation, smear processing and staining all in 1».",
+      "semanticType": "Окраска по Папаниколау",
+      "category": "processor",
+      "x": 630,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "lts-3000-stage-6-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "lts-3000-stage-6-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "lts-3000-stage-7",
+      "title": "Просветление, покровное стекло и финальный QC",
+      "subtitle": "Лабораторно-зависимо; отдельно от времени LBC-процессора",
+      "description": "После окраски препарат дегидратируют/просветляют по валидированному протоколу, заключают под покровное стекло и проверяют ID, качество окраски, равномерность клеточного пятна и отсутствие дефектов.\n\nЧеловек: Загрузка/выгрузка стейнера или coverslipper, визуальный QC и разбор брака.\n\nАвтомат: При наличии автоматического coverslipper — нанесение среды и покровного стекла автоматически.",
+      "semanticType": "Заключение, QC и выдача стекла",
+      "category": "processor",
+      "x": 880,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "lts-3000-stage-7-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "lts-3000-stage-7-out",
+          "name": "SLIDE_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "lts-3000-flow-0",
+      "sourceBlockId": "lts-3000-stage-0",
+      "sourcePortId": "lts-3000-stage-0-out",
+      "targetBlockId": "lts-3000-stage-1",
+      "targetPortId": "lts-3000-stage-1-in",
+      "label": "Загрузка / подготовка партии",
+      "dataType": "mechanical",
+      "color": "#4aa7d8"
+    },
+    {
+      "id": "lts-3000-flow-1",
+      "sourceBlockId": "lts-3000-stage-1",
+      "sourcePortId": "lts-3000-stage-1-out",
+      "targetBlockId": "lts-3000-stage-2",
+      "targetPortId": "lts-3000-stage-2-in",
+      "label": "Диспергирование / подготовка суспензии",
+      "dataType": "mechanical",
+      "color": "#4aa7d8"
+    },
+    {
+      "id": "lts-3000-flow-2",
+      "sourceBlockId": "lts-3000-stage-2",
+      "sourcePortId": "lts-3000-stage-2-out",
+      "targetBlockId": "lts-3000-stage-3",
+      "targetPortId": "lts-3000-stage-3-in",
+      "label": "Очистка / обогащение клеток",
+      "dataType": "mechanical",
+      "color": "#4aa7d8"
+    },
+    {
+      "id": "lts-3000-flow-3",
+      "sourceBlockId": "lts-3000-stage-3",
+      "sourcePortId": "lts-3000-stage-3-out",
+      "targetBlockId": "lts-3000-stage-4",
+      "targetPortId": "lts-3000-stage-4-in",
+      "label": "Формирование клеточного пятна",
+      "dataType": "mechanical",
+      "color": "#4aa7d8"
+    },
+    {
+      "id": "lts-3000-flow-4",
+      "sourceBlockId": "lts-3000-stage-4",
+      "sourcePortId": "lts-3000-stage-4-out",
+      "targetBlockId": "lts-3000-stage-5",
+      "targetPortId": "lts-3000-stage-5-in",
+      "label": "Фиксация",
+      "dataType": "mechanical",
+      "color": "#4aa7d8"
+    },
+    {
+      "id": "lts-3000-flow-5",
+      "sourceBlockId": "lts-3000-stage-5",
+      "sourcePortId": "lts-3000-stage-5-out",
+      "targetBlockId": "lts-3000-stage-6",
+      "targetPortId": "lts-3000-stage-6-in",
+      "label": "Окраска по Папаниколау",
+      "dataType": "mechanical",
+      "color": "#4aa7d8"
+    },
+    {
+      "id": "lts-3000-flow-6",
+      "sourceBlockId": "lts-3000-stage-6",
+      "sourcePortId": "lts-3000-stage-6-out",
+      "targetBlockId": "lts-3000-stage-7",
+      "targetPortId": "lts-3000-stage-7-in",
+      "label": "Заключение, QC и выдача стекла",
+      "dataType": "mechanical",
+      "color": "#4aa7d8"
+    }
+  ],
+  "subcircuits": {}
+}

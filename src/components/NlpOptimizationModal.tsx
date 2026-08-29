@@ -35,7 +35,6 @@ interface NlpOptimizationModalProps {
   options: RoutingOptions;
   onOptionsChange: (options: RoutingOptions) => void;
   onApplyOptimization: (result: NLPOptimizationResult) => void;
-  onOpenStepperWithSteps?: (steps: any[]) => void;
 }
 
 export const NlpOptimizationModal: React.FC<NlpOptimizationModalProps> = ({
@@ -46,7 +45,6 @@ export const NlpOptimizationModal: React.FC<NlpOptimizationModalProps> = ({
   options,
   onOptionsChange,
   onApplyOptimization,
-  onOpenStepperWithSteps,
 }) => {
   const [params, setParams] = useState<NLPOptimizationParams>({
     ...DEFAULT_NLP_PARAMS,
@@ -94,13 +92,6 @@ export const NlpOptimizationModal: React.FC<NlpOptimizationModalProps> = ({
         optimalWireDistance: params.optimalWireDistance,
         nlpParams: params,
       });
-      onClose();
-    }
-  };
-
-  const handleViewInStepper = () => {
-    if (lastResult && onOpenStepperWithSteps) {
-      onOpenStepperWithSteps(lastResult.steps);
       onClose();
     }
   };
@@ -384,12 +375,6 @@ export const NlpOptimizationModal: React.FC<NlpOptimizationModalProps> = ({
 
                   {/* Apply Actions */}
                   <div className="flex items-center justify-end gap-3 pt-2">
-                    <button
-                      onClick={handleViewInStepper}
-                      className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-mono text-gray-300 hover:text-white transition-colors cursor-pointer"
-                    >
-                      Посмотреть траекторию сходимости (Шаги)
-                    </button>
                     <button
                       onClick={handleApplyAndClose}
                       className="px-5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-lg shadow-emerald-600/20 transition-all cursor-pointer"

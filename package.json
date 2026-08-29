@@ -22,12 +22,19 @@
       "import": "./dist/lib/index.js",
       "require": "./dist/lib/index.cjs"
     },
+    "./labtrace-ui": {
+      "types": "./dist/labtrace-ui/labtrace/index.d.ts",
+      "import": "./dist/labtrace-ui/index.js",
+      "require": "./dist/labtrace-ui/index.cjs"
+    },
+    "./labtrace-ui/style.css": "./dist/labtrace-ui/style.css",
     "./schemas/process-scenario.json": "./schemas/process-scenario.schema.json",
     "./schemas/process-domain-pack.json": "./schemas/process-domain-pack.schema.json"
   },
   "files": [
     "dist/lib",
     "dist/autotrace",
+    "dist/labtrace-ui",
     "schemas"
   ],
   "sideEffects": false,
@@ -35,6 +42,7 @@
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build",
     "build:lib": "vite build --config vite.lib.config.ts && tsc --project tsconfig.lib.json",
+    "build:ui": "vite build --config vite.ui.config.ts && tsc --project tsconfig.ui.json",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit",
@@ -44,6 +52,7 @@
     "export-fixtures": "tsx scripts/exportParityFixtures.ts",
     "stress": "tsx scripts/stressTestMaster.ts",
     "visual:test": "tsx scripts/visualTester.ts",
+    "export:diagrams": "tsx scripts/exportLbcDiagrams.ts",
     "converge:loop": "tsx scripts/cyclicConvergenceLoop.ts",
     "fuzz:1000": "tsx scripts/fuzz1000Runs.ts",
     "fuzz:10000": "tsx scripts/fuzz1000Runs.ts 10000"

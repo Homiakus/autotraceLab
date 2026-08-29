@@ -60,6 +60,7 @@ interface DiagramCanvasProps {
   debugWaveCells?: LeeDebugWave[];
   activeLayoutName: string;
   activeRoutingName: string;
+  fitViewSignal?: string | number;
 
   // Hierarchical Subcircuits (Подсхемы и надсхемы)
   subcircuits?: Record<string, SubcircuitDefinition>;
@@ -89,6 +90,7 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
   debugWaveCells = [],
   activeLayoutName,
   activeRoutingName,
+  fitViewSignal,
   subcircuits = {},
   hierarchyPath = [],
   onEnterSubcircuit,
@@ -418,6 +420,12 @@ export const DiagramCanvas: React.FC<DiagramCanvasProps> = ({
       y: (containerHeight - (maxY + minY) * targetZoom) / 2,
     });
   }, [nodes]);
+
+  useEffect(() => {
+    if (fitViewSignal === undefined) return;
+    const frame = window.requestAnimationFrame(handleFitToScreen);
+    return () => window.cancelAnimationFrame(frame);
+  }, [fitViewSignal, handleFitToScreen]);
 
   // Handle canvas mouse events
   const handleMouseDown = (e: React.MouseEvent) => {

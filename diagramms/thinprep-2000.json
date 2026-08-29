@@ -1,0 +1,412 @@
+{
+  "version": 1,
+  "kind": "lbc-platform-workflow",
+  "name": "Hologic · ThinPrep 2000",
+  "platformId": "thinprep-2000",
+  "vendor": "Hologic",
+  "family": "ThinPrep",
+  "staining": "external",
+  "nodes": [
+    {
+      "id": "thinprep-2000-stage-0",
+      "title": "Приём виалы, accession и проверка ID",
+      "subtitle": "≈1–3 мин / образец (лабораторная оценка)",
+      "description": "Сверка направления и идентификатора, визуальная оценка виалы, регистрация в LIS. Это лабораторный pre-analytical этап, а не часть заявленного цикла процессора.\n\nЧеловек: Принимает образец, разбирает исключения и несоответствия.\n\nАвтомат: LIS/сканер может автоматически зарегистрировать штрихкод.\n\nПримечание: Не включать эту оценку в паспортное время прибора.",
+      "semanticType": "Приём и идентификация",
+      "category": "processor",
+      "x": 130,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "thinprep-2000-stage-0-in",
+          "name": "VIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "thinprep-2000-stage-0-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "thinprep-2000-stage-1",
+      "title": "Ручная загрузка одного комплекта",
+      "subtitle": "≈1–2 мин (лабораторная оценка)",
+      "description": "Оператор устанавливает подписанное стекло, одноразовый фильтр, виалу PreservCyt и фиксирующую ванну/держатель согласно инструкции.\n\nЧеловек: Устанавливает расходники и проверяет соответствие ID.\n\nАвтомат: Контролирует запуск и цикл после закрытия рабочей зоны.",
+      "semanticType": "Загрузка / подготовка партии",
+      "category": "source",
+      "x": 380,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#F59E0B",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "thinprep-2000-stage-1-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "thinprep-2000-stage-1-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "thinprep-2000-stage-2",
+      "title": "Диспергирование клеточной суспензии",
+      "subtitle": "Входит в общий цикл <90 с; отдельно не опубликовано",
+      "description": "Аппарат перемешивает содержимое PreservCyt, разрушая рыхлые агрегаты и формируя более однородную суспензию перед фильтрацией.\n\nАвтомат: Автоматическое механическое диспергирование.",
+      "semanticType": "Диспергирование / подготовка суспензии",
+      "category": "processor",
+      "x": 630,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "thinprep-2000-stage-2-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "thinprep-2000-stage-2-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "thinprep-2000-stage-3",
+      "title": "Контролируемая мембранная фильтрация",
+      "subtitle": "Входит в общий цикл <90 с; отдельно не опубликовано",
+      "description": "Фильтр погружается в виалу. Жидкость проходит через мембрану; клетки собираются на поверхности. Система контролирует поток/сопротивление, чтобы ограничивать перегрузку клеточного слоя.\n\nАвтомат: Сбор клеток на одноразовом ThinPrep Pap filter.",
+      "semanticType": "Очистка / обогащение клеток",
+      "category": "processor",
+      "x": 880,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "thinprep-2000-stage-3-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "thinprep-2000-stage-3-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "thinprep-2000-stage-4",
+      "title": "Контактный перенос фильтр → стекло",
+      "subtitle": "Секунды; входит в общий цикл",
+      "description": "Фильтр контактирует с предметным стеклом, и собранные клетки переносятся в стандартизованную круглую область около 20 мм.\n\nАвтомат: Автоматический контролируемый контакт и отделение фильтра.",
+      "semanticType": "Формирование клеточного пятна",
+      "category": "processor",
+      "x": 130,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "thinprep-2000-stage-4-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "thinprep-2000-stage-4-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "thinprep-2000-stage-5",
+      "title": "Немедленная влажная фиксация",
+      "subtitle": "Немедленно после переноса; выдержка зависит от SOP",
+      "description": "После переноса клеток стекло должно попасть в спиртовой фиксатор без высыхания.\n\nЧеловек: В старой single-sample конфигурации участвует в выгрузке/перемещении.\n\nАвтомат: Цикл завершает приготовление препарата.",
+      "semanticType": "Фиксация",
+      "category": "processor",
+      "x": 380,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "thinprep-2000-stage-5-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "thinprep-2000-stage-5-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "thinprep-2000-stage-6",
+      "title": "Внешний валидированный Pap-stainer",
+      "subtitle": "≈27 мин 40 с суммарных выдержек в одном опубликованном протоколе; фактический цикл зависит от стейнера и перемещений",
+      "description": "Гидратация → ядерный краситель → промывка/дифференцировка → bluing → Orange G → EA → спирты → ксилол/заменитель. Hologic публикует отдельные протоколы для нескольких автоматических стейнеров.\n\nЧеловек: Переносит штатив обработанных стекол в совместимый стейнер и запускает валидированный рецепт.\n\nАвтомат: Автоматически выполняет последовательность ванн и выдержек.",
+      "semanticType": "Окраска по Папаниколау",
+      "category": "processor",
+      "x": 630,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#06B6D4",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "thinprep-2000-stage-6-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "thinprep-2000-stage-6-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "thinprep-2000-stage-7",
+      "title": "Просветление, покровное стекло и финальный QC",
+      "subtitle": "Лабораторно-зависимо; отдельно от времени LBC-процессора",
+      "description": "После окраски препарат дегидратируют/просветляют по валидированному протоколу, заключают под покровное стекло и проверяют ID, качество окраски, равномерность клеточного пятна и отсутствие дефектов.\n\nЧеловек: Загрузка/выгрузка стейнера или coverslipper, визуальный QC и разбор брака.\n\nАвтомат: При наличии автоматического coverslipper — нанесение среды и покровного стекла автоматически.",
+      "semanticType": "Заключение, QC и выдача стекла",
+      "category": "processor",
+      "x": 880,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "thinprep-2000-stage-7-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "thinprep-2000-stage-7-out",
+          "name": "SLIDE_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "thinprep-2000-flow-0",
+      "sourceBlockId": "thinprep-2000-stage-0",
+      "sourcePortId": "thinprep-2000-stage-0-out",
+      "targetBlockId": "thinprep-2000-stage-1",
+      "targetPortId": "thinprep-2000-stage-1-in",
+      "label": "Загрузка / подготовка партии",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "thinprep-2000-flow-1",
+      "sourceBlockId": "thinprep-2000-stage-1",
+      "sourcePortId": "thinprep-2000-stage-1-out",
+      "targetBlockId": "thinprep-2000-stage-2",
+      "targetPortId": "thinprep-2000-stage-2-in",
+      "label": "Диспергирование / подготовка суспензии",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "thinprep-2000-flow-2",
+      "sourceBlockId": "thinprep-2000-stage-2",
+      "sourcePortId": "thinprep-2000-stage-2-out",
+      "targetBlockId": "thinprep-2000-stage-3",
+      "targetPortId": "thinprep-2000-stage-3-in",
+      "label": "Очистка / обогащение клеток",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "thinprep-2000-flow-3",
+      "sourceBlockId": "thinprep-2000-stage-3",
+      "sourcePortId": "thinprep-2000-stage-3-out",
+      "targetBlockId": "thinprep-2000-stage-4",
+      "targetPortId": "thinprep-2000-stage-4-in",
+      "label": "Формирование клеточного пятна",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "thinprep-2000-flow-4",
+      "sourceBlockId": "thinprep-2000-stage-4",
+      "sourcePortId": "thinprep-2000-stage-4-out",
+      "targetBlockId": "thinprep-2000-stage-5",
+      "targetPortId": "thinprep-2000-stage-5-in",
+      "label": "Фиксация",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "thinprep-2000-flow-5",
+      "sourceBlockId": "thinprep-2000-stage-5",
+      "sourcePortId": "thinprep-2000-stage-5-out",
+      "targetBlockId": "thinprep-2000-stage-6",
+      "targetPortId": "thinprep-2000-stage-6-in",
+      "label": "Окраска по Папаниколау",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "thinprep-2000-flow-6",
+      "sourceBlockId": "thinprep-2000-stage-6",
+      "sourcePortId": "thinprep-2000-stage-6-out",
+      "targetBlockId": "thinprep-2000-stage-7",
+      "targetPortId": "thinprep-2000-stage-7-in",
+      "label": "Заключение, QC и выдача стекла",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    }
+  ],
+  "subcircuits": {}
+}

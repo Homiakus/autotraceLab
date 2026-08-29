@@ -1,0 +1,412 @@
+{
+  "version": 1,
+  "kind": "lbc-platform-workflow",
+  "name": "Celltrazone · HURO PATH S",
+  "platformId": "huro-path-s",
+  "vendor": "Celltrazone",
+  "family": "Double membrane filtration",
+  "staining": "external",
+  "nodes": [
+    {
+      "id": "huro-path-s-stage-0",
+      "title": "Приём виалы, accession и проверка ID",
+      "subtitle": "≈1–3 мин / образец (лабораторная оценка)",
+      "description": "Сверка направления и идентификатора, визуальная оценка виалы, регистрация в LIS. Это лабораторный pre-analytical этап, а не часть заявленного цикла процессора.\n\nЧеловек: Принимает образец, разбирает исключения и несоответствия.\n\nАвтомат: LIS/сканер может автоматически зарегистрировать штрихкод.\n\nПримечание: Не включать эту оценку в паспортное время прибора.",
+      "semanticType": "Приём и идентификация",
+      "category": "processor",
+      "x": 130,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "huro-path-s-stage-0-in",
+          "name": "VIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "huro-path-s-stage-0-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "huro-path-s-stage-1",
+      "title": "Ручная установка образца, фильтра и стекла",
+      "subtitle": "≈0,5–1 мин hands-on (лабораторная оценка)",
+      "description": "Компактный одноканальный процессор работает по одному образцу без необходимости накопления партии.\n\nЧеловек: Устанавливает расходники и запускает цикл.",
+      "semanticType": "Загрузка / подготовка партии",
+      "category": "source",
+      "x": 380,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#F59E0B",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "huro-path-s-stage-1-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "huro-path-s-stage-1-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "huro-path-s-stage-2",
+      "title": "Аспирация образца",
+      "subtitle": "Входит в 40 с",
+      "description": "После запуска жидкостный тракт автоматически забирает подготовленную суспензию.",
+      "semanticType": "Диспергирование / подготовка суспензии",
+      "category": "processor",
+      "x": 630,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "huro-path-s-stage-2-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "huro-path-s-stage-2-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "huro-path-s-stage-3",
+      "title": "Двойная мембранная фильтрация",
+      "subtitle": "Входит в 40 с",
+      "description": "Запатентованная схема двойной мембранной фильтрации предназначена для очистки и стандартизации клеточного слоя.",
+      "semanticType": "Очистка / обогащение клеток",
+      "category": "processor",
+      "x": 880,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "huro-path-s-stage-3-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "huro-path-s-stage-3-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "huro-path-s-stage-4",
+      "title": "Перенос клеток на 20-мм область",
+      "subtitle": "Полная обработка материала: 40 с",
+      "description": "Отфильтрованный клеточный материал наносится на предметное стекло; толщину слоя можно регулировать.",
+      "semanticType": "Формирование клеточного пятна",
+      "category": "processor",
+      "x": 130,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "huro-path-s-stage-4-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "huro-path-s-stage-4-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "huro-path-s-stage-5",
+      "title": "Выход стекла для дальнейшей окраски",
+      "subtitle": "После 40-секундного slide-prep",
+      "description": "Российская регистрационная запись прямо указывает подготовку стеклопрепаратов, пригодных для дальнейшего окрашивания и/или микроскопического анализа.",
+      "semanticType": "Фиксация",
+      "category": "processor",
+      "x": 380,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "huro-path-s-stage-5-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "huro-path-s-stage-5-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "huro-path-s-stage-6",
+      "title": "Отдельный Pap-stainer",
+      "subtitle": "Зависит от выбранного протокола",
+      "description": "HURO PATH S не является встроенным стейнером; окраска выполняется отдельным валидированным процессом.",
+      "semanticType": "Окраска по Папаниколау",
+      "category": "processor",
+      "x": 630,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#06B6D4",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "huro-path-s-stage-6-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "huro-path-s-stage-6-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "huro-path-s-stage-7",
+      "title": "Просветление, покровное стекло и финальный QC",
+      "subtitle": "Лабораторно-зависимо; отдельно от времени LBC-процессора",
+      "description": "После окраски препарат дегидратируют/просветляют по валидированному протоколу, заключают под покровное стекло и проверяют ID, качество окраски, равномерность клеточного пятна и отсутствие дефектов.\n\nЧеловек: Загрузка/выгрузка стейнера или coverslipper, визуальный QC и разбор брака.\n\nАвтомат: При наличии автоматического coverslipper — нанесение среды и покровного стекла автоматически.",
+      "semanticType": "Заключение, QC и выдача стекла",
+      "category": "processor",
+      "x": 880,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "huro-path-s-stage-7-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "huro-path-s-stage-7-out",
+          "name": "SLIDE_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "huro-path-s-flow-0",
+      "sourceBlockId": "huro-path-s-stage-0",
+      "sourcePortId": "huro-path-s-stage-0-out",
+      "targetBlockId": "huro-path-s-stage-1",
+      "targetPortId": "huro-path-s-stage-1-in",
+      "label": "Загрузка / подготовка партии",
+      "dataType": "mechanical",
+      "color": "#d29a43"
+    },
+    {
+      "id": "huro-path-s-flow-1",
+      "sourceBlockId": "huro-path-s-stage-1",
+      "sourcePortId": "huro-path-s-stage-1-out",
+      "targetBlockId": "huro-path-s-stage-2",
+      "targetPortId": "huro-path-s-stage-2-in",
+      "label": "Диспергирование / подготовка суспензии",
+      "dataType": "mechanical",
+      "color": "#d29a43"
+    },
+    {
+      "id": "huro-path-s-flow-2",
+      "sourceBlockId": "huro-path-s-stage-2",
+      "sourcePortId": "huro-path-s-stage-2-out",
+      "targetBlockId": "huro-path-s-stage-3",
+      "targetPortId": "huro-path-s-stage-3-in",
+      "label": "Очистка / обогащение клеток",
+      "dataType": "mechanical",
+      "color": "#d29a43"
+    },
+    {
+      "id": "huro-path-s-flow-3",
+      "sourceBlockId": "huro-path-s-stage-3",
+      "sourcePortId": "huro-path-s-stage-3-out",
+      "targetBlockId": "huro-path-s-stage-4",
+      "targetPortId": "huro-path-s-stage-4-in",
+      "label": "Формирование клеточного пятна",
+      "dataType": "mechanical",
+      "color": "#d29a43"
+    },
+    {
+      "id": "huro-path-s-flow-4",
+      "sourceBlockId": "huro-path-s-stage-4",
+      "sourcePortId": "huro-path-s-stage-4-out",
+      "targetBlockId": "huro-path-s-stage-5",
+      "targetPortId": "huro-path-s-stage-5-in",
+      "label": "Фиксация",
+      "dataType": "mechanical",
+      "color": "#d29a43"
+    },
+    {
+      "id": "huro-path-s-flow-5",
+      "sourceBlockId": "huro-path-s-stage-5",
+      "sourcePortId": "huro-path-s-stage-5-out",
+      "targetBlockId": "huro-path-s-stage-6",
+      "targetPortId": "huro-path-s-stage-6-in",
+      "label": "Окраска по Папаниколау",
+      "dataType": "mechanical",
+      "color": "#d29a43"
+    },
+    {
+      "id": "huro-path-s-flow-6",
+      "sourceBlockId": "huro-path-s-stage-6",
+      "sourcePortId": "huro-path-s-stage-6-out",
+      "targetBlockId": "huro-path-s-stage-7",
+      "targetPortId": "huro-path-s-stage-7-in",
+      "label": "Заключение, QC и выдача стекла",
+      "dataType": "mechanical",
+      "color": "#d29a43"
+    }
+  ],
+  "subcircuits": {}
+}

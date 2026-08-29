@@ -1,0 +1,412 @@
+{
+  "version": 1,
+  "kind": "lbc-platform-workflow",
+  "name": "BD · Totalys MultiProcessor + SlidePrep",
+  "platformId": "bd-totalys",
+  "vendor": "BD",
+  "family": "SurePath / Totalys",
+  "staining": "integrated",
+  "nodes": [
+    {
+      "id": "bd-totalys-stage-0",
+      "title": "Приём виалы, accession и проверка ID",
+      "subtitle": "≈1–3 мин / образец (лабораторная оценка)",
+      "description": "Сверка направления и идентификатора, визуальная оценка виалы, регистрация в LIS. Это лабораторный pre-analytical этап, а не часть заявленного цикла процессора.\n\nЧеловек: Принимает образец, разбирает исключения и несоответствия.\n\nАвтомат: LIS/сканер может автоматически зарегистрировать штрихкод.\n\nПримечание: Не включать эту оценку в паспортное время прибора.",
+      "semanticType": "Приём и идентификация",
+      "category": "processor",
+      "x": 130,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "bd-totalys-stage-0-in",
+          "name": "VIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "bd-totalys-stage-0-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "bd-totalys-stage-1",
+      "title": "Загрузка rack и запуск chain-of-custody",
+      "subtitle": "Hands-on зависит от партии; далее walk-away",
+      "description": "Оператор загружает идентифицированные образцы и расходники. LIS и barcode обеспечивают положительную идентификацию по всей линии.\n\nЧеловек: Загрузка образцов/расходников и разбор исключений.\n\nАвтомат: Barcode scan, LIS integration, управление очередью.",
+      "semanticType": "Загрузка / подготовка партии",
+      "category": "processor",
+      "x": 380,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "bd-totalys-stage-1-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "bd-totalys-stage-1-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "bd-totalys-stage-2",
+      "title": "MultiProcessor: перенос образца и опциональный aliquot",
+      "subtitle": "Отдельный шаг не публикуется",
+      "description": "Система автоматически переносит образец; при необходимости выполняет дополнительную аликвоту для ancillary testing.\n\nАвтомат: Автоматический liquid handling и optional aliquoting.",
+      "semanticType": "Диспергирование / подготовка суспензии",
+      "category": "processor",
+      "x": 630,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "bd-totalys-stage-2-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "bd-totalys-stage-2-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "bd-totalys-stage-3",
+      "title": "MultiProcessor: центрифугирование, aspiration и decant",
+      "subtitle": "Отдельные подэтапы не опубликованы; throughput линии ≈42–48 образцов/ч",
+      "description": "Полностью автоматизировано клеточное обогащение SurePath — именно те операции, которые в классической линии требовали нескольких ручных переходов.\n\nАвтомат: Sample transfer, centrifugation, aspiration, decanting.",
+      "semanticType": "Очистка / обогащение клеток",
+      "category": "processor",
+      "x": 880,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "bd-totalys-stage-3-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "bd-totalys-stage-3-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "bd-totalys-stage-4",
+      "title": "SlidePrep: pellet → осадочная камера → стекло",
+      "subtitle": "Входит в цикл <62–68 мин / 48",
+      "description": "SlidePrep сканирует стекло, сопоставляет его с образцом, ресуспендирует обогащённый pellet и формирует SurePath-препарат методом седиментации.\n\nАвтомат: Автоматическая подготовка стекла с непрерывной chain-of-custody.",
+      "semanticType": "Формирование клеточного пятна",
+      "category": "processor",
+      "x": 130,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "bd-totalys-stage-4-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "bd-totalys-stage-4-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "bd-totalys-stage-5",
+      "title": "Автоматические rinse/fix переходы",
+      "subtitle": "Входит в общий цикл",
+      "description": "Переход от сформированного клеточного пятна к окрашиванию выполняется внутри SlidePrep без ручного перемещения каждого стекла.",
+      "semanticType": "Фиксация",
+      "category": "processor",
+      "x": 380,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "bd-totalys-stage-5-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "bd-totalys-stage-5-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "bd-totalys-stage-6",
+      "title": "SlidePrep: индивидуальная Pap-окраска",
+      "subtitle": "<62 мин / 48 по актуальной брошюре; на EMEA-странице указано 68 мин / 48",
+      "description": "Окраска выполняется в индивидуальных камерах свежими реагентами; точное дозирование и тайминг управляются системой. Российская комплектация включает гематоксилин и комбинированный EA/OG.\n\nАвтомат: Fully automated preparation + staining.",
+      "semanticType": "Окраска по Папаниколау",
+      "category": "processor",
+      "x": 630,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "bd-totalys-stage-6-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "bd-totalys-stage-6-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "bd-totalys-stage-7",
+      "title": "Просветление, покровное стекло и финальный QC",
+      "subtitle": "Лабораторно-зависимо; отдельно от времени LBC-процессора",
+      "description": "После окраски препарат дегидратируют/просветляют по валидированному протоколу, заключают под покровное стекло и проверяют ID, качество окраски, равномерность клеточного пятна и отсутствие дефектов.\n\nЧеловек: Загрузка/выгрузка стейнера или coverslipper, визуальный QC и разбор брака.\n\nАвтомат: При наличии автоматического coverslipper — нанесение среды и покровного стекла автоматически.",
+      "semanticType": "Заключение, QC и выдача стекла",
+      "category": "processor",
+      "x": 880,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "bd-totalys-stage-7-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "bd-totalys-stage-7-out",
+          "name": "SLIDE_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "bd-totalys-flow-0",
+      "sourceBlockId": "bd-totalys-stage-0",
+      "sourcePortId": "bd-totalys-stage-0-out",
+      "targetBlockId": "bd-totalys-stage-1",
+      "targetPortId": "bd-totalys-stage-1-in",
+      "label": "Загрузка / подготовка партии",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "bd-totalys-flow-1",
+      "sourceBlockId": "bd-totalys-stage-1",
+      "sourcePortId": "bd-totalys-stage-1-out",
+      "targetBlockId": "bd-totalys-stage-2",
+      "targetPortId": "bd-totalys-stage-2-in",
+      "label": "Диспергирование / подготовка суспензии",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "bd-totalys-flow-2",
+      "sourceBlockId": "bd-totalys-stage-2",
+      "sourcePortId": "bd-totalys-stage-2-out",
+      "targetBlockId": "bd-totalys-stage-3",
+      "targetPortId": "bd-totalys-stage-3-in",
+      "label": "Очистка / обогащение клеток",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "bd-totalys-flow-3",
+      "sourceBlockId": "bd-totalys-stage-3",
+      "sourcePortId": "bd-totalys-stage-3-out",
+      "targetBlockId": "bd-totalys-stage-4",
+      "targetPortId": "bd-totalys-stage-4-in",
+      "label": "Формирование клеточного пятна",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "bd-totalys-flow-4",
+      "sourceBlockId": "bd-totalys-stage-4",
+      "sourcePortId": "bd-totalys-stage-4-out",
+      "targetBlockId": "bd-totalys-stage-5",
+      "targetPortId": "bd-totalys-stage-5-in",
+      "label": "Фиксация",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "bd-totalys-flow-5",
+      "sourceBlockId": "bd-totalys-stage-5",
+      "sourcePortId": "bd-totalys-stage-5-out",
+      "targetBlockId": "bd-totalys-stage-6",
+      "targetPortId": "bd-totalys-stage-6-in",
+      "label": "Окраска по Папаниколау",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "bd-totalys-flow-6",
+      "sourceBlockId": "bd-totalys-stage-6",
+      "sourcePortId": "bd-totalys-stage-6-out",
+      "targetBlockId": "bd-totalys-stage-7",
+      "targetPortId": "bd-totalys-stage-7-in",
+      "label": "Заключение, QC и выдача стекла",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    }
+  ],
+  "subcircuits": {}
+}

@@ -1,0 +1,412 @@
+{
+  "version": 1,
+  "kind": "lbc-platform-workflow",
+  "name": "YD Diagnostics · EASYPREP",
+  "platformId": "easyprep",
+  "vendor": "YD Diagnostics",
+  "family": "Density gradient / sedimentation",
+  "staining": "external",
+  "nodes": [
+    {
+      "id": "easyprep-stage-0",
+      "title": "Приём виалы, accession и проверка ID",
+      "subtitle": "≈1–3 мин / образец (лабораторная оценка)",
+      "description": "Сверка направления и идентификатора, визуальная оценка виалы, регистрация в LIS. Это лабораторный pre-analytical этап, а не часть заявленного цикла процессора.\n\nЧеловек: Принимает образец, разбирает исключения и несоответствия.\n\nАвтомат: LIS/сканер может автоматически зарегистрировать штрихкод.\n\nПримечание: Не включать эту оценку в паспортное время прибора.",
+      "semanticType": "Приём и идентификация",
+      "category": "processor",
+      "x": 130,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "easyprep-stage-0-in",
+          "name": "VIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "easyprep-stage-0-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "easyprep-stage-1",
+      "title": "Загрузка виал, пробирок, стекол и наконечников",
+      "subtitle": "Hands-on зависит от размера партии",
+      "description": "Оператор комплектует держатели и запускает рецепт. После запуска последовательность нанесения выполняется автоматически.\n\nЧеловек: Загрузка расходников и контроль корректности позиций.",
+      "semanticType": "Загрузка / подготовка партии",
+      "category": "processor",
+      "x": 380,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "easyprep-stage-1-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "easyprep-stage-1-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "easyprep-stage-2",
+      "title": "Прокалывание, перемешивание и забор",
+      "subtitle": "Отдельно не опубликовано",
+      "description": "Манипулятор прокалывает виалу; система автоматически перемешивает образец и аспирирует заданный объём.\n\nАвтомат: Закрытая автоматическая liquid-handling операция.",
+      "semanticType": "Диспергирование / подготовка суспензии",
+      "category": "processor",
+      "x": 630,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "easyprep-stage-2-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "easyprep-stage-2-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "easyprep-stage-3",
+      "title": "Градиент плотности + центрифугирование",
+      "subtitle": "Центрифугирование 3 мин в опубликованном протоколе; текущие параметры регулируемые",
+      "description": "Образец наслаивается под наклоном на density reagent. В опубликованном исследовании использовали 5 мл gradient reagent + 5 мл образца и 3 мин при 1000 rpm; недиагностический supernatant затем аспирируется.",
+      "semanticType": "Очистка / обогащение клеток",
+      "category": "processor",
+      "x": 880,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "easyprep-stage-3-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "easyprep-stage-3-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "easyprep-stage-4",
+      "title": "Перенос в осадочную камеру и седиментация",
+      "subtitle": "Отдельно не опубликовано",
+      "description": "Целевые клетки автоматически переносятся в камеру и естественно оседают на адгезивное стекло; диагностическая область около 15 мм.",
+      "semanticType": "Формирование клеточного пятна",
+      "category": "processor",
+      "x": 130,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "easyprep-stage-4-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "easyprep-stage-4-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "easyprep-stage-5",
+      "title": "Готовое неокрашенное стекло",
+      "subtitle": "Входит в цикл подготовки",
+      "description": "EASYPREP позиционируется как полностью автоматизированная система пробоподготовки; дальнейшая Pap-окраска выполняется отдельно.",
+      "semanticType": "Фиксация",
+      "category": "processor",
+      "x": 380,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "easyprep-stage-5-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "easyprep-stage-5-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "easyprep-stage-6",
+      "title": "Последующая Pap-окраска",
+      "subtitle": "Зависит от выбранного stainer/reagent protocol",
+      "description": "Официальная российская страница указывает возможность последующей окраски по Папаниколау; это отдельный технологический этап после EASYPREP.",
+      "semanticType": "Окраска по Папаниколау",
+      "category": "processor",
+      "x": 630,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#06B6D4",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "easyprep-stage-6-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "easyprep-stage-6-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "easyprep-stage-7",
+      "title": "Просветление, покровное стекло и финальный QC",
+      "subtitle": "Лабораторно-зависимо; отдельно от времени LBC-процессора",
+      "description": "После окраски препарат дегидратируют/просветляют по валидированному протоколу, заключают под покровное стекло и проверяют ID, качество окраски, равномерность клеточного пятна и отсутствие дефектов.\n\nЧеловек: Загрузка/выгрузка стейнера или coverslipper, визуальный QC и разбор брака.\n\nАвтомат: При наличии автоматического coverslipper — нанесение среды и покровного стекла автоматически.",
+      "semanticType": "Заключение, QC и выдача стекла",
+      "category": "processor",
+      "x": 880,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "easyprep-stage-7-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "easyprep-stage-7-out",
+          "name": "SLIDE_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "easyprep-flow-0",
+      "sourceBlockId": "easyprep-stage-0",
+      "sourcePortId": "easyprep-stage-0-out",
+      "targetBlockId": "easyprep-stage-1",
+      "targetPortId": "easyprep-stage-1-in",
+      "label": "Загрузка / подготовка партии",
+      "dataType": "mechanical",
+      "color": "#2fb995"
+    },
+    {
+      "id": "easyprep-flow-1",
+      "sourceBlockId": "easyprep-stage-1",
+      "sourcePortId": "easyprep-stage-1-out",
+      "targetBlockId": "easyprep-stage-2",
+      "targetPortId": "easyprep-stage-2-in",
+      "label": "Диспергирование / подготовка суспензии",
+      "dataType": "mechanical",
+      "color": "#2fb995"
+    },
+    {
+      "id": "easyprep-flow-2",
+      "sourceBlockId": "easyprep-stage-2",
+      "sourcePortId": "easyprep-stage-2-out",
+      "targetBlockId": "easyprep-stage-3",
+      "targetPortId": "easyprep-stage-3-in",
+      "label": "Очистка / обогащение клеток",
+      "dataType": "mechanical",
+      "color": "#2fb995"
+    },
+    {
+      "id": "easyprep-flow-3",
+      "sourceBlockId": "easyprep-stage-3",
+      "sourcePortId": "easyprep-stage-3-out",
+      "targetBlockId": "easyprep-stage-4",
+      "targetPortId": "easyprep-stage-4-in",
+      "label": "Формирование клеточного пятна",
+      "dataType": "mechanical",
+      "color": "#2fb995"
+    },
+    {
+      "id": "easyprep-flow-4",
+      "sourceBlockId": "easyprep-stage-4",
+      "sourcePortId": "easyprep-stage-4-out",
+      "targetBlockId": "easyprep-stage-5",
+      "targetPortId": "easyprep-stage-5-in",
+      "label": "Фиксация",
+      "dataType": "mechanical",
+      "color": "#2fb995"
+    },
+    {
+      "id": "easyprep-flow-5",
+      "sourceBlockId": "easyprep-stage-5",
+      "sourcePortId": "easyprep-stage-5-out",
+      "targetBlockId": "easyprep-stage-6",
+      "targetPortId": "easyprep-stage-6-in",
+      "label": "Окраска по Папаниколау",
+      "dataType": "mechanical",
+      "color": "#2fb995"
+    },
+    {
+      "id": "easyprep-flow-6",
+      "sourceBlockId": "easyprep-stage-6",
+      "sourcePortId": "easyprep-stage-6-out",
+      "targetBlockId": "easyprep-stage-7",
+      "targetPortId": "easyprep-stage-7-in",
+      "label": "Заключение, QC и выдача стекла",
+      "dataType": "mechanical",
+      "color": "#2fb995"
+    }
+  ],
+  "subcircuits": {}
+}

@@ -1,0 +1,22 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "./dist/labtrace-ui",
+    "rootDir": "./src",
+    "noEmit": false,
+    "allowJs": false,
+    "allowImportingTsExtensions": false
+  },
+  "include": [
+    "src/labtrace/**/*"
+  ],
+  "exclude": [
+    "src/tests/**/*",
+    "scripts/**/*",
+    "go_engine/**/*",
+    "node_modules/**/*",
+    "dist/**/*"
+  ]
+}

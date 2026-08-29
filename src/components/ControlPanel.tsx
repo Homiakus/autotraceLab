@@ -16,7 +16,6 @@ import {
   Layers,
   Route,
   Cpu,
-  BarChart2,
   Plus,
   Compass,
   Scale,
@@ -55,8 +54,6 @@ interface ControlPanelProps {
   onOpenNlpModal?: () => void;
   onOpenCreateBlockModal?: () => void;
   onAddBlock: (category: BlockNode['category']) => void;
-  onOpenBenchmark: () => void;
-  onOpenStepper: () => void;
   isOpenOnMobile?: boolean;
   onCloseMobile?: () => void;
   nodes?: BlockNode[];
@@ -77,8 +74,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   onOpenNlpModal,
   onOpenCreateBlockModal,
   onAddBlock,
-  onOpenBenchmark,
-  onOpenStepper,
   isOpenOnMobile = false,
   onCloseMobile,
   nodes = [],
@@ -686,26 +681,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
               <Play className="w-3.5 h-3.5 fill-[var(--text-primary)]" />
               <span>Пересчитать Схему (Раздельно)</span>
             </button>
-
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                id="btn-open-stepper"
-                onClick={onOpenStepper}
-                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--surface-secondary)] hover:bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xs font-medium border border-[var(--border-subtle)] transition-colors font-mono"
-              >
-                <Layers className="w-3.5 h-3.5 text-cyan-400" />
-                <span>4 Фазы</span>
-              </button>
-
-              <button
-                id="btn-open-benchmark"
-                onClick={onOpenBenchmark}
-                className="flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--surface-secondary)] hover:bg-[var(--surface-elevated)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] text-xs font-medium border border-[var(--border-subtle)] transition-colors font-mono"
-              >
-                <BarChart2 className="w-3.5 h-3.5 text-blue-400" />
-                <span>Матрица</span>
-              </button>
-            </div>
 
             {/* Add custom node dropdown / buttons */}
             <div className="bg-[var(--surface-secondary)] rounded-xl border border-[var(--border-subtle)] p-2.5 space-y-2">

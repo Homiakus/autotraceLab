@@ -1,0 +1,412 @@
+{
+  "version": 1,
+  "kind": "lbc-platform-workflow",
+  "name": "Novacyt / NovaPrep · NOVAprep NPS 25 / NPS 50",
+  "platformId": "novaprep",
+  "vendor": "Novacyt / NovaPrep",
+  "family": "Differential / double decantation",
+  "staining": "external",
+  "nodes": [
+    {
+      "id": "novaprep-stage-0",
+      "title": "Приём виалы, accession и проверка ID",
+      "subtitle": "≈1–3 мин / образец (лабораторная оценка)",
+      "description": "Сверка направления и идентификатора, визуальная оценка виалы, регистрация в LIS. Это лабораторный pre-analytical этап, а не часть заявленного цикла процессора.\n\nЧеловек: Принимает образец, разбирает исключения и несоответствия.\n\nАвтомат: LIS/сканер может автоматически зарегистрировать штрихкод.\n\nПримечание: Не включать эту оценку в паспортное время прибора.",
+      "semanticType": "Приём и идентификация",
+      "category": "processor",
+      "x": 130,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "novaprep-stage-0-in",
+          "name": "VIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "novaprep-stage-0-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "novaprep-stage-1",
+      "title": "Загрузка закрытых виал и стекол",
+      "subtitle": "Hands-on на загрузку партии; затем 45 мин автоматического цикла",
+      "description": "В опубликованных материалах NovaPrep подчёркивается работа «vial to slide» без ручной предварительной декантации/гемолиза/очистки; barcode используется для traceability.\n\nЧеловек: Загружает racks и расходники.\n\nАвтомат: Идентификация и liquid-handling.",
+      "semanticType": "Загрузка / подготовка партии",
+      "category": "processor",
+      "x": 380,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "novaprep-stage-1-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "novaprep-stage-1-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "novaprep-stage-2",
+      "title": "Автоматическое дозирование и стандартизация объёма",
+      "subtitle": "Входит в 45 мин",
+      "description": "Роботизированный дозатор обрабатывает образцы и нормализует подачу материала по алгоритму системы.",
+      "semanticType": "Диспергирование / подготовка суспензии",
+      "category": "processor",
+      "x": 630,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "novaprep-stage-2-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "novaprep-stage-2-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "novaprep-stage-3",
+      "title": "Дифференциальная / double decantation",
+      "subtitle": "Входит в 45 мин; отдельно не опубликовано",
+      "description": "Основной отличительный принцип NovaPrep — последовательная декантация, уменьшающая кровь/воспаление и концентрирующая диагностически значимые клетки без мембранного фильтра.",
+      "semanticType": "Очистка / обогащение клеток",
+      "category": "processor",
+      "x": 880,
+      "y": 110,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "novaprep-stage-3-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "novaprep-stage-3-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "novaprep-stage-4",
+      "title": "Роботизированное формирование препарата",
+      "subtitle": "NPS25: 16 / 45 мин; NPS50: 48 / 45 мин",
+      "description": "Система автоматически подготавливает стандартизованное стекло; поддерживается multi-slide mode в опубликованных технических материалах.",
+      "semanticType": "Формирование клеточного пятна",
+      "category": "processor",
+      "x": 130,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "novaprep-stage-4-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "novaprep-stage-4-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "novaprep-stage-5",
+      "title": "Выход готового к окраске препарата",
+      "subtitle": "К окончанию 45-минутного цикла",
+      "description": "NPS — система приготовления LBC-стекол; Pap-staining обычно следует как отдельная лабораторная стадия.",
+      "semanticType": "Фиксация",
+      "category": "processor",
+      "x": 380,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#10B981",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "novaprep-stage-5-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "novaprep-stage-5-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "novaprep-stage-6",
+      "title": "Отдельный автоматический Pap-stainer",
+      "subtitle": "Зависит от выбранного stainer",
+      "description": "Для полного пути до окрашенного стекла требуется отдельный stainer; конкретный рецепт определяется лабораторией.",
+      "semanticType": "Окраска по Папаниколау",
+      "category": "processor",
+      "x": 630,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#06B6D4",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "novaprep-stage-6-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "novaprep-stage-6-out",
+          "name": "MATERIAL_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    },
+    {
+      "id": "novaprep-stage-7",
+      "title": "Просветление, покровное стекло и финальный QC",
+      "subtitle": "Лабораторно-зависимо; отдельно от времени LBC-процессора",
+      "description": "После окраски препарат дегидратируют/просветляют по валидированному протоколу, заключают под покровное стекло и проверяют ID, качество окраски, равномерность клеточного пятна и отсутствие дефектов.\n\nЧеловек: Загрузка/выгрузка стейнера или coverslipper, визуальный QC и разбор брака.\n\nАвтомат: При наличии автоматического coverslipper — нанесение среды и покровного стекла автоматически.",
+      "semanticType": "Заключение, QC и выдача стекла",
+      "category": "processor",
+      "x": 880,
+      "y": 315,
+      "width": 196,
+      "height": 112,
+      "shape": "rounded",
+      "autoSize": false,
+      "color": "#8B5CF6",
+      "routingClearance": 16,
+      "preferredFlow": "left-to-right",
+      "inputs": [
+        {
+          "id": "novaprep-stage-7-in",
+          "name": "MATERIAL_IN",
+          "type": "input",
+          "side": "left",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Вход материала или стекла с предыдущего этапа"
+        }
+      ],
+      "outputs": [
+        {
+          "id": "novaprep-stage-7-out",
+          "name": "SLIDE_OUT",
+          "type": "output",
+          "side": "right",
+          "placementMode": "fixed",
+          "relativePosition": 0.52,
+          "dataType": "mechanical",
+          "description": "Выход материала или стекла на следующий этап"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "novaprep-flow-0",
+      "sourceBlockId": "novaprep-stage-0",
+      "sourcePortId": "novaprep-stage-0-out",
+      "targetBlockId": "novaprep-stage-1",
+      "targetPortId": "novaprep-stage-1-in",
+      "label": "Загрузка / подготовка партии",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "novaprep-flow-1",
+      "sourceBlockId": "novaprep-stage-1",
+      "sourcePortId": "novaprep-stage-1-out",
+      "targetBlockId": "novaprep-stage-2",
+      "targetPortId": "novaprep-stage-2-in",
+      "label": "Диспергирование / подготовка суспензии",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "novaprep-flow-2",
+      "sourceBlockId": "novaprep-stage-2",
+      "sourcePortId": "novaprep-stage-2-out",
+      "targetBlockId": "novaprep-stage-3",
+      "targetPortId": "novaprep-stage-3-in",
+      "label": "Очистка / обогащение клеток",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "novaprep-flow-3",
+      "sourceBlockId": "novaprep-stage-3",
+      "sourcePortId": "novaprep-stage-3-out",
+      "targetBlockId": "novaprep-stage-4",
+      "targetPortId": "novaprep-stage-4-in",
+      "label": "Формирование клеточного пятна",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "novaprep-flow-4",
+      "sourceBlockId": "novaprep-stage-4",
+      "sourcePortId": "novaprep-stage-4-out",
+      "targetBlockId": "novaprep-stage-5",
+      "targetPortId": "novaprep-stage-5-in",
+      "label": "Фиксация",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "novaprep-flow-5",
+      "sourceBlockId": "novaprep-stage-5",
+      "sourcePortId": "novaprep-stage-5-out",
+      "targetBlockId": "novaprep-stage-6",
+      "targetPortId": "novaprep-stage-6-in",
+      "label": "Окраска по Папаниколау",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    },
+    {
+      "id": "novaprep-flow-6",
+      "sourceBlockId": "novaprep-stage-6",
+      "sourcePortId": "novaprep-stage-6-out",
+      "targetBlockId": "novaprep-stage-7",
+      "targetPortId": "novaprep-stage-7-in",
+      "label": "Заключение, QC и выдача стекла",
+      "dataType": "mechanical",
+      "color": "#d9468d"
+    }
+  ],
+  "subcircuits": {}
+}

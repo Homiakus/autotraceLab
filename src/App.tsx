@@ -3,23 +3,11 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Header, ActiveTab } from './components/Header';
-import { ControlPanel } from './components/ControlPanel';
+import React, { useState, useCallback } from 'react';
+import { Header } from './components/Header';
 import { DiagramCanvas } from './components/DiagramCanvas';
-import { BenchmarkPanel } from './components/BenchmarkPanel';
-import { ResearchPaperView } from './components/ResearchPaperView';
-import { StepVisualizerModal } from './components/StepVisualizerModal';
-import { CodeExportView } from './components/CodeExportView';
-import { NlpOptimizationModal } from './components/NlpOptimizationModal';
-import { CreateBlockModal } from './components/CreateBlockModal';
-import { AppearanceModal } from './components/AppearanceModal';
-import { AdminWorkspace } from './components/admin/AdminWorkspace';
-import { StatusBar } from './components/StatusBar';
 import { ToastContainer } from './components/ToastContainer';
 import { toast } from './utils/toastService';
-import { NLPOptimizationResult } from './algorithms/nlpOptimizer';
-import { Sliders, Sparkles, Plus, Layers, Play, Zap } from 'lucide-react';
 
 import {
   BlockNode,
@@ -34,17 +22,12 @@ import {
   PortSide,
   Port,
 } from './types';
-import { PRESET_TOPOLOGIES, PresetTopology } from './data/presets';
 import { DEFAULT_OPTIMIZATION_WEIGHTS } from './data/weightPresets';
 
-import { runSugiyamaLayout } from './algorithms/sugiyamaLayout';
-import { runForceDirectedLayout } from './algorithms/forceLayout';
-import { runOrthogonalGridLayout } from './algorithms/orthogonalGridLayout';
 import { routeOrthogonalAStar } from './algorithms/orthogonalAStarRouter';
 import { routeLeeWave, LeeDebugWave } from './algorithms/leeWaveRouter';
 import { routeManhattanChannel } from './algorithms/manhattanChannelRouter';
 import { routeSmoothSplines } from './algorithms/splineRouter';
-import { runUnifiedCoOptimization } from './algorithms/unifiedOptimizer';
 import { calculateBenchmarkMetrics } from './algorithms/metrics';
 import { findDeterministicFreeSlot, applyBlockAutoSizing } from './algorithms/blockGeometry';
 
@@ -57,26 +40,20 @@ interface HierarchyStackFrame {
 }
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<ActiveTab>('canvas');
-  const [selectedPreset, setSelectedPreset] = useState<PresetTopology>(PRESET_TOPOLOGIES[0]);
-  const [isMobileControlOpen, setIsMobileControlOpen] = useState(false);
-
   // Hierarchical Subcircuits State
-  const [subcircuits, setSubcircuits] = useState<Record<string, SubcircuitDefinition>>(
-    PRESET_TOPOLOGIES[0].subcircuits || {}
-  );
+  const [subcircuits, setSubcircuits] = useState<Record<string, SubcircuitDefinition>>({});
   const [hierarchyPath, setHierarchyPath] = useState<HierarchyBreadcrumb[]>([
-    { subcircuitId: null, name: PRESET_TOPOLOGIES[0].name },
+    { subcircuitId: null, name: 'Схема' },
   ]);
   const [hierarchyStack, setHierarchyStack] = useState<HierarchyStackFrame[]>([]);
 
-  const [nodes, setNodes] = useState<BlockNode[]>(PRESET_TOPOLOGIES[0].nodes);
-  const [edges, setEdges] = useState<EdgeConnection[]>(PRESET_TOPOLOGIES[0].edges);
+  const [nodes, setNodes] = useState<BlockNode[]>([]);
+  const [edges, setEdges] = useState<EdgeConnection[]>([]);
 
-  const [layoutAlgorithm, setLayoutAlgorithm] = useState<LayoutAlgorithmType>('sugiyama');
-  const [routingAlgorithm, setRoutingAlgorithm] = useState<RoutingAlgorithmType>('orthogonal_astar');
+  const [layoutAlgorithm] = useState<LayoutAlgorithmType>('sugiyama');
+  const [routingAlgorithm] = useState<RoutingAlgorithmType>('orthogonal_astar');
 
-  const [routingOptions, setRoutingOptions] = useState<RoutingOptions>({
+  const [routingOptions] = useState<RoutingOptions>({
     gridSize: 10,
     obstacleClearance: 15,
     bendPenalty: 35,
@@ -93,10 +70,6 @@ export default function App() {
 
   const [debugWaveCells, setDebugWaveCells] = useState<LeeDebugWave[]>([]);
   const [currentMetrics, setCurrentMetrics] = useState<BenchmarkMetrics | undefined>(undefined);
-  const [isNlpModalOpen, setIsNlpModalOpen] = useState(false);
-  const [isCreateBlockModalOpen, setIsCreateBlockModalOpen] = useState(false);
-  const [isAdminWorkspaceOpen, setIsAdminWorkspaceOpen] = useState(false);
-  const [customStepperSteps, setCustomStepperSteps] = useState<any[] | null>(null);
 
   // Recalculate edge routing whenever nodes, routing algorithm, or options change
   const computeRouting = useCallback(
@@ -148,97 +121,6 @@ export default function App() {
   );
 
   // Run full layout placement + routing
-  const executeLayoutAndRoute = useCallback(
-    (targetLayout: LayoutAlgorithmType = layoutAlgorithm, baseNodes = nodes, baseEdges = edges) => {
-      let positionedNodes = baseNodes;
-
-      if (targetLayout === 'sugiyama') {
-        const res = runSugiyamaLayout(baseNodes, baseEdges);
-        positionedNodes = res.nodes;
-      } else if (targetLayout === 'orthogonal_grid') {
-        const res = runOrthogonalGridLayout(baseNodes, baseEdges);
-        positionedNodes = res.nodes;
-      } else if (targetLayout === 'force_directed') {
-        const res = runForceDirectedLayout(baseNodes, baseEdges);
-        positionedNodes = res.nodes;
-      }
-
-      setNodes(positionedNodes);
-      const routedEdges = computeRouting(positionedNodes, baseEdges);
-      setEdges(routedEdges);
-    },
-    [layoutAlgorithm, nodes, edges, computeRouting]
-  );
-
-  // Initial execution on mount (preserves clean hand-crafted topology coordinates and routes cleanly)
-  useEffect(() => {
-    const initialNodes = PRESET_TOPOLOGIES[0].nodes;
-    const initialEdges = PRESET_TOPOLOGIES[0].edges;
-    setNodes(initialNodes);
-    const routed = computeRouting(initialNodes, initialEdges);
-    setEdges(routed);
-  }, [computeRouting]);
-
-  // Run unified joint layout & artifact-free routing co-optimization
-  const handleRunCoOptimization = useCallback(() => {
-    const tStart = performance.now();
-    const result = runUnifiedCoOptimization(nodes, edges, routingOptions);
-    const duration = performance.now() - tStart;
-
-    setNodes(result.nodes);
-    setEdges(result.edges);
-
-    const m = calculateBenchmarkMetrics(
-      result.nodes,
-      result.edges,
-      duration,
-      'Unified Co-Optimization',
-      'Artifact-Free Orthogonal',
-      routingOptions
-    );
-    m.straightWiresCount = result.straightWiresCount;
-    m.eliminatedArtifactsCount = result.eliminatedArtifactsCount;
-    m.portAlignmentScore = result.alignmentScore;
-    setCurrentMetrics(m);
-
-    toast.success(
-      'Сквозная оптимизация завершена',
-      `Выровнено прямых трасс: ${result.straightWiresCount}, устранено артефактов: ${result.eliminatedArtifactsCount}`
-    );
-  }, [nodes, edges, routingOptions]);
-
-  // Handle NLP optimization result apply
-  const handleApplyNlpOptimization = (result: NLPOptimizationResult) => {
-    setNodes(result.nodes);
-    setEdges(result.edges);
-    const m = calculateBenchmarkMetrics(
-      result.nodes,
-      result.edges,
-      15,
-      'Non-Linear Programming (NLP)',
-      'Projected Gradient + Barrier',
-      routingOptions
-    );
-    setCurrentMetrics(m);
-    toast.success('NLP Оптимизация применена', 'Градиентный спуск с барьерными функциями сошёлся');
-  };
-
-  const handleOpenStepperWithSteps = (steps: any[]) => {
-    setCustomStepperSteps(steps);
-    setActiveTab('stepper');
-  };
-
-  const handleSelectPreset = (preset: PresetTopology) => {
-    setSelectedPreset(preset);
-    setSubcircuits(preset.subcircuits || {});
-    setHierarchyPath([{ subcircuitId: null, name: preset.name }]);
-    setHierarchyStack([]);
-    setNodes(preset.nodes);
-    const routed = computeRouting(preset.nodes, preset.edges);
-    setEdges(routed);
-    toast.info(`Загружена топология: ${preset.name}`);
-  };
-
   // Active subcircuit definition if currently viewing inside a subcircuit
   const currentBreadcrumb = hierarchyPath[hierarchyPath.length - 1];
   const activeSubcircuitId = currentBreadcrumb?.subcircuitId;
@@ -568,25 +450,6 @@ export default function App() {
     [activeSubcircuitId]
   );
 
-  // Handle layout algorithm change
-  const handleLayoutChange = (newLayout: LayoutAlgorithmType) => {
-    setLayoutAlgorithm(newLayout);
-    executeLayoutAndRoute(newLayout, nodes, edges);
-    toast.info(`Алгоритм размещения: ${getLayoutDisplayName(newLayout)}`);
-  };
-
-  // Handle routing algorithm change
-  const handleRoutingChange = (newRouting: RoutingAlgorithmType) => {
-    setRoutingAlgorithm(newRouting);
-    toast.info(`Алгоритм трассировки: ${getRoutingDisplayName(newRouting)}`);
-  };
-
-  // Trigger routing recompute whenever routing parameters or algorithm changes
-  useEffect(() => {
-    const updated = computeRouting(nodes, edges);
-    setEdges(updated);
-  }, [routingAlgorithm, routingOptions]);
-
   // Handle node movement from canvas
   const handleNodesChange = (updatedNodes: BlockNode[]) => {
     setNodes(updatedNodes);
@@ -598,15 +461,6 @@ export default function App() {
   const handleEdgesChange = (updatedEdges: EdgeConnection[]) => {
     const routed = computeRouting(nodes, updatedEdges);
     setEdges(routed);
-  };
-
-  // Handle adding a custom configured block from modal
-  const handleCreateCustomBlock = (newNode: BlockNode) => {
-    const newNodes = [...nodes, newNode];
-    setNodes(newNodes);
-    const routed = computeRouting(newNodes, edges);
-    setEdges(routed);
-    toast.success(`Блок "${newNode.title}" добавлен в схему`);
   };
 
   // Handle duplicating an existing block
@@ -675,6 +529,37 @@ export default function App() {
     toast.success(`Блок "${newNode.title}" добавлен`);
   };
 
+  const handleLoadDiagram = useCallback(
+    (file: File) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const text = event.target?.result;
+          if (typeof text !== 'string') return;
+          const data = JSON.parse(text);
+          const loadedNodes: BlockNode[] = Array.isArray(data?.nodes) ? data.nodes : [];
+          const loadedEdges: EdgeConnection[] = Array.isArray(data?.edges) ? data.edges : [];
+          if (loadedNodes.length === 0) {
+            toast.error('Некорректный файл', 'В файле не найдено поле "nodes" с блоками схемы');
+            return;
+          }
+          setNodes(loadedNodes);
+          setSubcircuits(data.subcircuits || {});
+          setHierarchyPath([{ subcircuitId: null, name: data.name || 'Загруженная схема' }]);
+          setHierarchyStack([]);
+          const routed = computeRouting(loadedNodes, loadedEdges);
+          setEdges(routed);
+          toast.success('Диаграмма загружена', `${loadedNodes.length} блоков, ${loadedEdges.length} связей`);
+        } catch (err) {
+          console.error('Failed to parse diagram file:', err);
+          toast.error('Ошибка чтения файла', 'Не удалось разобрать JSON-файл диаграммы');
+        }
+      };
+      reader.readAsText(file);
+    },
+    [computeRouting]
+  );
+
   const getLayoutDisplayName = (type: LayoutAlgorithmType) => {
     switch (type) {
       case 'sugiyama':
@@ -705,199 +590,37 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[var(--surface-canvas)] text-[var(--text-primary)] flex flex-col font-sans selection:bg-[var(--accent)]/30 selection:text-[var(--text-primary)] transition-colors duration-200">
-      {/* Top Global Navigation Bar */}
-      <Header
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onOpenAdminWorkspace={() => setIsAdminWorkspaceOpen(true)}
-      />
+      <Header onLoadDiagram={handleLoadDiagram} />
 
-      {/* Main Body View Switching */}
-      <main className="flex-1 flex overflow-hidden">
-        {activeTab === 'canvas' && (
-          <div className="flex-1 flex flex-col lg:flex-row w-full h-[calc(100dvh-5.5rem)] relative">
-            {/* Left Control & Configuration Sidebar / Mobile Drawer */}
-            <ControlPanel
-              selectedPresetId={selectedPreset.id}
-              onSelectPreset={preset => {
-                handleSelectPreset(preset);
-                setIsMobileControlOpen(false);
-              }}
-              layoutAlgorithm={layoutAlgorithm}
-              onLayoutChange={handleLayoutChange}
-              routingAlgorithm={routingAlgorithm}
-              onRoutingChange={handleRoutingChange}
-              options={routingOptions}
-              onOptionsChange={setRoutingOptions}
-              onRunLayout={() => executeLayoutAndRoute(layoutAlgorithm, nodes, edges)}
-              onRunCoOptimization={handleRunCoOptimization}
-              onOpenNlpModal={() => setIsNlpModalOpen(true)}
-              onOpenCreateBlockModal={() => setIsCreateBlockModalOpen(true)}
-              onAddBlock={handleAddBlock}
-              onOpenBenchmark={() => setActiveTab('benchmark')}
-              onOpenStepper={() => setActiveTab('stepper')}
-              isOpenOnMobile={isMobileControlOpen}
-              onCloseMobile={() => setIsMobileControlOpen(false)}
-              nodes={nodes}
-              edges={edges}
-            />
-
-            {/* Main Interactive Diagram Canvas Surface */}
-            <div className="flex-1 flex flex-col relative overflow-hidden bg-[var(--surface-canvas)]">
-              <DiagramCanvas
-                nodes={nodes}
-                edges={edges}
-                onNodesChange={handleNodesChange}
-                onEdgesChange={handleEdgesChange}
-                onAddNode={handleAddBlock}
-                onDuplicateNode={handleDuplicateNode}
-                onOpenCreateModal={() => setIsCreateBlockModalOpen(true)}
-                onRunCoOptimization={handleRunCoOptimization}
-                onOpenNlpModal={() => setIsNlpModalOpen(true)}
-                options={routingOptions}
-                metrics={currentMetrics}
-                debugWaveCells={debugWaveCells}
-                activeLayoutName={getLayoutDisplayName(layoutAlgorithm)}
-                activeRoutingName={getRoutingDisplayName(routingAlgorithm)}
-                subcircuits={subcircuits}
-                hierarchyPath={hierarchyPath}
-                onEnterSubcircuit={handleEnterSubcircuit}
-                onNavigateHierarchy={handleNavigateHierarchy}
-                onLeaveSubcircuit={handleLeaveSubcircuit}
-                activeSubcircuit={activeSubcircuit}
-                onGroupSelectionIntoSubcircuit={handleGroupSelectionIntoSubcircuit}
-                onAddExternalPort={handleAddExternalPort}
-                onUpdateExternalPortBinding={handleUpdateExternalPortBinding}
-                onDeleteExternalPort={handleDeleteExternalPort}
-              />
-
-              {/* Floating Bottom Action Bar for Mobile Devices */}
-              <div className="lg:hidden absolute bottom-3 left-3 right-3 z-30 flex items-center gap-2 pointer-events-auto">
-                <button
-                  id="mobile-btn-open-controls"
-                  onClick={() => setIsMobileControlOpen(true)}
-                  className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-[var(--surface-primary)]/95 backdrop-blur-md border border-[var(--border-default)] text-[var(--text-primary)] shadow-2xl font-mono text-xs font-semibold active:scale-95 transition-transform"
-                >
-                  <Sliders className="w-4 h-4 text-[var(--accent)]" />
-                  <span>Параметры</span>
-                </button>
-
-                <button
-                  id="mobile-btn-nlp-modal"
-                  onClick={() => setIsNlpModalOpen(true)}
-                  title="Нелинейное программирование (NLP)"
-                  className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[var(--accent)] text-[var(--accent-contrast)] font-mono text-xs font-bold shadow-2xl active:scale-95 transition-transform"
-                >
-                  <Zap className="w-4 h-4" />
-                  <span>NLP</span>
-                </button>
-
-                <button
-                  id="mobile-btn-co-optimize"
-                  onClick={handleRunCoOptimization}
-                  title="Запустить совместную оптимизацию"
-                  className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[var(--surface-secondary)] border border-[var(--accent-border)] text-[var(--accent)] font-mono text-xs font-bold shadow-2xl active:scale-95 transition-transform"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>Opt</span>
-                </button>
-
-                <button
-                  id="mobile-btn-create-modal"
-                  onClick={() => setIsCreateBlockModalOpen(true)}
-                  title="Создать блок или компонент"
-                  className="flex items-center justify-center p-2.5 rounded-xl bg-emerald-600 border border-emerald-500/40 text-white shadow-2xl active:scale-95 transition-transform"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'benchmark' && (
-          <div className="flex-1 overflow-y-auto h-[calc(100dvh-5.5rem)] bg-[var(--surface-canvas)]">
-            <BenchmarkPanel
-              nodes={nodes}
-              edges={edges}
-              options={routingOptions}
-            />
-          </div>
-        )}
-
-        {activeTab === 'research' && (
-          <div className="flex-1 overflow-y-auto h-[calc(100dvh-5.5rem)] bg-[var(--surface-canvas)]">
-            <ResearchPaperView />
-          </div>
-        )}
-
-        {activeTab === 'stepper' && (
-          <div className="flex-1 overflow-y-auto h-[calc(100dvh-5.5rem)] bg-[var(--surface-canvas)]">
-            <StepVisualizerModal
-              nodes={nodes}
-              edges={edges}
-              customSteps={customStepperSteps}
-              onApplyLayout={(newNodes, newEdges) => {
-                setNodes(newNodes);
-                setEdges(newEdges);
-                setCustomStepperSteps(null);
-                setActiveTab('canvas');
-              }}
-              onClose={() => {
-                setCustomStepperSteps(null);
-                setActiveTab('canvas');
-              }}
-            />
-          </div>
-        )}
-
-        {activeTab === 'code' && (
-          <div className="flex-1 overflow-y-auto h-[calc(100dvh-5.5rem)] bg-[var(--surface-canvas)]">
-            <CodeExportView />
-          </div>
-        )}
+      <main className="flex-1 flex overflow-hidden p-3 sm:p-4">
+        <div className="flex-1 flex flex-col relative overflow-hidden">
+          <DiagramCanvas
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={handleNodesChange}
+            onEdgesChange={handleEdgesChange}
+            onAddNode={handleAddBlock}
+            onDuplicateNode={handleDuplicateNode}
+            options={routingOptions}
+            metrics={currentMetrics}
+            debugWaveCells={debugWaveCells}
+            activeLayoutName={getLayoutDisplayName(layoutAlgorithm)}
+            activeRoutingName={getRoutingDisplayName(routingAlgorithm)}
+            subcircuits={subcircuits}
+            hierarchyPath={hierarchyPath}
+            onEnterSubcircuit={handleEnterSubcircuit}
+            onNavigateHierarchy={handleNavigateHierarchy}
+            onLeaveSubcircuit={handleLeaveSubcircuit}
+            activeSubcircuit={activeSubcircuit}
+            onGroupSelectionIntoSubcircuit={handleGroupSelectionIntoSubcircuit}
+            onAddExternalPort={handleAddExternalPort}
+            onUpdateExternalPortBinding={handleUpdateExternalPortBinding}
+            onDeleteExternalPort={handleDeleteExternalPort}
+          />
+        </div>
       </main>
 
-      {/* Contextual Real-Time System Status Bar */}
-      <StatusBar
-        nodesCount={nodes.length}
-        edgesCount={edges.length}
-        metrics={currentMetrics}
-        hierarchyPath={hierarchyPath}
-        activeLayoutName={getLayoutDisplayName(layoutAlgorithm)}
-        activeRoutingName={getRoutingDisplayName(routingAlgorithm)}
-      />
-
-      {/* Theme, Accent & Motion Appearance Modal */}
-      <AppearanceModal />
-
-      {/* Toast Notification Container */}
       <ToastContainer />
-
-      {/* Interactive Non-Linear Programming (NLP) Optimizer & Criteria Modal */}
-      <NlpOptimizationModal
-        isOpen={isNlpModalOpen}
-        onClose={() => setIsNlpModalOpen(false)}
-        nodes={nodes}
-        edges={edges}
-        options={routingOptions}
-        onOptionsChange={setRoutingOptions}
-        onApplyOptimization={handleApplyNlpOptimization}
-        onOpenStepperWithSteps={handleOpenStepperWithSteps}
-      />
-
-      {/* Flexible Block Creation Modal (Image / Shape / Fixed & Adaptive Ports) */}
-      <CreateBlockModal
-        isOpen={isCreateBlockModalOpen}
-        onClose={() => setIsCreateBlockModalOpen(false)}
-        onCreateBlock={handleCreateCustomBlock}
-      />
-
-      {/* AutoTrace Declarative Registry & Customization Workspace (MP16) */}
-      <AdminWorkspace
-        isOpen={isAdminWorkspaceOpen}
-        onClose={() => setIsAdminWorkspaceOpen(false)}
-      />
     </div>
   );
 }
