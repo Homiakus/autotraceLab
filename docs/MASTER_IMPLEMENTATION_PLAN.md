@@ -1,9 +1,9 @@
 # AutoTraceLab — MASTER IMPLEMENTATION PLAN
 
 Status: **single authoritative implementation plan**  
-Supersedes as execution authority: `PARETO_IMPLEMENTATION_PLAN.md`, `REACT_TO_GO_MATHEMATICAL_PARITY_PLAN.md`  
-Baseline reviewed: `234866430c14bd64f6b214e6b0267b8785678fad`  
-Target: a deterministic, validated, high-performance, reusable AutoTrace Core in Go, preserving all useful TypeScript mathematics, with incremental execution, portable type registries, broad no-code customization and production-grade embedding/delivery.
+Historical execution baseline: MP0–MP20 completed.  
+Active program baseline: `601befd3e2bfed1decf776922f473119576f5205`.  
+Target: a deterministic, validated, high-performance, reusable AutoTrace Core in Go with semantic graph understanding, adaptive ports, human-readability optimization, perceptual composition, incremental stability, portable registries and production-grade embedding.
 
 ---
 
@@ -11,55 +11,39 @@ Target: a deterministic, validated, high-performance, reusable AutoTrace Core in
 
 This document is the only normative execution order for the project.
 
-The two previous plans remain as detailed audit/reference material, but when ordering or wording conflicts, this master plan wins.
+Historical plans remain useful audit/reference material, but when ordering, acceptance criteria or architecture wording conflicts, this master plan wins.
 
-The central correction made during consolidation is:
+Detailed normative contracts are split by responsibility:
 
-> **Do not make Go Core the sole production source of truth before mathematical parity for the selected production pipeline has been demonstrated.**
+- `MATHEMATICAL_CONTRACT.md` — canonical mathematical semantics;
+- `ROUTING_CONTRACT.md` — route validity and routing semantics;
+- `VISUAL_COMPOSITION_CONTRACT.md` — semantic layout, perception, composition and mental-map invariants;
+- `ADAPTIVE_PORT_PLACEMENT.md` — movable-port semantics and constraints;
+- `HUMAN_READABILITY_METRICS.md` — readability/stability/composition metric definitions;
+- `SEMANTIC_LAYOUT_IMPLEMENTATION_PLAN.md` — detailed MP21–MP40 implementation specification;
+- `rule/4.md` — non-negotiable semantic-layout implementation invariants.
 
-The required order is:
+The central architecture rule remains:
 
-```text
-freeze contract + TS oracle
-        ↓
-fix cross-language data semantics
-        ↓
-port mathematics family-by-family
-        ↓
-prove differential/invariant parity
-        ↓
-integrate with Go incremental SceneEngine
-        ↓
-optimize Go data structures/algorithms
-        ↓
-prove quality is equal or Pareto-better
-        ↓
-shadow rollout
-        ↓
-production cutover to Go/WASM Worker
-        ↓
-TS reference-only
-        ↓
-TS retirement
-```
+> **Go Core is the canonical production mathematical engine. New semantic layout/composition mathematics must be implemented canonically in Go and exposed through the existing native/WASM/SDK boundary.**
 
-Architecture/customization work that does not change mathematical behavior may proceed in parallel, but must not create a second routing/geometry truth.
+The new semantic-layout program does not reopen the TS-to-Go migration. Existing TS algorithms remain historical/reference fixtures where useful, while new production math is Go-first with native/WASM conformance.
 
 ---
 
 # 1. Product end state
 
-AutoTrace must become five clearly separated products/layers:
+AutoTrace consists of five separated products/layers:
 
 ```text
 AutoTrace Core
-  deterministic headless mathematics + scene engine
+  deterministic headless mathematics + scene/layout/routing engine
 
 AutoTrace Contract / SDK
-  stable scene, registry, protocol and capability contracts
+  stable scene, registry, protocol, layout and capability contracts
 
 AutoTrace Registry
-  portable domain vocabulary: block/edge/port/shape/icon/theme/routing-profile definitions
+  portable domain vocabulary and semantic/layout hints
 
 AutoTrace Renderer / Adapters
   React today; other renderers/hosts later
@@ -68,17 +52,18 @@ AutoTraceLab
   reference editor + benchmark laboratory + customization/admin UI
 ```
 
-The target architecture is:
+Target architecture:
 
 ```text
 Host application
   |
-  | HostAdapter: persistence/assets/auth/telemetry/IDs
+  | HostAdapter: persistence/assets/auth/telemetry/IDs/text metrics
   v
 AutoTrace SDK
   |-- EngineClient
   |-- RegistryClient
   |-- Theme API
+  |-- layout API
   |-- scene/patch types
   |-- capability negotiation
   v
@@ -89,1591 +74,1144 @@ Runtime adapter
   v
 AutoTrace Headless Core
   |-- Model + Semantic Validation
-  |-- Geometry Resolver
-  |-- Placement/Layout
-  |-- Scene/Spatial Index
+  |-- Semantic Graph Analyzer
+  |-- Layout Constraint Resolver
+  |-- Semantic Hierarchical Layout
+  |-- Compound / Partition Layout
+  |-- Adaptive Port Planner
+  |-- Perceptual Composition
+  |-- Scene / Spatial Index
   |-- Routing
-  |-- Route Validation/Postprocess
+  |-- Route Validation / Postprocess
   |-- Labels
-  |-- Metrics/QualityVector
-  |-- NLP / Unified Co-Optimization
+  |-- Readability / Stability / Composition Metrics
+  |-- Bounded Joint Refinement
   |-- Incremental SceneEngine
-  `-- Versioned Contracts
+  `-- Versioned Contracts + Diagnostics
 ```
 
-Non-negotiable boundaries:
+---
+
+# 2. Non-negotiable architectural boundaries
 
 1. Core imports no React, DOM or browser UI package.
 2. A block/edge/port type is data, not a React component or switch branch.
-3. Visual style is not routing geometry.
-4. Host persistence/auth/assets are adapters, not core logic.
-5. Browser main thread never performs production full routing after cutover.
-6. Every successful production route is validated.
-7. Every externally visible deterministic decision has stable tie-breaking.
-8. Native Go and WASM execute the same canonical core mathematics.
+3. Visual style is not routing/layout geometry.
+4. Semantic importance may produce renderer-neutral hints; renderer decides concrete color/font/stroke/icon presentation.
+5. Host persistence/auth/assets/text measurement are adapters, not core logic.
+6. Browser main thread never performs production full layout/routing after Go/WASM cutover.
+7. Every successful production route is validated.
+8. Every externally visible deterministic decision has stable tie-breaking.
+9. Native Go and WASM execute the same canonical mathematics.
+10. Hard constraints are feasibility conditions, never low scalar penalties.
+11. Existing validated algorithms remain fallback/reference until replacements pass explicit gates.
+12. No one composite score is the release truth.
+13. Art serves comprehension; decorative composition never outranks semantic readability.
 
 ---
 
-# 2. Consolidated workstreams
+# 3. Consolidated workstreams
 
-The program has ten workstreams. They are coordinated by the milestone dependency graph in §5.
+The program has eleven coordinated workstreams.
 
-## WS-A — Mathematical contract and TypeScript oracle
+## WS-A — Mathematical contract and historical oracle [FOUNDATION COMPLETE]
 
-Purpose: prevent silent loss of existing behavior during migration.
+- canonical mathematical contract;
+- parity fixtures/history;
+- deterministic numeric/JSON semantics;
+- invariant/property tests.
 
-Deliverables:
+## WS-B — Canonical Go mathematical core [FOUNDATION COMPLETE]
 
-- `docs/MATHEMATICAL_CONTRACT.md`
-- `docs/PARITY_MATRIX.md`
-- `testdata/parity/`
-- headless TypeScript fixture exporter
-- canonical numeric/JSON serializer
-- deterministic seed/tie-break policy
-- TS↔Go differential runner
+- block/port geometry;
+- canonical routers;
+- label solver;
+- metrics;
+- existing layouts;
+- cleaner;
+- co-optimization primitives.
 
-Parity levels:
+## WS-C — Incremental scene engine and performance [FOUNDATION COMPLETE]
 
-- **P0 contract parity:** inputs/defaults/unset-vs-zero/failure semantics;
-- **P1 invariant parity:** geometric/semantic hard properties;
-- **P2 numerical/structural parity:** discrete decisions/path topology/metrics within declared tolerance;
-- **P3 quality parity:** optimized Go is equal or Pareto-better even if internal search differs.
-
-## WS-B — Canonical Go mathematical core
-
-Purpose: migrate all useful mathematical principles from `src/algorithms` into importable `go_engine/core`.
-
-Required families:
-
-1. block/port geometry;
-2. auto-sizing;
-3. deterministic free-slot placement;
-4. shared intersection/obstacle primitives;
-5. adaptive port stubs + face-lane staggering;
-6. full multi-pass artifact cleaner;
-7. weighted/congestion-aware Orthogonal A*;
-8. Manhattan channel router;
-9. Lee wave router;
-10. G¹ spline geometry/router;
-11. Sugiyama layout;
-12. force-directed layout;
-13. orthogonal-grid layout;
-14. strict on-arrow label solver;
-15. complete canonical metrics/QualityVector;
-16. NLP optimizer with the same canonical objective;
-17. Unified Co-Optimization orchestrator;
-18. renderer-independent bridge/G¹ corner primitives.
-
-## WS-C — Incremental scene engine and performance
-
-Purpose: combine migrated mathematics with the strongest Go-only architecture already present.
-
-Deliverables:
-
-- revisioned scene state;
-- `open/patch/snapshot/close`;
-- precise dependency invalidation;
+- revisioned scenes;
+- dependency-local invalidation;
 - route reuse;
-- scene-level spatial/occupancy index;
-- sparse orthogonal visibility graph where justified;
-- congestion/rip-up/reroute/nudging;
-- bounded deterministic search;
-- buffer/cache reuse and allocation control.
+- spatial/occupancy indices;
+- bounded search;
+- congestion/rip-up/nudging;
+- allocation control.
 
-Rule: **performance optimization comes after parity for the affected behavior**, unless the optimization is purely internal and proven output-preserving by the differential harness.
+## WS-D — Reusable headless boundary and SDK [FOUNDATION COMPLETE]
 
-## WS-D — Reusable headless boundary and SDK
+Embedding modes:
 
-Embedding modes required:
+- router-only;
+- layout+router;
+- headless SceneEngine;
+- viewer/editor;
+- native batch/server;
+- WASM Worker;
+- future RPC/service adapter.
 
-1. router-only;
-2. headless SceneEngine;
-3. viewer;
-4. editor;
-5. native batch/server;
-6. WASM Worker;
-7. future RPC/service adapter.
+## WS-E — Declarative registry and customization [FOUNDATION COMPLETE]
 
-Stable public objects should remain small:
+Domain types, shapes, icons, themes, routing profiles and portable packages remain data-driven and versioned.
 
-```text
-Engine
-Scene
-ScenePatch
-RoutingOptions
-RouteResult / RouteStatus
-Capabilities
-ValidationReport
-RegistrySnapshot
-WorkspaceDefinition
-BlockTypeDefinition
-PortTypeDefinition
-EdgeTypeDefinition
-ShapeDefinition
-IconDefinition
-ThemeDefinition
-RoutingProfileDefinition
-```
+## WS-F — Customization/admin UX [FOUNDATION COMPLETE]
 
-Never expose A* heap nodes, occupancy internals, visibility-graph caches or other replaceable implementation details.
+Non-developers can edit appearance/domain types without source-code changes.
 
-## WS-E — Declarative registry and customization model
+## WS-G — Renderer and frontend execution [FOUNDATION COMPLETE]
 
-Purpose: make domain vocabulary and appearance administrable without source edits.
+AutoTraceLab consumes Core/SDK rather than owning production mathematics.
 
-Entities:
+## WS-H — Benchmarking, verification and observability [ACTIVE EXTENSION]
 
-- `BlockTypeDefinition`
-- `PortTypeDefinition`
-- `EdgeTypeDefinition`
-- `ShapeDefinition`
-- `IconDefinition` / `IconPackDefinition`
-- `ThemeDefinition`
-- `RoutingProfileDefinition`
-- `RegistryPackage`
-- `WorkspaceDefinition`
+Existing route/performance corpus is extended with semantic-layout, composition, accessibility, human-readability and incremental mental-map families.
 
-Stable namespaced IDs, e.g.:
+## WS-I — Security, CI and release engineering [ACTIVE EXTENSION]
+
+Existing native/WASM/registry/security gates are extended with semantic-layout contract, deterministic corpus and quality-vector regression gates.
+
+## WS-J — Documentation and adoption [ACTIVE EXTENSION]
+
+Documentation must track new semantic layout/composition APIs and domain migration.
+
+## WS-K — Semantic Layout & Perceptual Composition [ACTIVE]
+
+Purpose: make AutoTrace optimize the visual explanation of a graph rather than rectangle packing.
+
+Subareas:
 
 ```text
-core/block/process
-core/edge/data
-my-app/block/pump
-my-company/icon/valve
+K1  Semantic analysis
+K2  Typed constraint model
+K3  Narrative backbone
+K4  Hierarchical layering/order
+K5  Branch/merge geometry
+K6  Compound graphs/subcircuits
+K7  Partitions/swimlanes
+K8  Feedback/SCC/self-loop geometry
+K9  Adaptive port assignment
+K10 Port order/capacity/grouping
+K11 Label-aware sizing/typography
+K12 Canonical routing integration
+K13 Perceptual composition
+K14 Accessibility visual semantics
+K15 Mental-map stabilization
+K16 Bounded joint refinement
+K17 Readability/stability/composition metrics
+K18 Diagnostics/explainability
+K19 Human/automated benchmark program
+K20 Shadow rollout/default switch
 ```
-
-Instances store `typeId` plus minimal allowed overrides. Resolved geometry/style is derived and cached.
-
-## WS-F — Customization/admin UX
-
-Required sections:
-
-- Appearance;
-- Block Types;
-- Connection Types;
-- Port Types;
-- Shapes;
-- Icons;
-- Routing Profiles;
-- Registry Packages;
-- Validation/Migrations.
-
-Lifecycle:
-
-```text
-draft -> published -> deprecated
-```
-
-Support duplicate, version history, rollback, usage/dependency view, import/export and migration preview.
-
-## WS-G — Renderer and frontend execution
-
-Purpose: AutoTraceLab becomes a consumer of Core/Registry instead of owning mathematical state.
-
-Target frontend modules:
-
-```text
-src/
-  app/
-  engine/
-  registry/
-  renderer/
-  admin/
-  features/
-    canvas/
-    routing-controls/
-    inspector/
-    benchmark/
-    block-editor/
-    type-library/
-    appearance/
-  shared/
-```
-
-Production routing must eventually run in a Dedicated Worker via Go/WASM. Experimental TS algorithms remain only in an explicit research/reference namespace until retirement.
-
-## WS-H — Benchmarking, verification and observability
-
-Corpus families:
-
-- chains;
-- fan-in/fan-out;
-- trees;
-- DAGs;
-- grids;
-- sparse/dense deterministic random graphs;
-- many-port nodes;
-- narrow corridors;
-- almost-touching obstacles;
-- corridor traps;
-- long-distance nets;
-- high crossing/congestion pressure;
-- edit/movement traces;
-- malformed/adversarial protocol and registry inputs.
-
-Scale buckets:
-
-- S 10–20 nodes;
-- M 50–100;
-- L 100–300;
-- XL 300–1,000;
-- stress >1,000 scheduled/informational until stable.
-
-Measure performance, allocations, hard violations, route quality, route churn, incremental reuse and registry invalidation.
-
-## WS-I — Security, CI and release engineering
-
-Required:
-
-- Go unit/race/fuzz/bench;
-- frontend typecheck/test/build;
-- WASM Worker integration;
-- protocol + parity + conformance gates;
-- registry schema/security tests;
-- least-privilege Actions;
-- one JS package manager;
-- artifact provenance/attestations;
-- immutable per-commit artifacts plus semver stable releases;
-- version compatibility matrix.
-
-## WS-J — Documentation and adoption
-
-Replace bootstrap README and add architecture/embedding/customization/routing/benchmark/protocol docs plus examples.
 
 ---
 
-# 3. Canonical mathematical contract to preserve
+# 4. Canonical quality order
 
-This section is the migration checklist for mathematical content. Implementation details may improve, but these principles may not disappear accidentally.
+Layout comparison is lexicographic/Pareto by tier.
 
-## 3.1 Block and port geometry
-
-Preserve:
-
-- base/placement/routing grids;
-- minimum block dimensions;
-- title/subtitle/content contribution to minimum size;
-- port-count contribution using corner margin and pitch;
-- deterministic port ordering by group → explicit order → pin number → stable ID;
-- fixed and adaptive placement;
-- valid explicit zero values for `relativePosition`, `customOffset`, `order`, `pinNumber` where contract permits;
-- perimeter mapping for rectangle/rounded/chip/circle/diamond/hexagon;
-- port normals;
-- block routing clearance;
-- port-spacing violations;
-- derived visual/routing/obstacle/content/header bounds;
-- deterministic free-slot placement.
-
-Go contract types must preserve field presence separately from scalar zero where TypeScript used optional fields.
-
-## 3.2 Shared geometry primitives
-
-Create one canonical package for:
-
-- epsilon/almost-equal policy;
-- AABB overlap;
-- orthogonal/general segment intersection;
-- segment/AABB intersection;
-- Liang–Barsky clipping for general label-wire collision use;
-- point/segment distance where needed;
-- collinearity and overlap length;
-- block-face tangency detection;
-- route simplification and canonical rounding.
-
-All routing, cleaning, labels, validation and metrics must call these primitives instead of implementing subtly different variants.
-
-## 3.3 Adaptive port escape
-
-Port exact behavior or freeze an explicitly improved canonical equivalent.
-
-The model must account for:
-
-- port normal;
-- source-target relation;
-- obstacle clearance;
-- base stub;
-- free space in front of a face;
-- number/order of edges sharing the same face;
-- deterministic lane staggering.
-
-No router should independently invent endpoint escape rules.
-
-## 3.4 Artifact cleaner
-
-The canonical cleaner is obstacle-aware and multi-pass.
-
-Required properties/passes:
-
-1. direct 0-bend facing-port detection when safe;
-2. strict source/target normal stubs;
-3. zero-length and collinear merge;
-4. micro-jog/staircase removal;
-5. U-turn elimination where safe;
-6. obstacle-aware orthogonal shortcut/raycast;
-7. strict body intersection prevention;
-8. prohibition on running along forbidden block faces;
-9. endpoint stub hard-lock after simplification;
-10. final route validation.
-
-Cleaning may never turn a valid route into an unchecked invalid route.
-
-## 3.5 Orthogonal A*
-
-Preserve the richer TypeScript search semantics before further optimization.
-
-Canonical state includes position and previous movement direction.
-
-Base objective contains at least:
-
-```text
-step cost
-+ bend penalty
-+ occupancy/congestion penalty
-+ proximity/channel penalty
-- straight-continuation reward
-- target-entry alignment reward
-```
-
-Hard constraints:
-
-- no obstacle-body penetration;
-- required source/target normal escape;
-- no immediate 180° reversal unless explicitly allowed by future contract;
-- forbidden collinear shared segments cannot be made acceptable by a low scalar penalty;
-- no unchecked fallback route.
-
-TypeScript’s existing spatial hash principle must be preserved or replaced by an equal/better scene index before Go becomes canonical.
-
-A search failure returns explicit status:
-
-```go
-ok | degraded | no_path
-```
-
-Fallback sequence:
-
-1. preferred search;
-2. bounded wider-budget retry;
-3. independently verified fallback;
-4. `no_path`.
-
-## 3.6 Alternate/reference routers
-
-### Manhattan channel
-
-Preserve deterministic L/Z/C corridor construction, obstacle bypass, adaptive stubs and lane staggering. Use as fast production profile/fallback only after validation gates.
-
-### Lee wave
-
-Preserve BFS wave propagation + shortest backtracking semantics. It is valuable as a reference/debug oracle even if not the default production router.
-
-### G¹ spline
-
-Preserve tangent-normal endpoint constraints and cubic Bézier geometry. Separate topological routing from visual spline sampling where possible.
-
-## 3.7 Layout algorithms
-
-### Sugiyama
-
-Preserve four logical phases:
-
-1. cycle breaking / feedback-arc handling;
-2. layer/rank assignment;
-3. barycentric crossing reduction with deterministic sweeps;
-4. coordinate assignment + port-aware micro-alignment.
-
-Pinned/fixed constraints must be added explicitly rather than silently changing semantics.
-
-### Force-directed
-
-Preserve:
-
-- pairwise repulsion;
-- edge spring attraction;
-- left-to-right/flow bias;
-- cooling/step limiting;
-- pinned-node invariance;
-- deterministic initialization/rounding for parity tests.
-
-### Orthogonal grid
-
-Preserve deterministic degree/topology scoring and matrix placement behavior as a simple production/reference layout.
-
-## 3.8 Label solver
-
-Canonical label placement is a constrained placement problem, not midpoint rendering.
-
-For each edge:
-
-- enumerate candidate positions along its own path segments;
-- prefer suitable long/horizontal segments;
-- test multiple deterministic `t` candidates;
-- reject collisions with blocks;
-- reject collisions with other wires;
-- reject collisions with previously placed labels;
-- validate manual positions as actually on-arrow;
-- expose leader-line/violation state when displaced;
-- assign the strict maximum penalty when no valid on-arrow placement exists.
-
-Preserve `MAX_LABEL_OFF_ARROW_PENALTY = 50000` unless changed by a versioned mathematical-contract decision.
-
-## 3.9 Canonical metrics and QualityVector
-
-Metrics are an independent truth layer and must not be simplified to make a router look better.
-
-Required components include:
-
-- actual route length;
-- theoretical port-anchor Manhattan lower bound;
-- normalized excess wirelength;
-- bend count;
-- general crossing count;
-- collinear shared-path overlap count/length;
-- node-node overlap;
-- wire-through-node collision;
-- clean port exits;
-- port misalignment;
-- straight-edge ratio;
-- label collisions;
-- labels-on-arrow percentage;
-- diagram area ratio;
-- density deviation;
-- void ratio;
-- aspect penalty;
-- congestion overflow when available;
-- hard violation count;
-- stability/churn metrics after incremental integration.
-
-Do not use one scalar as the primary release criterion.
-
-Decision tiers:
-
-```text
-Tier 0 hard validity
-Tier 1 crossings/shared-path/labels
-Tier 2 bends/wirelength
-Tier 3 stability/churn
-Tier 4 runtime/allocations
-Tier 5 embedding/customization conformance
-```
-
-A hard-invalid result cannot beat a valid result regardless of composite score.
-
-## 3.10 NLP optimizer
-
-Port the objective, not merely the fact that both versions use gradient descent.
-
-Canonical objective must represent the selected version of:
-
-```text
-Φ(X) =
-  w1 * total routed wirelength
-+ w2 * wirelength variance/deviation
-+ w3 * connected block distance deviation / repulsion barriers
-+ w4 * wire spacing violations
-+ w5 * port alignment deviation
-+ strict collinear overlap barrier
-+ strict label violation barrier
-```
-
-Required:
-
-- pinned nodes have zero updates when freeze is enabled;
-- configurable learning rate, iterations and momentum are actually consumed;
-- gradients/forces are documented;
-- clipping/snap/bounds are part of the contract;
-- history records canonical comparable metrics;
-- rerouting/label evaluation points in the loop are explicit;
-- `wireProximityCost` must not remain a placeholder zero if it is part of Φ.
-
-## 3.11 Unified Co-Optimization
-
-Port as a Go orchestrator over canonical modules, not as duplicated math.
-
-Stages:
-
-1. cycle/topology decomposition;
-2. port-aware barycentric ordering;
-3. dynamic layer/channel sizing;
-4. pin-to-pin alignment;
-5. overlap relaxation;
-6. canonical routing;
-7. artifact cleaning;
-8. label placement;
-9. quality evaluation;
-10. bounded improvement/refinement where justified.
-
-## 3.12 Bridge jumps and G¹ corner geometry
-
-Core should return renderer-neutral primitives rather than SVG strings.
-
-Support conceptual primitives:
-
-```text
-Line
-Arc / BridgeHop
-CubicBezier
-```
-
-Preserve adaptive corner radius and standard cubic circular approximation coefficient where used (`κ ≈ 0.55228475`). Renderer decides SVG/Canvas/native presentation.
-
----
-
-# 4. Data semantics and versioning rules
-
-Cross-language data semantics are a blocking prerequisite.
-
-## 4.1 Optional presence
-
-Fields that distinguish absent from explicit zero/false require presence-aware Go representation or custom marshaling.
+## Tier 0 — hard validity
 
 Examples:
 
-- relative position 0;
-- custom offset 0;
-- order 0;
-- pin number 0 where legal;
-- corner radius 0 = deliberately square;
-- `adaptive... = false`;
-- `smoothCorners = false`;
-- explicit routing weight 0.
+- finite coordinates;
+- legal containment;
+- fixed-node/port invariance;
+- allowed port sides;
+- capacity/min spacing;
+- valid endpoint normals;
+- no forbidden node/wire intersection;
+- no invalid route;
+- no unchecked fallback.
 
-Tests must cover JSON omission, explicit zero and explicit false separately.
+A Tier-0-invalid result cannot beat a valid result.
 
-## 4.2 Defaults
+## Tier 1 — topological readability
 
-Defaults live in one canonical layer and are versioned. Do not duplicate different defaults across React controls, protocol decoding and Go algorithms.
+- crossings;
+- ambiguous shared paths;
+- junction ambiguity;
+- backward non-feedback flow;
+- main-backbone discontinuity;
+- port-order inversions;
+- label ambiguity/collisions.
 
-## 4.3 Floating-point policy
+## Tier 2 — cognitive simplicity
 
-- IDs/counts/discrete choices: exact;
-- snapped coordinates: exact after canonical snap;
-- ordinary geometric calculations: declared absolute epsilon;
-- trig/spline output: compare after canonical public rounding;
-- cost values: absolute + relative tolerance;
-- NaN/Inf: hard failure unless explicitly documented.
+- main-backbone bends/straightness;
+- branch coherence;
+- merge/junction clarity;
+- feedback clarity;
+- parallel-flow coherence;
+- unnecessary detours/congestion.
 
-## 4.4 Determinism
+## Tier 3 — mental-map stability
 
-Every equal-cost choice must use stable keys, for example:
+- node movement;
+- rank/order changes;
+- group/lane movement;
+- branch-side changes;
+- port side/order changes;
+- route/label churn.
+
+## Tier 4 — perceptual composition
+
+- hierarchy;
+- continuity/proximity/common region;
+- alignment;
+- negative space;
+- balance;
+- rhythm;
+- semantically justified symmetry;
+- focal guides;
+- thirds/golden-ratio soft priors.
+
+## Tier 5 — economy/performance
+
+- wire length;
+- area/compactness;
+- aspect-frame fit;
+- runtime;
+- allocations.
+
+Default policy:
 
 ```text
-cost -> algorithm-specific rank -> direction rank -> y -> x -> stable ID
+readability > stability > composition > compactness
 ```
-
-Never rely on Go map iteration order.
-
-## 4.5 Version domains
-
-Keep separate compatibility domains:
-
-- engine version;
-- scene/protocol contract version;
-- mathematical metric/version contract;
-- registry schema/package version;
-- theme/type package versions;
-- SDK version.
-
-Do not bump all versions together without necessity.
 
 ---
 
-# 5. Single milestone dependency graph
+# 5. Perceptual/artistic principles
 
-This replaces the old independent M0–M9 and M0–M16 sequences.
+AutoTrace intentionally borrows composition principles from art/design, but gives them explicit engineering priority.
 
-## MP0 — Governance and baseline freeze [BLOCKING]
+## High priority
 
-- [x] Create `MATHEMATICAL_CONTRACT.md`.
-- [x] Create `PARITY_MATRIX.md`.
-- [x] Record source commit for every TS oracle fixture.
-- [x] Freeze current protocol-v1 fixtures.
-- [x] Freeze representative scene/type fixtures.
-- [x] Record TS and Go benchmark/QualityVector baselines separately.
-- [x] Define epsilon, canonical rounding and deterministic tie-break policies.
-- [x] Define metric/quality contract version.
+- visual hierarchy;
+- continuity;
+- proximity;
+- common region;
+- alignment;
+- negative space;
+- visual movement / eye path;
+- figure-ground separation.
 
-Exit: every later behavioral change is measurable against a frozen reference. [COMPLETED]
+## Medium / conditional
 
-## MP1 — Cross-language contract semantics [BLOCKING]
+- balance;
+- rhythm;
+- repetition;
+- scale;
+- unity/variety;
+- symmetry only for semantically equivalent structures;
+- closure where it improves grouping.
 
-- [x] Presence-aware optional numbers/booleans.
-- [x] Canonical defaults.
-- [x] JSON round-trip tests.
-- [x] TS↔Go type mapping tests.
-- [x] Native↔WASM serialization equivalence.
-- [x] Correct explicit zero/false behavior.
+## Weak/profile-dependent
 
-Exit: the same JSON input means the same mathematical state in TS, Go native and Go/WASM. [COMPLETED]
+- rule of thirds;
+- golden-ratio focal guides;
+- Fibonacci/modular spacing ratios.
 
-## MP2 — Differential parity harness [BLOCKING]
-
-Add:
-
-- [x] TS fixture exporter (`scripts/exportParityFixtures.ts`);
-- [x] Go fixture runner (`go_engine/core/parity_test.go`);
-- [x] canonical JSON normalizer;
-- [x] differential CLI/script (`scripts/runDifferentialParity.ts`);
-- [x] golden comparator (`npm run parity`);
-- [x] property/metamorphic test harness (`go_engine/core/metamorphic_test.go`);
-- [x] CI reporting showing exact differing component/path (`docs/PARITY_REPORT.md`).
-
-Initial metamorphic properties:
-
-- [x] translation invariance where applicable;
-- [x] stable result under input-order permutations when contract says order-independent;
-- [x] pinned-node invariance;
-- [x] open-final-scene equals equivalent patch sequence;
-- [x] normalization idempotence;
-- [x] cleaner idempotence;
-- [x] metric determinism.
-
-Exit: a developer can run one command and see TS↔Go differences for every covered family. [COMPLETED]
-
-## MP3 — Geometry foundation parity [BLOCKING selected production path]
-
-- [x] shared geometry primitives;
-- [x] block minimum sizing;
-- [x] auto-sizing;
-- [x] deterministic port ordering;
-- [x] fixed/adaptive port coordinates;
-- [x] six current shapes;
-- [x] derived block geometry/violations;
-- [x] deterministic free-slot placement;
-- [x] normalization semantics.
-
-Exit: golden geometry fixtures pass, including explicit-zero cases. [COMPLETED]
-
-## MP4 — Endpoint escape + artifact cleaner parity
-
-- [x] adaptive port stub;
-- [x] face lane staggering;
-- [x] obstacle/body/face intersection predicates;
-- [x] all cleaner passes;
-- [x] idempotence/property tests;
-- [x] final route validation.
-
-Exit: canonical TS cleaner and Go cleaner agree structurally or Go is explicitly approved Pareto-better with zero hard violations. [COMPLETED]
-
-## MP5 — Orthogonal A* mathematical parity [BLOCKING production router]
-
-- [x] weighted options/defaults;
-- [x] state/direction semantics;
-- [x] obstacle lookup semantics;
-- [x] occupancy/proximity fields;
-- [x] shared-segment prohibition;
-- [x] bend cost;
-- [x] straight reward;
-- [x] target-entry alignment;
-- [x] deterministic tie-breaking;
-- [x] validated failure/fallback status;
-- [x] route metadata/bends/length.
-
-At this stage preserve observable TypeScript behavior. Go-specific search redesign is MP15.
-
-Exit: A* differential fixtures and hard invariants green. [COMPLETED]
-
-## MP6 — Alternate routers parity
-
-- [x] Manhattan channel (`RouteManhattanChannel`);
-- [x] Lee wave (`RouteLeeWave`);
-- [x] G¹ spline geometry (`RouteSmoothSplines`);
-- [x] route validation for each;
-- [x] classify each as production/reference/research by benchmark evidence.
-
-Exit: no TS-only routing family remains undocumented/unported. [COMPLETED]
-
-## MP7 — Layout parity
-
-- [x] Sugiyama cycle breaking;
-- [x] layer assignment;
-- [x] barycentric sweeps;
-- [x] coordinate/port alignment;
-- [x] force-directed model;
-- [x] orthogonal-grid model;
-- [x] pinned/stability constraints where contractually appropriate.
-
-Exit: deterministic layout fixtures meet structural/quality parity. [COMPLETED]
-
-## MP8 — Labels + metrics parity [BLOCKING benchmark truth]
-
-- [x] strict label collision solver;
-- [x] multi-candidate on-arrow search;
-- [x] manual label validation;
-- [x] label/wire/label collision primitives;
-- [x] complete canonical QualityVector;
-- [x] lower-bound normalized wirelength;
-- [x] overlap/crossing/compactness/density/aspect metrics;
-- [x] hard-violation classification;
-- [x] metric version metadata.
-
-Exit: TS/Go benchmark results mean the same thing. [COMPLETED]
-
-## MP9 — NLP parity
-
-- [x] freeze exact canonical Φ;
-- [x] port all terms;
-- [x] connected-pair model;
-- [x] spacing violations;
-- [x] strict label/overlap barriers;
-- [x] momentum parameter;
-- [x] gradient clipping/snap/bounds;
-- [x] history/breakdown parity;
-- [x] final canonical rerouting.
-
-Exit: component-wise objective values and invariants match declared contract. [COMPLETED]
-
-## MP10 — Unified Co-Optimization + bridge geometry
-
-- [x] Go orchestrator over canonical modules;
-- [x] no duplicated hidden formulas;
-- [x] port-aware crossing reduction;
-- [x] dynamic channels;
-- [x] pin alignment;
-- [x] relaxation;
-- [x] routing/cleaning/labels/metrics;
-- [x] renderer-neutral bridges;
-- [x] renderer-neutral G¹ fillets.
-
-Exit: the highest-quality TS pipeline has a canonical Go equivalent. [COMPLETED]
-
-## MP11 — Incremental mathematics integration [BLOCKING cutover]
-
-Merge canonical algorithms into existing `SceneEngine`.
-
-- [x] full `open` equals final state after equivalent patches;
-- [x] dirty edge/node dependency semantics;
-- [x] route reuse correctness;
-- [x] options/math-version revisions;
-- [x] geometry-cache invalidation;
-- [x] metrics update semantics;
-- [x] stale revision conflicts;
-- [x] snapshot isolation;
-- [x] cancellation/obsolete result handling.
-
-Exit: incremental execution cannot change final mathematical correctness. [COMPLETED]
-
-## MP12 — Reusable core boundary + Worker/SDK shadow integration
-
-Add/complete:
+Golden ratio is a **soft composition prior**, not a readability law:
 
 ```text
-src/engine/types.ts
-src/engine/protocol.ts
-src/engine/EngineClient.ts
-src/engine/autotrace.worker.ts
-src/engine/wasmLoader.ts
+phi = 1.61803398875...
+0.61803398875...
+0.38196601125...
 ```
 
-- [x] `hello` capability negotiation;
-- [x] request IDs;
-- [x] `open/patch/snapshot/close` client;
-- [x] Worker loads Go/WASM;
-- [x] stale response rejection;
-- [x] conflict recovery;
-- [x] engine health/status;
-- [x] shadow execution alongside current TS production path;
-- [x] parity telemetry/report in development/benchmark mode.
+No block or canvas is required to be a golden rectangle. A golden/thirds improvement never justifies a hard violation or ordinary crossing regression in default profiles.
 
-Do **not** switch default production routing yet.
+---
 
-Exit: same scenes can execute through TS and Worker/Go in shadow mode. [COMPLETED]
+# 6. Completed foundation MP0–MP20
 
-## MP13 — Declarative registry foundation
+MP0–MP20 are historical completed foundation milestones. Their detailed implementation remains represented by the existing code/contracts/tests and Git history.
 
-Go files:
+| Milestone | Result | Status |
+|---|---|---|
+| MP0 | governance/baseline freeze | COMPLETED |
+| MP1 | cross-language data semantics | COMPLETED |
+| MP2 | parity/metamorphic harness | COMPLETED |
+| MP3 | geometry foundation parity | COMPLETED |
+| MP4 | endpoint escape/cleaner | COMPLETED |
+| MP5 | Orthogonal A* canonical parity | COMPLETED |
+| MP6 | alternate routers | COMPLETED |
+| MP7 | existing layout parity | COMPLETED |
+| MP8 | labels + canonical metrics | COMPLETED |
+| MP9 | NLP objective parity | COMPLETED |
+| MP10 | unified co-optimization/bridge geometry | COMPLETED |
+| MP11 | incremental mathematics integration | COMPLETED |
+| MP12 | Worker/SDK shadow integration | COMPLETED |
+| MP13 | declarative registry | COMPLETED |
+| MP14 | invalidation/customization vertical slices | COMPLETED |
+| MP15 | Go routing/performance optimization | COMPLETED |
+| MP16 | full customization/admin workspace | COMPLETED |
+| MP17 | embedding SDK/host adapters | COMPLETED |
+| MP18 | Go production cutover | COMPLETED |
+| MP19 | CI/security/release hardening | COMPLETED |
+| MP20 | documentation/cleanup/final Go architecture | COMPLETED |
+
+Existing Sugiyama, force-directed and orthogonal-grid behavior remains available as baseline/reference/fallback. MP21+ is a quality evolution, not a rewrite of MP0–MP20 history.
+
+---
+
+# 7. Active dependency graph MP21–MP40
 
 ```text
-go_engine/core/registry.go
-go_engine/core/type_definitions.go
-go_engine/core/registry_validation.go
-go_engine/core/registry_resolver.go
-go_engine/core/registry_migration.go
-go_engine/core/style_invalidation.go
+MP21 Contract/baseline
+  -> MP22 Semantic graph
+  -> MP23 Constraint system
+  -> MP24 Components/SCC/feedback
+  -> MP25 Narrative backbone/importance
+  -> MP26 Layering/order
+  -> MP27 Compound graphs
+  -> MP28 Swimlanes/partitions
+  -> MP29 Label-aware coordinates
+  -> MP30 Adaptive port candidates
+  -> MP31 Port order/capacity/grouping
+  -> MP32 Routing integration
+  -> MP33 Perceptual composition
+  -> MP34 Accessibility semantics
+  -> MP35 Mental-map stability
+  -> MP36 Bounded joint refinement
+  -> MP37 Quality/readability metrics
+  -> MP38 Diagnostics/explainability
+  -> MP39 Verification/human evaluation
+  -> MP40 Shadow rollout/default gate
 ```
 
-TS side:
+Permitted parallelism:
+
+- MP27/MP28 may proceed after MP23/MP24 contracts stabilize;
+- MP30/MP31 may prototype after MP23, but production integration waits for MP29;
+- UI/benchmark visualization can proceed in parallel after schemas freeze;
+- no branch/module may define a second formula for the same semantic/layout decision.
+
+---
+
+# 8. MP21 — Contract and baseline [BLOCKING]
+
+- [ ] approve `VISUAL_COMPOSITION_CONTRACT.md` as normative;
+- [ ] approve `ADAPTIVE_PORT_PLACEMENT.md`;
+- [ ] approve `HUMAN_READABILITY_METRICS.md`;
+- [ ] add `semantic_hierarchical_v1` algorithm/version constants;
+- [ ] define `LayoutRequest`/`LayoutResult` extensions;
+- [ ] define `LayoutSnapshot`;
+- [ ] define `CompositionProfile` and `CompositionFrame`;
+- [ ] define Readability/Stability/Composition vectors;
+- [ ] freeze current Sugiyama/Grid/manual semantic-layout baseline corpus;
+- [ ] record benchmark/quality baseline;
+- [ ] add ADR for perceptual-prior priority and golden-ratio status.
+
+Exit:
+
+- contracts native/WASM/TS round-trip;
+- explicit zero/false semantics preserved;
+- existing production output unchanged by schema-only work;
+- baseline is reproducible.
+
+---
+
+# 9. MP22 — Semantic graph analyzer [BLOCKING]
+
+- [ ] connected components;
+- [ ] explicit source/sink semantics;
+- [ ] degree-based fallback only;
+- [ ] hierarchy depth;
+- [ ] lane membership;
+- [ ] semantic edge classes;
+- [ ] fan-in/fan-out;
+- [ ] articulation importance;
+- [ ] bounded centrality/betweenness mode;
+- [ ] deterministic semantic metadata.
+
+Exit:
+
+- chain/fan/diamond/multi-source/multi-sink/disconnected/nested fixtures green;
+- explicit semantics outrank heuristics;
+- deterministic under input permutations.
+
+---
+
+# 10. MP23 — Typed layout constraints [BLOCKING]
+
+Required v1 constraints:
 
 ```text
-src/registry/types.ts
-src/registry/RegistryClient.ts
-src/registry/resolve.ts
-src/registry/invalidation.ts
+FixedPosition
+SoftPosition
+FirstLayer
+LastLayer
+SameLayer
+Before
+After
+AlignX
+AlignY
+KeepTogether
+KeepApart
+InsideRegion
+OutsideRegion
+MinDistance
+PreserveOrder
+LaneMembership
+GroupContainment
 ```
 
-Implement:
-
-- [x] block/port/edge/shape/icon/theme/routing-profile schemas;
-- [x] namespaced IDs;
-- [x] version pinning;
-- [x] deterministic resolution precedence;
-- [x] built-in registry matching current behavior;
-- [x] instance `typeId` migration adapter;
-- [x] JSON Schema validation;
-- [x] import/export;
-- [x] dependency/conflict validation;
-- [x] migration framework;
-- [x] deterministic canonical serialization/hash.
-
-Exit: one existing domain block + edge family can be represented entirely by registry data without canvas/core switch branches. [COMPLETED]
-
-## MP14 — Invalidation model + customization vertical slices
-
-Canonical invalidation classes:
+Strength:
 
 ```text
-render
-layout
-routingGeometry
-routingCost
-semantic
+HARD
+STRONG
+MEDIUM
+WEAK
 ```
 
-Required proofs:
+- [ ] typed contract;
+- [ ] deterministic conflict resolution;
+- [ ] conflict diagnostics;
+- [ ] `isPinned` compatibility mapping;
+- [ ] registry/scene/API adapters.
 
-- [x] edge color -> 0 reroutes;
-- [x] icon -> 0 reroutes;
-- [x] theme -> 0 reroutes unless explicit measured geometry policy says otherwise;
-- [x] block size/port/obstacle geometry -> dependency-local reroute;
-- [x] routing profile -> relevant route-cost reroute;
-- [x] semantic-only rename -> no geometric reroute. [COMPLETED]
+Exit:
 
-Vertical slices:
+- fixed nodes invariant;
+- hard-hard conflicts fail explicitly;
+- weak preferences cannot invalidate feasible hard solutions.
 
-### C1 theme without reroute
-- default tokenized theme;
-- live Appearance panel;
-- switch/reset/import/export;
-- zero-reroute test.
+---
 
-### C2 one registry-driven block type
-- resolve shape/icon/size/ports;
-- compatible old instance migration;
-- Duplicate Type UI.
+# 11. MP24 — Components, SCC, feedback, self/parallel edges
 
-### C3 registry-driven edge/port compatibility
-- source/target rules;
-- routing profile and marker/style resolution;
-- simple editor.
+- [ ] deterministic SCC decomposition;
+- [ ] condensation DAG;
+- [ ] feedback-edge classification;
+- [ ] dedicated feedback corridor metadata;
+- [ ] self-loop classification;
+- [ ] parallel-edge grouping metadata;
+- [ ] disconnected-component local boundaries.
 
-### C4 portable package
-- export/import dependencies;
-- hashes/version metadata;
-- identical resolution/routing in clean workspace.
+Exit:
 
-### C5 minimal host embedding example
-- inject registry/theme;
-- open scene;
-- receive/render routes without AutoTraceLab app state.
+- SCC deterministic;
+- condensation acyclic;
+- self-loops bypass ordinary inter-node side planning;
+- unrelated components can be independently recomputed.
 
-Exit: render/semantic customization is demonstrably separated from routing mathematics.
+---
 
-## MP15 — Go-specific performance and routing quality optimization
+# 12. MP25 — Narrative backbone and semantic importance
 
-Only now replace parity-oriented internals with faster/better algorithms under P3 quality gates.
-
-### Scene spatial index
-
-- [x] precompute inflated obstacles;
-- [x] occupancy rows/bitsets/intervals or benchmark-selected structure;
-- [x] O(1)/O(log n) blocked queries;
-- [x] cached port geometry;
-- [x] local invalidation;
-- [x] reusable A* buffers.
-
-### Sparse orthogonal visibility graph
-
-- [x] port escape/corner/channel vertices;
-- [x] horizontal/vertical sweep edges;
-- [x] scene reuse;
-- [x] incremental invalidation;
-- [x] sparse A*;
-- [x] verified grid A* fallback until quality gate passes.
-
-### Global routing
-
-- [x] deterministic difficult-edge-first ordering;
-- [x] congestion occupancy;
-- [x] crossing/shared-path costs;
-- [x] bounded top-k rip-up/reroute;
-- [x] no-improvement stopping condition;
-- [x] orthogonal nudging;
-- [x] route stability/churn penalty.
-
-Performance hypotheses to validate, not blindly enforce:
-
-- 100 nodes / 200 edges native p95 < 50 ms;
-- 300 / 600 full native p95 < 150 ms;
-- small local edit in 300 / 600 p95 < 16 ms when dependency locality permits;
-- separate WASM/Worker budget;
-- allocations/op materially reduced.
-
-Any threshold may change only through documented benchmark/ADR evidence.
-
-Exit: Go is measurably faster/scalable and equal or Pareto-better on canonical quality vectors. [COMPLETED]
-
-## MP16 — Full customization/admin workspace
-
-Appearance editor:
-
-- canvas/grid;
-- theme/base/accent/semantic colors;
-- node/edge/port/label tokens;
-- typography/scale;
-- density/spacing;
-- radius/stroke/shadows;
-- light/dark/high-contrast;
-- live preview;
-- undo/redo/reset;
-- theme import/export.
-
-Block type editor:
+The backbone may be:
 
 ```text
-name/category/tags
--> shape
--> icon
--> size policy
--> content/label behavior
--> port templates
--> visual port placement
--> metadata/inspector schema
--> routing/layout hints
--> preview
--> validate
--> draft/publish
+single primary path
+multiple co-primary paths
+primary tree
+critical subgraph
+explicit user-selected subgraph
 ```
 
-Also implement edge, port, shape, icon and routing-profile editors.
+- [ ] backbone extraction;
+- [ ] critical-path hook when process duration exists;
+- [ ] normalized importance features;
+- [ ] junction scoring;
+- [ ] branch mass;
+- [ ] renderer-neutral importance hints.
 
-Shape editor must show **visual outline and routing obstacle outline simultaneously**.
+Exit:
 
-Lifecycle for all definitions:
+- no single-main-path assumption;
+- explicit semantic priority beats centrality;
+- metrics normalized/capped and diagnostic.
 
-- [x] draft;
-- [x] publish;
-- [x] deprecate;
-- [x] duplicate;
-- [x] version history;
-- [x] rollback;
-- [x] usage/reference search;
-- [x] dependency view;
-- [x] migration preview.
+---
 
-Exit: non-developer can create and publish usable domain types without code or hand-edited JSON. [COMPLETED]
+# 13. MP26 — Semantic layering and crossing ordering
 
-## MP17 — Embedding SDK and host adapters
+- [ ] constrained ranks;
+- [ ] source-first/sink-last;
+- [ ] same-layer/before/after;
+- [ ] deterministic long-edge handling;
+- [ ] port-aware crossing reduction;
+- [ ] stable forward/backward sweeps;
+- [ ] auto LTR/TB orientation when unspecified;
+- [ ] previous-order stability bias.
 
-- [x] persistence interface;
-- [x] registry storage interface;
-- [x] asset/icon resolver;
-- [x] logging/telemetry adapter;
-- [x] host authorization/policy interface where necessary;
-- [x] injectable ID/time sources for deterministic tests;
-- [x] in-memory adapter;
-- [x] native file/JSON example;
-- [x] AutoTraceLab browser-storage adapter outside Core;
-- [x] TS SDK façade;
-- [x] native Go example;
-- [x] WASM Worker example;
-- [x] viewer/editor embedding example;
-- [x] capability negotiation for registries/themes/custom assets;
-- [x] workspace export/import;
-- [x] reproducibility metadata/version locks.
+Exit:
 
-Embedding conformance suite must test scene lifecycle, registry resolution, compatibility, theme resolution, invalidation, serialization, route parity and deterministic resolution.
+- zero hard rank violations;
+- crossings <= approved baseline or explicit Pareto evidence;
+- permutation determinism;
+- prior order wins quality ties.
 
-Exit: another application can embed AutoTrace without importing AutoTraceLab UI internals. [COMPLETED]
+---
 
-## MP18 — Shadow rollout and production cutover
+# 14. MP27 — Compound graphs/subcircuits
 
-Cutover stages:
+- [ ] recursive child layout;
+- [ ] group padding/header footprint;
+- [ ] group ports;
+- [ ] expanded/collapsed contract;
+- [ ] cross-hierarchy edges;
+- [ ] stable outer frames;
+- [ ] local collapse/expand re-layout.
 
-### C0 — TS production, Go hidden comparison [COMPLETED]
-Collect parity/quality differences.
+Exit:
 
-### C1 — Go opt-in developer mode [COMPLETED]
-No user-default change.
+- children remain contained;
+- cross-hierarchy routes validate;
+- unrelated scene movement bounded under collapse/expand;
+- nested-depth stress deterministic.
 
-### C2 — Go opt-in experimental UI [COMPLETED]
-Expose diagnostics/fallback.
+---
 
-### C3 — Go default for validated production pipeline [COMPLETED]
-TS remains fallback/reference.
+# 15. MP28 — Swimlanes/partitions
 
-### C4 — Go default with incremental Worker path [COMPLETED]
-All normal production routing/metrics from canonical Core.
+- [ ] ordered lane model;
+- [ ] lane headers;
+- [ ] hard/soft membership;
+- [ ] cross-lane costs;
+- [ ] lane-aware ranks/coordinates;
+- [ ] groups inside lanes;
+- [ ] incremental lane stability.
 
-### C5 — TS algorithms moved to explicit reference/research namespace [COMPLETED]
-No normal imports from `App.tsx`.
+Exit:
 
-### C6 — remove legacy root-Go duplication after importable Core parity [COMPLETED]
-`go_engine` becomes protocol/runtime shell only.
+- hard membership/order preserved;
+- cross-lane routing validates;
+- local lane edits have bounded external movement.
 
-### C7 — retire TS production/reference implementations only when: [COMPLETED]
-- all required parity surfaces green;
-- representative release history shows no regression;
-- fixtures preserve historical oracle behavior;
-- replacement documentation exists.
+---
 
-Exit: Go Core is legitimately the single production mathematical source of truth. [COMPLETED]
+# 16. MP29 — Label-aware sizing and typography
 
-## MP19 — CI, security and release hardening
+Labels are effective layout geometry.
 
-### CI required gates
+- [ ] renderer-neutral text measurement contract;
+- [ ] title/subtitle/body footprints;
+- [ ] port label footprints;
+- [ ] edge/group/lane label reservation;
+- [ ] long/multiline/Unicode/CJK fixtures;
+- [ ] RTL-ready geometry contract;
+- [ ] content-change invalidation mapping.
+
+Exit:
+
+- no measured clipping in supported fixtures;
+- conservative deterministic fallback without host metrics;
+- Go Core remains DOM-independent.
+
+---
+
+# 17. MP30 — Adaptive port candidates
+
+Canonical modes:
+
+```text
+FREE
+FIXED_SIDE
+FIXED_ORDER
+FIXED_RATIO
+FIXED_POSITION
+```
+
+- [ ] shape-aware candidate anchors;
+- [ ] `allowedSides` hard feasibility;
+- [ ] `preferredSide` preference;
+- [ ] previous-side hysteresis input;
+- [ ] route-cost estimate hook;
+- [ ] derived anchor snapshot.
+
+Exit:
+
+- fixed-port invariance 100%;
+- every adaptive anchor is on allowed geometry;
+- min spacing always satisfied;
+- deterministic candidates/ties.
+
+---
+
+# 18. MP31 — Port ordering, grouping and capacity
+
+Port capacity:
+
+```text
+one
+many
+bounded(N)
+```
+
+- [ ] capacity contract;
+- [ ] fixed/soft order;
+- [ ] contiguous port groups;
+- [ ] neighbor-order-aware inversion minimization;
+- [ ] shared anchor/stub policy;
+- [ ] bus/edge grouping metadata.
+
+Exit:
+
+- no capacity overflow;
+- no hard-order violations;
+- order inversions <= baseline;
+- added side freedom cannot create a worse Tier-0 feasibility result.
+
+---
+
+# 19. MP32 — Canonical routing integration
+
+- [ ] port planner resolves endpoint anchor/normal;
+- [ ] routers consume resolved endpoints;
+- [ ] endpoint escape remains shared/canonical;
+- [ ] feedback corridors;
+- [ ] self-loop primitive;
+- [ ] parallel-edge lanes;
+- [ ] permitted buses/shared trunks;
+- [ ] port decisions returned in result/diagnostics.
+
+Exit:
+
+- every successful route validates;
+- no router hides port-movement logic;
+- no unchecked fallback;
+- native/WASM equivalent.
+
+---
+
+# 20. MP33 — Perceptual composition
+
+Pass order:
+
+```text
+semantic continuity/grouping/alignment
+  -> whitespace
+  -> balance/rhythm
+  -> semantic symmetry
+  -> rule-of-thirds/golden weak tie-breaks
+```
+
+- [ ] provisional composition frame;
+- [ ] continuity/alignment guides;
+- [ ] bounded whitespace halos;
+- [ ] visual-mass balance;
+- [ ] semantic rhythm/modular spacing;
+- [ ] semantically conditional symmetry;
+- [ ] thirds guides;
+- [ ] golden-ratio focal guides;
+- [ ] bounded refinement movement;
+- [ ] `MaxCompositionExpansion`.
+
+Exit:
+
+- Tier 0 never worsens;
+- default Tier-1 budget does not allow ordinary crossing regressions for artistic gain;
+- guide strength 0 has no optimization effect;
+- no golden-rectangle requirement;
+- max expansion respected;
+- idempotent after canonical rounding.
+
+---
+
+# 21. MP34 — Accessibility/visual semantic contract
+
+- [ ] renderer-neutral role/emphasis hints;
+- [ ] edge semantic classes;
+- [ ] junction-vs-crossing metadata;
+- [ ] non-color redundancy requirements;
+- [ ] high-contrast/grayscale regression profiles;
+- [ ] color-vision-deficiency review profiles.
+
+Exit:
+
+- connectivity/state never relies on hue alone;
+- junction semantics remain clear in supported renderers;
+- render-only accessibility changes trigger zero reroutes unless measured geometry changes.
+
+---
+
+# 22. MP35 — Mental-map and incremental stability
+
+`LayoutSnapshot` preserves at least:
+
+```text
+node positions
+ranks
+sibling order
+port sides/order/offsets
+branch-side assignments
+group/component frames
+lane positions
+narrative backbone
+```
+
+- [ ] importance-weighted movement cost;
+- [ ] rank/order stability;
+- [ ] branch-side stability;
+- [ ] group/component stability;
+- [ ] port-side hysteresis;
+- [ ] local repair region;
+- [ ] full-vs-incremental quality policy.
+
+Exit:
+
+- one-leaf edits cause bounded unrelated movement;
+- tiny wire-length changes do not flap port sides;
+- pinned elements invariant;
+- collapse/expand local when feasible.
+
+---
+
+# 23. MP36 — Bounded joint refinement
+
+Canonical search is staged/bounded, not an unbounded global optimum claim.
+
+- [ ] deterministic local node moves;
+- [ ] local port side/offset moves;
+- [ ] affected-edge rerouting;
+- [ ] affected-label replacement;
+- [ ] lexicographic comparator;
+- [ ] no-improvement stopping;
+- [ ] deterministic work/iteration budget;
+- [ ] cancellation;
+- [ ] interactive/normal/quality/offline profiles.
+
+Exit:
+
+- never accepts Tier-0 regression;
+- every accepted move has measurable vector delta;
+- deterministic under equal budget;
+- memory/work bounded.
+
+---
+
+# 24. MP37 — Readability/Stability/Composition vectors
+
+Implement `HUMAN_READABILITY_METRICS.md`.
+
+Required families:
+
+```text
+ReadabilityVector
+  source/sink rank violations
+  backward flow
+  crossings absolute/normalized
+  main-backbone bends/straightness
+  branch/merge/junction clarity
+  port constraints/order/preferences
+  hierarchy/lane/feedback clarity
+  label ambiguity
+
+StabilityVector
+  node movement
+  rank/order changes
+  group/lane movement
+  branch-side change
+  port side/order change
+  route/label churn
+
+CompositionVector
+  balance
+  negative space
+  rhythm
+  alignment
+  semantic symmetry
+  Gestalt grouping
+  focal points
+  thirds/golden score
+  frame expansion
+```
+
+Exit:
+
+- raw + normalized metrics where scale matters;
+- deterministic metrics;
+- no metric computation mutation;
+- composite summary not used as sole release gate.
+
+---
+
+# 25. MP38 — Diagnostics and explainability
+
+- [ ] constraint decisions;
+- [ ] importance breakdown;
+- [ ] branch-side decisions;
+- [ ] rank/order reasons;
+- [ ] port side/anchor reasons;
+- [ ] composition guide influence;
+- [ ] rejected-candidate tier reason;
+- [ ] fallback reason/status;
+- [ ] benchmark UI breakdown.
+
+Exit: representative fixtures can answer “why is this node/port/branch here?” deterministically without exposing internal heap/search implementation.
+
+---
+
+# 26. MP39 — Verification and human evaluation
+
+New corpus roots:
+
+```text
+testdata/layout_semantic/
+testdata/layout_composition/
+testdata/layout_incremental/
+testdata/layout_accessibility/
+```
+
+Required families include:
+
+- chain/fan/diamond/multi-merge;
+- multi-source/multi-sink/co-primary;
+- SCC/feedback/self-loop;
+- parallel/bus;
+- nested hierarchy/collapse-expand/cross-hierarchy;
+- swimlanes/cross-lane;
+- mixed fixed/adaptive/many ports/capacity;
+- long/multiline/Unicode/CJK text;
+- disconnected components;
+- incremental edits;
+- finite page/infinite canvas.
+
+Metamorphic gates:
+
+- deterministic rerun;
+- permutation invariance;
+- fixed-node/port invariance;
+- adaptive allowed-side feasibility;
+- translation invariance where applicable;
+- unrelated-component locality;
+- small-edit movement budget;
+- disabled-guide neutrality;
+- native/WASM equivalence.
+
+Human evaluation separates comprehension from beauty preference.
+
+Comprehension tasks:
+
+- find source/sink;
+- trace primary path;
+- identify branch/merge;
+- identify feedback/exception;
+- identify lane/ownership;
+- identify connectivity.
+
+Measures:
+
+- completion time;
+- error rate;
+- confidence;
+- subjective comprehension;
+- separate aesthetic preference.
+
+Exit:
+
+- Tier-0 corpus zero;
+- no meaningful comprehension regression;
+- new default shows measurable readability gain without unacceptable trade-offs;
+- seeds/versions reproducible.
+
+---
+
+# 27. MP40 — Shadow rollout and default gate
+
+Stages:
+
+```text
+S0 hidden benchmark
+S1 developer opt-in
+S2 experimental UI profile
+S3 selected process/workflow templates
+S4 default for eligible process/workflow scenes
+S5 broaden default after release history
+```
+
+Fallback ladder:
+
+```text
+semantic_hierarchical_v1
+  -> semantic fast
+  -> canonical Sugiyama
+  -> preserve-input-layout + canonical routing
+```
+
+Default gate requires:
+
+1. Tier-0 release corpus zero;
+2. deterministic/native/WASM green;
+3. fixed/constrained port invariants green;
+4. crossings/readability equal or Pareto-better than approved baseline;
+5. incremental movement inside approved budgets;
+6. bounded composition expansion;
+7. no DOM/render-pixel dependency in Core;
+8. diagnostics and metric vectors available;
+9. performance inside approved budget;
+10. opt-in/release-history review free of blocker regressions.
+
+---
+
+# 28. Atomic waves M–R
+
+Historical Waves A–L correspond to completed foundation work. Active semantic-layout work continues:
+
+## Wave M — contracts and semantics
+
+M01 composition contract.  
+M02 semantic-layout schemas.  
+M03 layout snapshot.  
+M04 quality-vector extensions.  
+M05 baseline corpus.  
+M06 connected components/source/sink.  
+M07 hierarchy/lanes.  
+M08 SCC/feedback.  
+M09 importance.  
+M10 narrative backbone.
+
+## Wave N — constraints/hierarchical geometry
+
+N01 typed constraints.  
+N02 conflict resolver.  
+N03 constrained rank assignment.  
+N04 crossing ordering.  
+N05 branch allocation.  
+N06 merge placement.  
+N07 component composition.  
+N08 compound graphs.  
+N09 collapse/expand stability.  
+N10 swimlanes.
+
+## Wave O — labels/adaptive ports/routing
+
+O01 text measurement.  
+O02 label-aware footprint.  
+O03 port constraint modes.  
+O04 side candidates.  
+O05 capacity.  
+O06 order/group solver.  
+O07 hysteresis.  
+O08 self-loop/parallel/bus ports.  
+O09 endpoint integration.  
+O10 routing integration.
+
+## Wave P — perceptual composition
+
+P01 frame.  
+P02 continuity/alignment.  
+P03 whitespace.  
+P04 balance.  
+P05 rhythm/modular spacing.  
+P06 semantic symmetry.  
+P07 thirds.  
+P08 golden focal guides.  
+P09 bounded move set.  
+P10 max-expansion enforcement.
+
+## Wave Q — stability/co-refinement/metrics
+
+Q01 snapshot restoration.  
+Q02 movement costs.  
+Q03 branch/port hysteresis.  
+Q04 local dirty-region refinement.  
+Q05 lexicographic comparator.  
+Q06 bounded work budgets.  
+Q07 readability metrics.  
+Q08 stability metrics.  
+Q09 composition metrics.  
+Q10 diagnostics.
+
+## Wave R — verification/rollout
+
+R01 semantic corpus.  
+R02 metamorphic corpus.  
+R03 native/WASM conformance.  
+R04 accessibility profiles.  
+R05 visual benchmark artifacts.  
+R06 human A/B protocol.  
+R07 benchmark dashboard.  
+R08 developer opt-in.  
+R09 workflow opt-in.  
+R10 production default gate.
+
+Each atomic behavioral commit updates tests and metric/benchmark evidence in the same change whenever practical.
+
+---
+
+# 29. CI/release acceptance policy
+
+A PR touching semantic layout/composition must state:
+
+- affected contract/version;
+- constraint semantics impact;
+- deterministic fixture impact;
+- Readability/Stability/Composition vector delta;
+- existing QualityVector delta;
+- native/WASM conformance result;
+- incremental stability delta when relevant;
+- runtime/allocation delta when performance-sensitive;
+- diagnostics impact for significant new decisions.
+
+Required CI gates after each milestone becomes implemented:
 
 | Gate | Policy |
 |---|---|
-| Go unit | required |
-| Go race | required native |
-| TS typecheck | required |
-| frontend tests | required |
-| production build | required |
+| Go unit/race | required |
+| frontend typecheck/tests/build | required |
 | WASM build | required |
-| mathematical parity covered surfaces | required |
-| protocol parity | required |
-| hard route violations | zero |
+| semantic contract round-trip | required |
 | deterministic corpus | required |
-| property/metamorphic seed corpus | required |
-| fuzz smoke | required/bounded PR |
-| scheduled long fuzz/stress | required scheduled |
-| registry schema/security | required |
-| native/WASM conformance | required |
-| render-only invalidation | 0 reroutes |
-| quality-vector regression | gated |
+| metamorphic corpus | required |
+| Tier-0 layout violations | zero |
+| fixed-node/port invariance | required |
+| allowed-side/capacity invariance | required |
+| native/WASM layout conformance | required |
+| readability regression | gated |
+| stability regression | gated |
+| composition expansion | gated |
 | benchmark regression | statistically gated |
 
-Security for portable customization:
-
-- strict payload size/count/depth limits;
-- schema validation;
-- canonical IDs/namespaces;
-- dependency-cycle detection;
-- sanitized SVG;
-- no scripts/event handlers/foreign objects by default;
-- host-controlled URL/asset policy;
-- no arbitrary JS expressions in portable inspector schemas;
-- bounded polygon/path complexity;
-- content hashes;
-- explicit migration model;
-- fuzz parser/resolver;
-- graceful path-specific errors.
-
-Delivery:
-
-- choose one JS package manager/lockfile;
-- update Go toolchain after compatibility run;
-- least-privilege workflow permissions;
-- CI artifact per successful commit;
-- immutable engine artifact by commit;
-- stable semver releases;
-- artifact attestations/provenance;
-- optional SBOM;
-- compatibility matrix for engine/SDK/contracts/registries.
-
-Exit: production artifacts are tested, attributable, reproducible and secure enough for embedding. [COMPLETED]
-
-## MP20 — Documentation, cleanup and final architecture
-
-- [x] replace generic README;
-- [x] `ARCHITECTURE.md`;
-- [x] `MATHEMATICAL_CONTRACT.md`;
-- [x] `ROUTING_CONTRACT.md`;
-- [x] `PARITY_MATRIX.md`;
-- [x] `BENCHMARKING.md`;
-- [x] `PROTOCOL.md`;
-- [x] `EMBEDDING.md`;
-- [x] `TYPE_REGISTRY.md`;
-- [x] `CUSTOMIZATION.md`;
-- [x] `THEMING.md`;
-- [x] ADR directory;
-- [x] minimal router example;
-- [x] embedded viewer example;
-- [x] embedded editor example;
-- [x] custom-domain registry example;
-- [x] remove stale legacy globals/duplicates after compatibility period;
-- [x] split oversized React components after engine/registry boundaries stabilize.
-
-Exit: repository structure and documentation match the actual product architecture. [COMPLETED]
-
 ---
 
-# 6. Dependency and parallelism policy
+# 30. Performance and bounded-search policy
 
-The critical path is:
+Do not make wall-clock-dependent nondeterminism canonical.
+
+Preferred control:
 
 ```text
-MP0 -> MP1 -> MP2 -> MP3 -> MP4 -> MP5
-                         |             |
-                         v             v
-                        MP7           MP6
-                         \             /
-                          -> MP8 -> MP9 -> MP10 -> MP11 -> MP12 -> MP15 -> MP18
+iteration/work-unit budgets
 ```
 
-Registry/customization can proceed partly in parallel:
+Profiles:
 
 ```text
-MP0/MP1
-   -> MP13 -> MP14 -> MP16 -> MP17
+interactive
+normal
+quality
+offline
 ```
 
-But it must consume canonical geometry/routing contracts and cannot define a second mathematical model.
+Wall-clock p95 targets are benchmark hypotheses and may evolve by ADR evidence. Canonical output must remain deterministic for the same deterministic work budget where practical.
 
-CI/security can be layered continuously, with final hardening at MP19.
-
-Rules for parallel work:
-
-1. no two branches/modules redefine the same formula;
-2. shared primitives are merged before dependent algorithm ports;
-3. fixture/oracle updates require explicit contract change, never incidental implementation changes;
-4. performance optimization PRs include before/after quality vectors;
-5. registry/render changes state invalidation class explicitly;
-6. production cutover is impossible while blocking parity gates remain red.
+No quality profile may bypass Tier-0 validation.
 
 ---
 
-# 7. Atomic implementation waves
+# 31. LBC/domain migration policy
 
-These waves turn the milestones into practical commit-sized work.
+Current domain scene builders that manually calculate matrix rows/columns or hard-code non-physical left/right port geometry should migrate to semantic intent gradually.
 
-## Wave A — prove the ground truth [COMPLETED]
+Migration order:
 
-A01 create mathematical contract skeleton. [COMPLETED]  
-A02 create parity matrix covering every current TS algorithm file/export. [COMPLETED]  
-A03 define canonical numeric tolerance/rounding. [COMPLETED]  
-A04 define deterministic tie-break policy. [COMPLETED]  
-A05 add TS headless scenario runner. [COMPLETED]  
-A06 add canonical fixture serializer. [COMPLETED]  
-A07 commit initial geometry/routing/layout/label/metric fixtures. [COMPLETED]  
-A08 add Go fixture decoder/runner. [COMPLETED]  
-A09 add TS↔Go differential script. [COMPLETED]  
-A10 add first parity CI report. [COMPLETED]
+1. preserve current scene output as fixture;
+2. classify which positions/ports are physical vs merely visual;
+3. replace non-physical fixed ports with adaptive constraints;
+4. replace row/column placement with semantic group/order/lane hints;
+5. compare semantic layout with baseline vectors;
+6. keep manual/fixed overrides for domain exceptions;
+7. enable new default only after domain-specific regression review.
 
-## Wave B — fix representation before algorithms
-
-B01 inventory every optional TS field.  
-B02 add presence-aware Go optional values/custom marshal layer.  
-B03 explicit zero/false fixtures.  
-B04 unify defaults.  
-B05 protocol round-trip tests.  
-B06 native/WASM contract equivalence.
-
-## Wave C — geometry core
-
-C01 shared epsilon/rounding package.  
-C02 AABB/segment primitives.  
-C03 minimum size.  
-C04 auto-size.  
-C05 deterministic port sort.  
-C06 adaptive/fixed port positions.  
-C07 six-shape perimeter mapping.  
-C08 derived geometry + violations.  
-C09 deterministic free-slot placement.  
-C10 golden + metamorphic geometry tests.
-
-## Wave D — endpoint and cleaner
-
-D01 adaptive stubs.  
-D02 face edge grouping/staggering.  
-D03 strict node body and face checks.  
-D04 0-bend safety.  
-D05 merge pass.  
-D06 micro-jog/staircase pass.  
-D07 U-turn pass.  
-D08 raycast shortcut pass.  
-D09 endpoint hard-lock.  
-D10 validator + cleaner idempotence.
-
-## Wave E — canonical A*
-
-E01 freeze option/default mapping.  
-E02 deterministic heap/tie ordering.  
-E03 port escape/entry state.  
-E04 obstacle semantics.  
-E05 occupied segment map.  
-E06 proximity field.  
-E07 bend/straight/target alignment costs.  
-E08 forbid illegal shared segments.  
-E09 bounded search + explicit status.  
-E10 verified fallback.  
-E11 route metadata.  
-E12 differential A* corpus.
-
-## Wave F — alternate routers/layouts
-
-F01 Manhattan.  
-F02 Lee.  
-F03 spline primitives.  
-F04 Sugiyama cycle/rank.  
-F05 Sugiyama barycentric sweeps.  
-F06 Sugiyama coordinate/pin alignment.  
-F07 force-directed model.  
-F08 orthogonal grid.  
-F09 comparative router/layout corpus.
-
-## Wave G — labels/metrics
-
-G01 all-segment index.  
-G02 Liang–Barsky/AABB label collision.  
-G03 candidate-T solver.  
-G04 strict off-arrow/manual behavior.  
-G05 label-label/wire-label collisions.  
-G06 crossing/collinear metrics.  
-G07 block/wire hard violations.  
-G08 theoretical lower-bound normalized wirelength.  
-G09 compactness/density/void/aspect.  
-G10 canonical QualityVector + version.  
-G11 component parity tests.
-
-## Wave H — NLP/co-optimization
-
-H01 canonical Φ specification.  
-H02 component breakdown parity.  
-H03 connected distance/barrier forces.  
-H04 spacing/wire penalties.  
-H05 label/overlap barriers.  
-H06 momentum/clipping/snap/bounds.  
-H07 pinned invariants/history.  
-H08 canonical reroute evaluation.  
-H09 Unified Co-Optimization orchestration.  
-H10 renderer-neutral bridge/fillet descriptors.
-
-## Wave I — incremental + Worker
-
-I01 integrate geometry cache with SceneEngine.  
-I02 options/math revision.  
-I03 dependency-local dirty sets.  
-I04 open-vs-patch equivalence corpus.  
-I05 typed TS protocol.  
-I06 WASM worker loader.  
-I07 EngineClient correlation/revision control.  
-I08 shadow Go execution.  
-I09 benchmark UI shows TS/Go differential.  
-I10 stale/cancel/recovery tests.
-
-## Wave J — registry/customization
-
-J01 registry core types.  
-J02 validation/resolution.  
-J03 built-in current-look registry.  
-J04 typeId migration layer.  
-J05 theme/token engine.  
-J06 invalidation classes.  
-J07 registry-driven sample block.  
-J08 registry-driven sample edge/port.  
-J09 package import/export/hash.  
-J10 simple Appearance/Type UI vertical slice.
-
-## Wave K — optimize only after proof
-
-K01 scene obstacle index.  
-K02 occupancy structure benchmark bake-off.  
-K03 cached ports/search buffers.  
-K04 sparse visibility graph.  
-K05 congestion.  
-K06 deterministic route order.  
-K07 rip-up/reroute.  
-K08 nudging.  
-K09 stability/churn costs.  
-K10 P3 quality/performance proof.
-
-## Wave L — full productization
-
-L01 full admin workspace.  
-L02 shape/icon managers.  
-L03 routing-profile editor.  
-L04 lifecycle/version/migrations.  
-L05 SDK host adapters.  
-L06 embedding examples/conformance.  
-L07 Go default rollout.  
-L08 remove duplicated root-Go algorithms.  
-L09 TS reference-only then retirement.  
-L10 release/security/docs cleanup.
-
-Each atomic commit should update relevant parity/implementation checkboxes and tests in the same change whenever practical.
+Domain builders must not reimplement semantic layout locally.
 
 ---
 
-# 8. Benchmark and quality gates
-
-## 8.1 Hard validity
-
-A successful route must satisfy:
-
-- finite coordinates;
-- correct source/target;
-- endpoint normal rules;
-- orthogonality in orthogonal mode;
-- no zero-length normalized segments;
-- no forbidden block interior intersection;
-- no forbidden block-face traversal;
-- no prohibited shared collinear wire segment;
-- no unchecked fallback.
-
-Hard validity is a release blocker.
-
-## 8.2 Differential parity
-
-For covered pre-optimization families:
-
-- discrete outputs exact where contract defines deterministic result;
-- geometric floats inside declared tolerance;
-- all invariant booleans identical;
-- every mismatch attributed by JSON path/component.
-
-## 8.3 Optimized quality
-
-After MP15 exact path equality is not always required. Instead require lexicographic/Pareto gates:
-
-1. hard violations cannot worsen;
-2. crossings/shared paths/label collisions cannot exceed approved budget;
-3. bends/wirelength must be within approved quality envelope;
-4. route churn must not regress materially;
-5. performance improvement must be statistically supported.
-
-## 8.4 Incremental correctness
-
-For every edit trace:
-
-```text
-full recompute(final state)
-==
-incremental open + patches(final state)
-```
-
-within the same canonical quality/geometry semantics.
-
-## 8.5 Customization invalidation
-
-Every definition property maps to exactly one primary invalidation class. Tests count rerouted/relaid/repainted entities.
-
----
-
-# 9. Registry/customization contract in one place
-
-## 9.1 Resolution precedence
-
-```text
-core defaults
--> installed registry package
--> workspace overrides
--> graph override
--> explicitly allowed instance override
--> transient interaction state
-```
-
-## 9.2 Shape vs obstacle
-
-Never infer routing obstacles from rendered DOM/SVG pixels.
-
-A shape definition contains separate visual and obstacle geometry. Decorative image/icon changes are render-only.
-
-## 9.3 Portable package
-
-Conceptual structure:
-
-```text
-manifest
-  packageId
-  version
-  contractVersion
-  dependencies
-  contentHash
-blocks[]
-ports[]
-edges[]
-shapes[]
-icons[]
-themes[]
-routingProfiles[]
-migrations[]
-```
-
-No arbitrary executable JS in portable packages.
-
-## 9.4 Workspace reproducibility
-
-Persist enough metadata to reproduce behavior:
-
-- scene/protocol contract version;
-- mathematical/metric version;
-- engine version where relevant;
-- registry package IDs/versions/hashes;
-- active theme;
-- routing profiles;
-- graph data.
-
----
-
-# 10. CI/release acceptance policy
-
-A PR touching mathematical behavior must include:
-
-- contract/parity-matrix impact;
-- fixture impact;
-- invariant tests;
-- TS↔Go differential result until TS retirement;
-- native/WASM result where relevant;
-- QualityVector delta;
-- benchmark delta for performance-sensitive code.
-
-A PR touching customization must include:
-
-- schema/version impact;
-- invalidation class;
-- registry round-trip;
-- security validation where external data is involved.
-
-A PR touching public SDK/protocol must include:
-
-- compatibility classification;
-- capability negotiation impact;
-- conformance tests;
-- migration/documentation.
-
----
-
-# 11. Pareto order — what delivers the most value first
-
-Within the dependency constraints, engineering priority is:
-
-| Rank | Work | Leverage | Reason |
-|---|---|---:|---|
-| 1 | parity harness + canonical contract | 10/10 | prevents losing existing math and makes every later change measurable |
-| 2 | optional/default semantics | 10/10 | fixes silent cross-language correctness drift |
-| 3 | geometry + cleaner + A* parity | 10/10 | establishes trustworthy production-routing foundation |
-| 4 | labels + canonical metrics | 10/10 | makes quality measurements real rather than incomparable |
-| 5 | incremental SceneEngine integration | 10/10 | major interactive advantage unique to Go architecture |
-| 6 | Worker shadow path | 10/10 | removes future UI blocking while preserving safe rollout |
-| 7 | scene spatial index | 10/10 | removes dominant repeated obstacle work after semantics are frozen |
-| 8 | declarative registry/invalidation model | 10/10 | foundation for reusable core and no-code customization |
-| 9 | visibility/congestion/rip-up routing | 9/10 | large quality/scaling gain once benchmark truth exists |
-| 10 | embedding SDK/host adapters | 9/10 | turns project into reusable engine product |
-| 11 | full admin customization UX | 9/10 | makes portability usable by non-developers |
-| 12 | remaining layouts/routers/NLP/coopt | 8–9/10 | preserves full research/quality surface and advanced optimization |
-| 13 | CI/security/provenance | 8/10 | required for dependable distribution |
-| 14 | component/docs cleanup | 6–7/10 | valuable after architectural boundaries stabilize |
-
----
-
-# 12. Definition of Done for the entire program
-
-The master program is complete only when all statements are true:
-
-1. `go_engine/core` is the legitimate canonical production mathematical engine.
-2. Every useful algorithmic family from `src/algorithms` is either migrated, explicitly superseded by a proven better canonical implementation, or retained intentionally as documented research-only behavior.
-3. Cross-language optional/default semantics are lossless.
-4. Frozen TS oracle fixtures and historical parity artifacts remain available after TS retirement.
-5. All successful routes pass hard validation.
-6. No unchecked fallback exists.
-7. Canonical geometry/cleaner/labels/metrics use shared primitives.
-8. Canonical metrics have one versioned semantic definition.
-9. NLP objective contains no placeholder/unimplemented terms.
-10. Unified Co-Optimization is composition over canonical modules rather than a duplicate hidden engine.
-11. SceneEngine incremental final results are equivalent to canonical full recomputation.
-12. Browser production routing/metrics run through Go/WASM Worker, not the main thread.
-13. Stale worker results cannot overwrite newer revisions.
-14. Obstacle lookup no longer scans all nodes for every A* neighbor in optimized production mode.
-15. Search/index structures are reused at scene level.
-16. Congestion/rip-up/nudging are bounded, deterministic and benchmarked.
-17. Large-scene and local-edit performance are continuously measured.
-18. Native and WASM pass the same contract/conformance corpus.
-19. Block, edge and port types are declarative registry data.
-20. Shapes/icons/themes/routing profiles are versioned definitions.
-21. New domain types do not require canvas/core switch edits.
-22. Visual-only changes trigger zero reroutes.
-23. Geometry/routing changes invalidate dependency-local work where possible.
-24. A non-developer can create/duplicate/edit/publish domain types via UI.
-25. Theme customization has live preview, undo/reset and import/export.
-26. Registry packages are safe, deterministic, versioned and portable.
-27. Custom SVG/content is sanitized and cannot execute arbitrary code.
-28. Router-only, headless, viewer/editor and native/WASM embedding modes are documented and conformant.
-29. Host persistence/assets/telemetry/policy are replaceable adapters.
-30. Saved workspaces can reproduce registry/theme/routing behavior through version/hash locks.
-31. Go/frontend/WASM/parity/registry/conformance tests are CI-gated.
-32. JS package manager policy is singular and deterministic.
-33. Release workflows use least privilege and provenance.
-34. README and architecture docs describe the actual system.
-35. Legacy root-Go duplicates and TS production algorithms are removed only after their retirement gates.
-36. AutoTraceLab is demonstrably a consumer of AutoTrace Core/SDK, not the owner of the mathematical engine.
-
----
-
-# 13. Immediate execution queue
-
-The next commits should be executed in this exact order unless a blocking defect requires an ADR:
-
-1. `docs/MATHEMATICAL_CONTRACT.md` skeleton covering all families.
-2. `docs/PARITY_MATRIX.md` with one row per TS public algorithm/export and Go target.
-3. `testdata/parity/README.md` + canonical fixture format.
-4. TS headless fixture exporter and canonicalizer.
-5. Go fixture runner and JSON differential script.
-6. explicit-zero/false contract fixtures.
-7. presence-aware Go optional-field implementation.
-8. shared Go geometry primitives.
-9. block/port geometry + auto-size + free-slot parity.
-10. make covered geometry parity blocking in CI.
-11. adaptive stub/face-lane parity.
-12. full artifact-cleaner parity + route validator.
-13. Orthogonal A* parity.
-14. labels + metrics parity.
-15. integrate the validated pipeline into incremental SceneEngine.
-16. add Worker/Go shadow execution while TS remains default.
-17. begin registry foundation and theme C1 in parallel.
-18. after parity, implement scene spatial index and benchmark it.
-19. only after P3 proof, switch validated production pipeline to Go default.
-20. continue remaining router/layout/NLP/coopt/customization/SDK milestones without violating the same gates.
-
----
-
-# 14. Anti-regression rules
+# 32. Anti-regression rules
 
 Do not:
 
-- delete TS math before the corresponding retirement gate;
-- treat matching function names as parity evidence;
-- compare incomparable TS and Go composite scores;
-- hide hard validity inside a weighted score;
-- optimize by weakening obstacle/label/port constraints;
-- let React components become semantic type definitions;
-- let themes trigger routing by default;
-- infer obstacle geometry from rendered pixels;
-- add executable code to portable registry packages;
-- duplicate default values across layers;
-- depend on Go map iteration for deterministic output;
-- publish unchecked fallback geometry;
-- merge performance claims based on one timing sample;
-- refactor giant UI components before engine/registry boundaries stabilize unless needed for correctness.
+- weaken validity to improve aesthetic scores;
+- trade a crossing for golden-ratio alignment in default profiles;
+- force golden rectangles;
+- use degree heuristics over explicit semantics;
+- assume every graph has one main path;
+- choose adaptive ports independently when ordering matters;
+- let routers secretly move port anchors;
+- overload capacity for geometry convenience;
+- treat labels as post-render-only geometry;
+- read DOM/SVG pixels from Core;
+- flatten compound graphs to simplify solving;
+- treat swimlanes as decorative backgrounds only;
+- treat self-loops as ordinary source-target routing;
+- infer bus grouping from similar geometry alone;
+- force symmetry across semantically unequal branches;
+- allow unbounded whitespace expansion;
+- continuously move the composition frame while deriving golden guides from it;
+- globally rearrange a scene for a small edit without objective evidence;
+- rely on hue alone for semantics;
+- use unseeded randomness or Go map iteration for visible decisions;
+- hide quality regressions inside one composite score;
+- publish unchecked fallback geometry.
+
+See `rule/4.md` for the condensed invariant list.
 
 ---
 
-# 15. Source-plan reconciliation
+# 33. Definition of Done — WS-K / semantic layout program
 
-All meaningful requirements from the previous plans are preserved here as follows:
+WS-K is complete only when all statements are true:
 
-| Previous source | Preserved in master |
-|---|---|
-| Pareto P0 Go/Worker | MP12 shadow integration + MP18 gated cutover |
-| Pareto spatial index | MP15 after parity |
-| Pareto benchmark corpus | WS-H, MP0/MP2, §8 |
-| Pareto headless reusable core | WS-D, MP12/MP17 |
-| Pareto registry/customization | WS-E/F, MP13/14/16 |
-| Pareto congestion/visibility/rip-up | MP15 |
-| Pareto CI/security/provenance | MP19 |
-| Pareto docs/embedding | MP17/20 |
-| Mathematical parity M0–M16 | MP0–MP15 with corrected dependencies |
-| Mathematical cutover C0–C7 | MP18 |
-| 62 atomic migration slices | normalized into Waves A–L |
-| Go-only incremental advantages | MP11 + MP15 |
-| full React mathematical surface | §3 + MP3–MP10 |
-
-The old plans therefore remain useful as historical detail, but **no new implementation should choose ordering directly from them without checking this master plan first**.
+1. `semantic_hierarchical_v1` exists canonically in Go Core.
+2. Native Go/WASM semantic layout is deterministic and conformant.
+3. Semantic graph analysis covers source/sink/components/SCC/hierarchy/lanes.
+4. Narrative backbone supports one or multiple co-primary structures.
+5. Typed hard/strong/medium/weak layout constraints are public/versioned.
+6. Hard conflicts fail explicitly with diagnostics.
+7. Compound graphs/subcircuits are first-class.
+8. Swimlanes/partitions are first-class.
+9. Feedback/SCC/self-loop/parallel-edge geometry has explicit policy.
+10. Labels/typography contribute to layout footprint.
+11. Fixed ports never move.
+12. Adaptive ports choose only permitted sides/anchors.
+13. Port capacity/order/groups are validated.
+14. Routers consume planner-resolved endpoints instead of moving ports independently.
+15. Main narrative readability outranks compact rectangle packing.
+16. Composition supports hierarchy/continuity/proximity/alignment/whitespace/balance/rhythm.
+17. Symmetry is semantic/conditional.
+18. Golden ratio and thirds are optional weak priors.
+19. Composition cannot introduce Tier-0 regression.
+20. Mental-map snapshots and hysteresis prevent avoidable layout flapping.
+21. Joint refinement is bounded and deterministic.
+22. Readability/Stability/Composition vectors are versioned and visible.
+23. Raw + normalized metrics exist where scale matters.
+24. One composite score is not release truth.
+25. Decision diagnostics explain meaningful layout/port/composition choices.
+26. Semantic/incremental/accessibility/composition corpora pass.
+27. Human evaluation separates comprehension from beauty preference.
+28. Existing layouts remain available as reference/fallback.
+29. LBC/domain builders can migrate from matrix coordinates to semantic intent without losing physical/manual constraints.
+30. Production default is switched only through MP40 gates.
 
 ---
 
-## Final engineering rule
+# 34. Immediate execution queue
 
-> **Preserve proven mathematics, make correctness explicit, optimize only against a canonical quality vector, and keep semantics/geometry/rendering/host integration separate.**
+The next implementation commits after this documentation wave should be executed in this order unless a blocking defect requires an ADR:
 
-The intended end state is not “the React app rewritten in Go”. It is a reusable AutoTrace platform in which the best TypeScript mathematical principles, the stronger Go incremental architecture, modern routing data structures, portable customization and a clean embedding SDK converge into one canonical system.
+1. MP21 schemas/version constants for `semantic_hierarchical_v1`.
+2. `LayoutSnapshot`, `CompositionFrame`, `CompositionProfile` types.
+3. Readability/Stability/Composition vector types.
+4. semantic-layout baseline corpus exporter.
+5. MP22 connected components/source/sink/hierarchy analyzer.
+6. MP23 typed constraint contract and hard-conflict resolver.
+7. MP24 SCC/feedback/self-loop/parallel classification.
+8. MP25 narrative backbone/importance features.
+9. MP26 constrained layering/crossing ordering.
+10. MP27 compound layout.
+11. MP28 swimlane support.
+12. MP29 text-measurement/label-aware geometry contract.
+13. MP30–31 adaptive port planner/order/capacity.
+14. MP32 canonical router integration.
+15. MP33 perceptual composition.
+16. MP35 incremental mental-map stabilization.
+17. MP36 bounded joint refinement.
+18. MP37 metrics and MP38 diagnostics.
+19. MP39 full verification/human protocol.
+20. MP40 shadow rollout/default decision.
+
+---
+
+# 35. Final engineering rule
+
+> **Preserve correctness, understand semantics, minimize crossings, make the narrative obvious, preserve the mental map, then refine composition; only after that optimize compactness.**
+
+The intended end state is not a prettier rectangle packer. It is an AutoTrace engine that automatically constructs a clear visual explanation of a technical/process graph while preserving deterministic engineering constraints.
