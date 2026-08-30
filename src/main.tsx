@@ -1,98 +1,74 @@
-import { StrictMode } from 'react';
+import { StrictMode, Suspense, lazy } from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App.tsx';
-import LbcWorkflowWorkbench from './LbcWorkflowWorkbench.tsx';
-import GenericProcessMathApp from './GenericProcessMathApp.tsx';
-import UniversalProcessMathApp from './UniversalProcessMathApp.tsx';
-import ProcessSimulationApp from './ProcessSimulationApp.tsx';
-import UniversalProcessSimulationApp from './UniversalProcessSimulationApp.tsx';
-import ProcessRiskApp from './ProcessRiskApp.tsx';
-import UniversalProcessRiskApp from './UniversalProcessRiskApp.tsx';
-import ProcessBatchApp from './ProcessBatchApp.tsx';
-import ProcessBatchRiskApp from './ProcessBatchRiskApp.tsx';
-import UniversalProcessBatchApp from './UniversalProcessBatchApp.tsx';
-import ProcessDigitalTwinApp from './ProcessDigitalTwinApp.tsx';
-import UniversalProcessDigitalTwinApp from './UniversalProcessDigitalTwinApp.tsx';
-import ProcessReliabilityApp from './ProcessReliabilityApp.tsx';
-import UniversalProcessReliabilityApp from './UniversalProcessReliabilityApp.tsx';
-import ProcessUnifiedTwinApp from './ProcessUnifiedTwinApp.tsx';
-import ProcessUnifiedOptimizerApp from './ProcessUnifiedOptimizerApp.tsx';
-import UniversalProcessOptimizerApp from './UniversalProcessOptimizerApp.tsx';
-import UniversalProcessLabApp from './UniversalProcessLabApp.tsx';
-import NativeProcessMathOverlay from './NativeProcessMathOverlay.tsx';
 import { ThemeProvider } from './context/ThemeContext.tsx';
 import './index.css';
 
+// Every route-level application is code-split. This is especially important for legacy
+// regression views: keeping them accessible must not pull their storage adapters and old
+// scheduler implementations into the initial production dependency graph.
+const App = lazy(() => import('./App.tsx'));
+const NativeProcessMathOverlay = lazy(() => import('./NativeProcessMathOverlay.tsx'));
+const LbcWorkflowWorkbench = lazy(() => import('./LbcWorkflowWorkbench.tsx'));
+const GenericProcessMathApp = lazy(() => import('./GenericProcessMathApp.tsx'));
+const UniversalProcessMathApp = lazy(() => import('./UniversalProcessMathApp.tsx'));
+const ProcessSimulationApp = lazy(() => import('./ProcessSimulationApp.tsx'));
+const UniversalProcessSimulationApp = lazy(() => import('./UniversalProcessSimulationApp.tsx'));
+const ProcessRiskApp = lazy(() => import('./ProcessRiskApp.tsx'));
+const UniversalProcessRiskApp = lazy(() => import('./UniversalProcessRiskApp.tsx'));
+const ProcessBatchApp = lazy(() => import('./ProcessBatchApp.tsx'));
+const ProcessBatchRiskApp = lazy(() => import('./ProcessBatchRiskApp.tsx'));
+const UniversalProcessBatchApp = lazy(() => import('./UniversalProcessBatchApp.tsx'));
+const ProcessDigitalTwinApp = lazy(() => import('./ProcessDigitalTwinApp.tsx'));
+const UniversalProcessDigitalTwinApp = lazy(() => import('./UniversalProcessDigitalTwinApp.tsx'));
+const ProcessReliabilityApp = lazy(() => import('./ProcessReliabilityApp.tsx'));
+const UniversalProcessReliabilityApp = lazy(() => import('./UniversalProcessReliabilityApp.tsx'));
+const ProcessUnifiedTwinApp = lazy(() => import('./ProcessUnifiedTwinApp.tsx'));
+const ProcessUnifiedOptimizerApp = lazy(() => import('./ProcessUnifiedOptimizerApp.tsx'));
+const UniversalProcessOptimizerApp = lazy(() => import('./UniversalProcessOptimizerApp.tsx'));
+const UniversalProcessLabApp = lazy(() => import('./UniversalProcessLabApp.tsx'));
+
 const params = new URLSearchParams(window.location.search);
 const view = params.get('view');
-const showLbcWorkflowAtlas = view === 'lbc' || window.location.hash === '#lbc';
-const showProcessMathWorkbench = view === 'process-math' || window.location.hash === '#process-math';
-const showLegacyProcessMathWorkbench = view === 'process-math-legacy' || window.location.hash === '#process-math-legacy';
-const showProcessSimulation = view === 'process-sim' || window.location.hash === '#process-sim';
-const showLegacyProcessSimulation = view === 'process-sim-legacy' || window.location.hash === '#process-sim-legacy';
-const showProcessRisk = view === 'process-risk' || window.location.hash === '#process-risk';
-const showLegacyProcessRisk = view === 'process-risk-legacy' || window.location.hash === '#process-risk-legacy';
-const showProcessBatch = view === 'process-batch' || window.location.hash === '#process-batch';
-const showProcessBatchRisk = view === 'process-batch-risk' || window.location.hash === '#process-batch-risk';
-const showLegacyProcessBatch = view === 'process-batch-legacy' || window.location.hash === '#process-batch-legacy';
-const showLegacyProcessBatchRisk = view === 'process-batch-risk-legacy' || window.location.hash === '#process-batch-risk-legacy';
-const showProcessDigitalTwin = view === 'process-digital-twin' || window.location.hash === '#process-digital-twin';
-const showLegacyProcessDigitalTwin = view === 'process-digital-twin-legacy' || window.location.hash === '#process-digital-twin-legacy';
-const showProcessReliability = view === 'process-reliability' || window.location.hash === '#process-reliability';
-const showLegacyProcessReliability = view === 'process-reliability-legacy' || window.location.hash === '#process-reliability-legacy';
-const showProcessUnifiedTwin = view === 'process-unified-twin' || window.location.hash === '#process-unified-twin';
-const showLegacyProcessUnifiedTwin = view === 'process-unified-twin-legacy' || window.location.hash === '#process-unified-twin-legacy';
-const showProcessUnifiedOptimizer = view === 'process-unified-opt' || window.location.hash === '#process-unified-opt';
-const showLegacyProcessUnifiedOptimizer = view === 'process-unified-opt-legacy' || window.location.hash === '#process-unified-opt-legacy';
-const showUniversalProcessLab = view === 'process-universal' || window.location.hash === '#process-universal';
+const hash = window.location.hash;
+const route = (name: string) => view === name || hash === `#${name}`;
+
+function RouteLoading() {
+  return (
+    <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#f6f8fb', color: '#64748b', fontFamily: 'Inter, system-ui, sans-serif', fontSize: 12 }}>
+      Loading AutoTrace…
+    </div>
+  );
+}
+
+function RoutedApp() {
+  if (route('process-universal')) return <UniversalProcessLabApp />;
+  if (route('process-unified-opt-legacy')) return <ProcessUnifiedOptimizerApp />;
+  if (route('process-unified-opt')) return <UniversalProcessOptimizerApp />;
+  if (route('process-unified-twin-legacy')) return <ProcessUnifiedTwinApp />;
+  if (route('process-unified-twin')) return <UniversalProcessDigitalTwinApp />;
+  if (route('process-reliability-legacy')) return <ProcessReliabilityApp />;
+  if (route('process-reliability')) return <UniversalProcessReliabilityApp />;
+  if (route('process-digital-twin-legacy')) return <ProcessDigitalTwinApp />;
+  if (route('process-digital-twin')) return <UniversalProcessDigitalTwinApp />;
+  if (route('process-batch-risk-legacy')) return <ProcessBatchRiskApp />;
+  if (route('process-batch-legacy')) return <ProcessBatchApp />;
+  if (route('process-batch-risk') || route('process-batch')) return <UniversalProcessBatchApp />;
+  if (route('process-risk-legacy')) return <ProcessRiskApp />;
+  if (route('process-risk')) return <UniversalProcessRiskApp />;
+  if (route('process-sim-legacy')) return <ProcessSimulationApp />;
+  if (route('process-sim')) return <UniversalProcessSimulationApp />;
+  if (route('process-math-legacy')) return <GenericProcessMathApp />;
+  if (route('process-math')) return <UniversalProcessMathApp />;
+  if (route('lbc') || hash === '#lbc') return <LbcWorkflowWorkbench />;
+  return <><App /><NativeProcessMathOverlay /></>;
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
-      {showUniversalProcessLab ? (
-        <UniversalProcessLabApp />
-      ) : showLegacyProcessUnifiedOptimizer ? (
-        <ProcessUnifiedOptimizerApp />
-      ) : showProcessUnifiedOptimizer ? (
-        <UniversalProcessOptimizerApp />
-      ) : showLegacyProcessUnifiedTwin ? (
-        <ProcessUnifiedTwinApp />
-      ) : showProcessUnifiedTwin ? (
-        <UniversalProcessDigitalTwinApp />
-      ) : showLegacyProcessReliability ? (
-        <ProcessReliabilityApp />
-      ) : showProcessReliability ? (
-        <UniversalProcessReliabilityApp />
-      ) : showLegacyProcessDigitalTwin ? (
-        <ProcessDigitalTwinApp />
-      ) : showProcessDigitalTwin ? (
-        <UniversalProcessDigitalTwinApp />
-      ) : showLegacyProcessBatchRisk ? (
-        <ProcessBatchRiskApp />
-      ) : showLegacyProcessBatch ? (
-        <ProcessBatchApp />
-      ) : showProcessBatchRisk || showProcessBatch ? (
-        <UniversalProcessBatchApp />
-      ) : showLegacyProcessRisk ? (
-        <ProcessRiskApp />
-      ) : showProcessRisk ? (
-        <UniversalProcessRiskApp />
-      ) : showLegacyProcessSimulation ? (
-        <ProcessSimulationApp />
-      ) : showProcessSimulation ? (
-        <UniversalProcessSimulationApp />
-      ) : showLegacyProcessMathWorkbench ? (
-        <GenericProcessMathApp />
-      ) : showProcessMathWorkbench ? (
-        <UniversalProcessMathApp />
-      ) : showLbcWorkflowAtlas ? (
-        <LbcWorkflowWorkbench />
-      ) : (
-        <>
-          <App />
-          <NativeProcessMathOverlay />
-        </>
-      )}
+      <Suspense fallback={<RouteLoading />}>
+        <RoutedApp />
+      </Suspense>
     </ThemeProvider>
   </StrictMode>,
 );

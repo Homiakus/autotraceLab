@@ -101,8 +101,14 @@ jobs:
       - name: Universal Optimizer v2 parity and policy preservation test
         run: npx tsx src/tests/processUniversalOptimizerV2Test.ts
 
+      - name: Primary process route architecture boundary test
+        run: npx tsx src/tests/processPrimaryRouteBoundaryTest.ts
+
       - name: Production build
         run: npm run build
+
+      - name: Verify initial process entry bundle boundary
+        run: npx tsx scripts/verifyProcessEntryBundle.ts
 
       - name: SDK library build and declarations
         run: npm run build:lib
