@@ -101,6 +101,9 @@ jobs:
       - name: Universal Optimizer v2 parity and policy preservation test
         run: npx tsx src/tests/processUniversalOptimizerV2Test.ts
 
+      - name: Inventor integration fixture test
+        run: npm run test:inventor
+
       - name: Production build
         run: npm run build
 
