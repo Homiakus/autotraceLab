@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "1.0",
+  "id": "scanning-microscope-public-scan-v1",
+  "name": "Сканирующий микроскоп — публичный цикл получения изображения",
+  "description": "Упрощённая проектная модель подтверждённого публичного workflow: позиционирование образца, автофокус по Z, захват тайла и последующая сшивка. Длительности намеренно не заданы как измеренные данные.",
+  "domain": "microscopy",
+  "jobs": [
+    {
+      "id": "scan-field",
+      "label": "Получение и сборка набора тайлов",
+      "priority": 1
+    }
+  ],
+  "blocks": [
+    {
+      "id": "b1",
+      "key": "position-tile",
+      "title": "Позиционирование образца по XY",
+      "automation": "automatic",
+      "time": { "value": null, "unit": "s" },
+      "dependencies": []
+    },
+    {
+      "id": "b2",
+      "key": "autofocus",
+      "title": "Автофокус по Z",
+      "automation": "automatic",
+      "time": { "value": null, "unit": "s" },
+      "dependencies": ["b1"]
+    },
+    {
+      "id": "b3",
+      "key": "capture-tile",
+      "title": "Захват тайла камерой",
+      "automation": "automatic",
+      "time": { "value": null, "unit": "s" },
+      "dependencies": ["b2"]
+    },
+    {
+      "id": "b4",
+      "key": "stitch-dataset",
+      "title": "Сшивка набора тайлов",
+      "automation": "automatic",
+      "time": { "value": null, "unit": "s" },
+      "dependencies": ["b3"]
+    }
+  ],
+  "resources": [
+    { "id": "xy-stage", "name": "XY-привод позиционирования", "capacity": 1 },
+    { "id": "z-focus", "name": "Z-привод фокусировки", "capacity": 1 },
+    { "id": "camera", "name": "Камера микроскопа", "capacity": 1 },
+    { "id": "stitch-runtime", "name": "Среда сшивки тайлов", "capacity": 1 }
+  ],
+  "requirementsByBlock": {
+    "b1": [
+      { "resourceId": "xy-stage", "units": 1 }
+    ],
+    "b2": [
+      { "resourceId": "z-focus", "units": 1 },
+      { "resourceId": "camera", "units": 1 }
+    ],
+    "b3": [
+      { "resourceId": "camera", "units": 1 }
+    ],
+    "b4": [
+      { "resourceId": "stitch-runtime", "units": 1 }
+    ]
+  },
+  "metadata": {
+    "evidenceType": "design-model",
+    "sourceProject": "scanning-microscope",
+    "evidenceRepository": "Homiakus/ScannerPro",
+    "evidenceBasis": "README documents XY/Z motion, autofocus, persistent camera capture, ASHLAR stitching and OME-TIFF workflow",
+    "durationStatus": "unknown",
+    "componentRefsByBlock": {
+      "b1": [
+        "scanning-microscope.product.instance.instance-scanningmicroscope-sample-stage"
+      ],
+      "b2": [
+        "scanning-microscope.product.instance.instance-scanningmicroscope-optics",
+        "scanning-microscope.product.instance.instance-scanningmicroscope-camera"
+      ],
+      "b3": [
+        "scanning-microscope.product.instance.instance-scanningmicroscope-camera"
+      ]
+    }
+  }
+}
