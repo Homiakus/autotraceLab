@@ -57,8 +57,9 @@ export interface BlockNode {
   y: number;
   width: number;
   height: number;
-  inputs: Port[];
-  outputs: Port[];
+  inputs?: Port[];
+  outputs?: Port[];
+  ports?: Port[]; // Unified port array supporting 4-face layout (left/right/top/bottom)
   color?: string;
   layer?: number;
   order?: number;

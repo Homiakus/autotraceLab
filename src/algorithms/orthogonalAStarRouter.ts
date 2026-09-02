@@ -21,9 +21,10 @@ export function computeAdaptivePortStub(
   baseStub: number,
   isAdaptive: boolean = true,
   edgeIndexOnFace: number = 0,
-  totalEdgesOnFace: number = 1
+  totalEdgesOnFace: number = 1,
+  gridSize: number = 10
 ): number {
-  const minStub = 12;
+  const minStub = Math.max(10, gridSize);
 
   // Compute clear distance to any obstacle in front of the port
   let obstacleClearGap = Infinity;
@@ -68,12 +69,12 @@ export function computeAdaptivePortStub(
     }
   }
 
-  // 3. Multi-port lane staggering on the same face (prevents 90° corner clashing)
+  // 3. Multi-port lane staggering on the same face (prevents 90° corner clashing & collinear trunk overlap)
   let resultStub = maxAllowedStub;
   if (totalEdgesOnFace > 1) {
-    const staggerDelta = 8;
-    const staggered = maxAllowedStub + (edgeIndexOnFace - (totalEdgesOnFace - 1) / 2) * staggerDelta;
-    resultStub = Math.max(minStub, Math.round(staggered));
+    const staggerDelta = Math.max(8, gridSize);
+    const staggered = maxAllowedStub + edgeIndexOnFace * staggerDelta;
+    resultStub = Math.max(minStub, Math.round(staggered / gridSize) * gridSize);
   }
 
   // HARD SAFETY CLAMP: Never exceed available obstacle clearance in front of the port
@@ -223,16 +224,18 @@ function encodeStateKey(gx: number, gy: number, dirCode: number): number {
  * Packs (gx, gy) coordinate into a single safe integer
  */
 function encodeCoordKey(gx: number, gy: number): number {
-  return ((Math.round(gx) + 3000) << 13) | (Math.round(gy) + 3000);
+  const ix = Math.round(gx) + 5000;
+  const iy = Math.round(gy) + 5000;
+  return ix * 10000 + iy;
 }
 
 /**
- * Packs undirected segment between (gx1, gy1) and (gx2, gy2) into a collision-free safe 52-bit integer (< 2^52)
+ * Packs undirected segment between (gx1, gy1) and (gx2, gy2) into a collision-free safe string key
  */
-function encodeSegKey(gx1: number, gy1: number, gx2: number, gy2: number): number {
-  const c1 = ((Math.round(gx1) + 3000) << 13) | (Math.round(gy1) + 3000);
-  const c2 = ((Math.round(gx2) + 3000) << 13) | (Math.round(gy2) + 3000);
-  return c1 < c2 ? c1 * 67108864 + c2 : c2 * 67108864 + c1;
+function encodeSegKey(gx1: number, gy1: number, gx2: number, gy2: number): string {
+  const c1 = encodeCoordKey(gx1, gy1);
+  const c2 = encodeCoordKey(gx2, gy2);
+  return c1 < c2 ? `${c1}_${c2}` : `${c2}_${c1}`;
 }
 
 /**
@@ -290,7 +293,7 @@ export function routeOrthogonalAStar(
 
   // Track routed wire coordinates, segments and proximity fields
   const routedGridUsage = new Map<number, number>();
-  const routedGridSegments = new Set<number>();
+  const routedGridSegments = new Set<string>();
   const wireProximityMap = new Map<number, number>();
 
   // Inflated obstacles for pathfinding (honoring per-block variable routingClearance)
@@ -408,7 +411,8 @@ export function routeOrthogonalAStar(
       baseStub,
       isAdaptive,
       srcIdx >= 0 ? srcIdx : 0,
-      Math.max(1, srcEdgeList.length)
+      Math.max(1, srcEdgeList.length),
+      gridSize
     );
 
     const targetStub = computeAdaptivePortStub(
@@ -420,7 +424,8 @@ export function routeOrthogonalAStar(
       baseStub,
       isAdaptive,
       tgtIdx >= 0 ? tgtIdx : 0,
-      Math.max(1, tgtEdgeList.length)
+      Math.max(1, tgtEdgeList.length),
+      gridSize
     );
 
     // Strict exit and entry normal vectors (90° perpendicular to block edge) with adaptive lengths
@@ -520,11 +525,9 @@ export function routeOrthogonalAStar(
         const nextGx = nx / gridSize;
         const nextGy = ny / gridSize;
 
-        // STRICT MANDATE: Wires cannot share collinear segments (must take dedicated parallel track)
+        // STRICT MANDATE: Wires cannot share collinear segments (massive 50,000 barrier penalty)
         const segKey = encodeSegKey(currGx, currGy, nextGx, nextGy);
-        if (routedGridSegments.has(segKey)) {
-          continue;
-        }
+        const collinearPenalty = routedGridSegments.has(segKey) ? 50000 : 0;
         const clearancePenalty = getClearancePenalty(nx, ny, sourceNode.id, targetNode.id);
 
         const isBend = (current.dirX !== 0 || current.dirY !== 0) && (dir.dx !== current.dirX || dir.dy !== current.dirY);
@@ -545,6 +548,7 @@ export function routeOrthogonalAStar(
         const stepCost =
           stepBaseCost +
           clearancePenalty +
+          collinearPenalty +
           (isBend ? bendCost : 0) -
           (isContinuingStraight ? straightBonusFactor : 0) +
           cellUsage * crossingPenaltyFactor +
@@ -740,8 +744,8 @@ function createObstacleBypassingOrthogonalPath(
   }
 
   const queue: BFSNode[] = [{ x: snapSx, y: snapSy }];
-  const visited = new Set<number>();
-  visited.add(((snapSx / coarseGrid + 3000) << 13) | (snapSy / coarseGrid + 3000));
+  const visited = new Set<string>();
+  visited.add(`${snapSx}_${snapSy}`);
 
   const dirs = [
     { dx: 1, dy: 0 },
@@ -752,7 +756,7 @@ function createObstacleBypassingOrthogonalPath(
 
   let targetNode: BFSNode | null = null;
   let bfsIterations = 0;
-  const maxBfsIterations = 15000;
+  const maxBfsIterations = 25000;
 
   while (queue.length > 0 && bfsIterations < maxBfsIterations) {
     bfsIterations++;
@@ -770,7 +774,7 @@ function createObstacleBypassingOrthogonalPath(
       if (nx < minX || nx > maxX || ny < minY || ny > maxY) continue;
       if (isSegmentBlocked(curr.x, curr.y, nx, ny)) continue;
 
-      const key = (((nx / coarseGrid) + 3000) << 13) | ((ny / coarseGrid) + 3000);
+      const key = `${nx}_${ny}`;
       if (visited.has(key)) continue;
       visited.add(key);
 
@@ -795,11 +799,11 @@ function createObstacleBypassingOrthogonalPath(
     ];
   }
 
-  // Extreme fallback: Outer bounding ring
-  const outerLeft = minX;
-  const outerRight = maxX;
-  const outerTop = minY;
-  const outerBottom = maxY;
+  // Extreme fallback: Outer bounding ring with staggered dedicated track
+  const outerLeft = minX + nudge;
+  const outerRight = maxX + nudge;
+  const outerTop = minY + nudge;
+  const outerBottom = maxY + nudge;
   const exitY = startPoint.y < (minY + maxY) / 2 ? outerTop : outerBottom;
   const approachX = endPoint.x < (minX + maxX) / 2 ? outerLeft : outerRight;
 
@@ -809,7 +813,7 @@ function createObstacleBypassingOrthogonalPath(
     { x: startPoint.x, y: exitY },
     { x: approachX, y: exitY },
     { x: approachX, y: endPoint.y },
-    endPoint,
+    { x: endPoint.x, y: endPoint.y },
     { x: target.x, y: target.y },
   ];
 }

@@ -113,6 +113,11 @@ export class TypeScriptBackend implements EngineBackend {
           edgeOrder: routed.map(e => e.id),
           options: p.options,
         };
+        // Bounded capacity protection against forgotten scene.close() in server/node runs
+        if (this.scenes.size >= 500 && !this.scenes.has(p.graphId)) {
+          const oldest = this.scenes.keys().next().value;
+          if (oldest) this.scenes.delete(oldest);
+        }
         this.scenes.set(p.graphId, state);
 
         const res: SceneResult = {

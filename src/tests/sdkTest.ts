@@ -49,13 +49,21 @@ async function runSDKVerificationTest() {
     },
   ];
 
-  // 1. Test stateless routing
+  // 1. Test stateless async routing
   const layout = await client.route(nodes, edges);
   console.log('  ✓ Layout calculated:', layout.edges.length, 'edges, duration:', layout.durationMs.toFixed(2), 'ms');
 
   if (layout.edges.length !== 1 || !layout.edges[0].path || layout.edges[0].path.length < 2) {
     throw new Error('SDK layout returned invalid edge path');
   }
+
+  // 1b. Test pure synchronous routing with zero async overhead
+  const { routeOrthogonal } = await import('../sdk');
+  const syncRouted = routeOrthogonal(nodes, edges);
+  if (syncRouted.length !== 1 || !syncRouted[0].path || syncRouted[0].path.length < 2) {
+    throw new Error('routeOrthogonal synchronous routing failed');
+  }
+  console.log('  ✓ Pure synchronous routeOrthogonal verified: 0ms async overhead');
 
   // 2. Test bounds helper
   const bounds = getSceneBounds(nodes);

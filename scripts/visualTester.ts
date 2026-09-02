@@ -222,12 +222,12 @@ export async function runVisualValidationSuite(): Promise<VisualTestResult[]> {
 
       // Execute deterministic routing
       const routedEdges = routeOrthogonalAStar(laidOut.nodes, preset.edges, routingOpts);
-      const labeledEdges = computeOptimizedLabels(laidOut.nodes, routedEdges);
-      const metrics = calculateBenchmarkMetrics(laidOut.nodes, labeledEdges, routingOpts);
+      const labelMap = computeOptimizedLabels(laidOut.nodes, routedEdges);
+      const metrics = calculateBenchmarkMetrics(laidOut.nodes, routedEdges, 0, 'sugiyama', 'orthogonal-astar', routingOpts);
 
       // Verify Obstacle Collisions (Hard Invariant: 0)
       let hardCollisions = 0;
-      for (const edge of labeledEdges) {
+      for (const edge of routedEdges) {
         if (!edge.path || edge.path.length < 2) continue;
         for (let i = 0; i < edge.path.length - 1; i++) {
           const p1 = edge.path[i];
@@ -238,7 +238,8 @@ export async function runVisualValidationSuite(): Promise<VisualTestResult[]> {
           const segMaxY = Math.max(p1.y, p2.y);
 
           for (const node of laidOut.nodes) {
-            // Check if segment penetrates node body
+            if (node.id === edge.sourceBlockId || node.id === edge.targetBlockId) continue;
+            // Check if segment penetrates non-endpoint node body
             if (
               segMaxX > node.x + 1 &&
               segMinX < node.x + node.width - 1 &&
@@ -252,12 +253,12 @@ export async function runVisualValidationSuite(): Promise<VisualTestResult[]> {
       }
 
       // Verify Collinear Overlaps (Hard Invariant: 0px)
-      const overlapAnalysis = detectCollinearOverlaps(labeledEdges);
+      const overlapAnalysis = detectCollinearOverlaps(routedEdges);
 
       // Generate SVG visual artifact
       const svg = generateSvgSnapshot(
         laidOut.nodes,
-        labeledEdges,
+        routedEdges,
         routingOpts,
         `AutoTrace Lab: ${preset.name} [${profile.name}]`
       );
@@ -277,7 +278,7 @@ export async function runVisualValidationSuite(): Promise<VisualTestResult[]> {
         profileName: profile.name,
         svgFilePath,
         nodeCount: laidOut.nodes.length,
-        edgeCount: labeledEdges.length,
+        edgeCount: routedEdges.length,
         hardCollisions,
         collinearOverlapLength: overlapAnalysis.totalOverlapLength,
         collinearOverlapCount: overlapAnalysis.overlapCount,

@@ -5,6 +5,7 @@ import { generateAndDownloadProjectZip } from '../utils/zipExporter';
 export const CodeExportView: React.FC = () => {
   const [copied, setCopied] = useState(false);
   const [isDownloadingZip, setIsDownloadingZip] = useState(false);
+  const [activeTab, setActiveTab] = useState<'dsl' | 'typescript' | 'json'>('dsl');
 
   const handleDownloadZip = async () => {
     try {
@@ -17,6 +18,61 @@ export const CodeExportView: React.FC = () => {
     }
   };
 
+  const sampleCompactDsl = `// =========================================================================
+// AutoTrace Compact Textual DSL (Clean Human & LLM-Friendly Diagram Model)
+// =========================================================================
+
+block SENSOR [shape=rounded, title="CMOS Camera 4K", category=source, x=60, y=100, w=170, h=120, clearance=12] {
+  in[top]    VDD: power [pin=1]
+  in[top]    GND: ground [pin=2]
+  out[right] MIPI_0: bus [pos=0.3]
+  out[right] MIPI_1: bus [pos=0.7]
+}
+
+block NPU [shape=chip_ic, title="Tensor NPU Core", category=processor, x=380, y=100, w=200, h=140, pinned=true] {
+  in[left]   LANE0: bus [pos=0.3]
+  in[left]   LANE1: bus [pos=0.7]
+  out[right] DETECTIONS: bus [pos=0.5]
+}
+
+block DISPLAY [shape=rectangle, title="AMOLED Display Panel", category=sink, x=720, y=100, w=180, h=100] {
+  in[left]   SPI_IN: bus [pos=0.5]
+}
+
+// 100% Deterministic Orthogonal Wire Traces with Labels
+SENSOR.MIPI_0 -> NPU.LANE0 [label="MIPI 2.5 Gbps", color="#38bdf8"]
+SENSOR.MIPI_1 -> NPU.LANE1 [label="MIPI 2.5 Gbps", color="#38bdf8"]
+NPU.DETECTIONS -> DISPLAY.SPI_IN [label="Bounding Boxes", color="#10b981"]`;
+
+  const sampleJsonSchema = JSON.stringify({
+    "$schema": "https://autotrace.dev/schemas/v1/diagram.json",
+    "nodes": [
+      {
+        "id": "MCU",
+        "title": "STM32F401 Microcontroller",
+        "shape": "chip_ic",
+        "x": 100,
+        "y": 120,
+        "width": 180,
+        "height": 110,
+        "ports": [
+          { "id": "vdd", "name": "VDD", "type": "input", "side": "top", "dataType": "power" },
+          { "id": "tx", "name": "UART_TX", "type": "output", "side": "right", "dataType": "signal" }
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "id": "e1",
+        "sourceBlockId": "MCU",
+        "sourcePortId": "tx",
+        "targetBlockId": "SENSOR",
+        "targetPortId": "rx",
+        "label": "Telemetry Stream"
+      }
+    ]
+  }, null, 2);
+
   const sampleTypeScriptCode = `/**
  * =========================================================================
  * HYBRID GOLD-STANDARD GRAPH ROUTER & PLACEMENT ENGINE (TypeScript)
@@ -25,174 +81,38 @@ export const CodeExportView: React.FC = () => {
  * =========================================================================
  */
 
-export interface Point {
-  x: number;
-  y: number;
-}
+import { routeOrthogonal, parseDSL, formatDSL } from '@autotrace/sdk';
 
-export interface Port {
-  id: string;
-  name: string;
-  type: 'input' | 'output';
-}
+// 1. Parse diagram from human-readable compact text DSL
+const { nodes, edges } = parseDSL(\`
+  block MCU [shape=chip_ic, title="STM32F401"] {
+    out[right] TX: signal
+  }
+  block SENSOR [shape=rounded, title="BME280"] {
+    in[left] RX: signal
+  }
+  MCU.TX -> SENSOR.RX [label="SPI 10MHz"]
+\`);
 
-export interface BlockNode {
-  id: string;
-  title: string;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  inputs: Port[];
-  outputs: Port[];
-}
+// 2. Compute 100% collision-free orthogonal routing
+const routedEdges = routeOrthogonal(nodes, edges, {
+  gridSize: 10,
+  obstacleClearance: 14,
+  bendPenalty: 35,
+});
 
-export interface EdgeConnection {
-  id: string;
-  sourceBlockId: string;
-  sourcePortId: string;
-  targetBlockId: string;
-  targetPortId: string;
-  path?: Point[];
-}
+console.log('Routed Nets:', routedEdges.length);`;
 
-/**
- * 1. ВЫЧИСЛЕНИЕ КООРДИНАТ ПОРТА С УЧЁТОМ ВЫХОДНОГО ВЕКТОРА
- */
-export function getPortPosition(node: BlockNode, portId: string, isOutput: boolean): Point {
-  const ports = isOutput ? node.outputs : node.inputs;
-  const idx = ports.findIndex(p => p.id === portId);
-  const ratio = ports.length > 1 ? (idx + 1) / (ports.length + 1) : 0.5;
-  const y = node.y + node.height * ratio;
-  return {
-    x: isOutput ? node.x + node.width : node.x,
-    y: Math.round(y),
-  };
-}
-
-/**
- * 2. ПОСЛОЙНОЕ РАЗМЕЩЕНИЕ СУГИЯМЫ (SUGIYAMA FRAMEWORK)
- */
-export function calculateSugiyamaLayout(
-  nodes: BlockNode[],
-  edges: EdgeConnection[],
-  layerSpacing = 160,
-  nodeSpacing = 50
-): BlockNode[] {
-  // Шаг 1: Определение слоев через Longest Path / Coffman-Graham
-  const inDegree: Record<string, number> = {};
-  const adj: Record<string, string[]> = {};
-  nodes.forEach(n => {
-    inDegree[n.id] = 0;
-    adj[n.id] = [];
-  });
-
-  edges.forEach(e => {
-    if (adj[e.sourceBlockId]) adj[e.sourceBlockId].push(e.targetBlockId);
-    if (inDegree[e.targetBlockId] !== undefined) inDegree[e.targetBlockId]++;
-  });
-
-  const layers: BlockNode[][] = [];
-  const assigned = new Set<string>();
-  let currentLayer = nodes.filter(n => inDegree[n.id] === 0);
-  if (currentLayer.length === 0 && nodes.length > 0) currentLayer = [nodes[0]];
-
-  while (currentLayer.length > 0) {
-    layers.push(currentLayer);
-    currentLayer.forEach(n => assigned.add(n.id));
-
-    const nextCandidates: BlockNode[] = [];
-    currentLayer.forEach(u => {
-      (adj[u.id] || []).forEach(vId => {
-        const v = nodes.find(n => n.id === vId);
-        if (v && !assigned.has(v.id) && !nextCandidates.some(c => c.id === v.id)) {
-          nextCandidates.push(v);
-        }
-      });
-    });
-
-    // Обработка свободных узлов
-    if (nextCandidates.length === 0) {
-      const remaining = nodes.filter(n => !assigned.has(n.id));
-      if (remaining.length > 0) nextCandidates.push(remaining[0]);
+  const getActiveCode = () => {
+    switch (activeTab) {
+      case 'dsl': return sampleCompactDsl;
+      case 'typescript': return sampleTypeScriptCode;
+      case 'json': return sampleJsonSchema;
     }
-    currentLayer = nextCandidates;
-  }
-
-  // Шаг 2: Барицентрическая сортировка узлов внутри слоев для минимизации пересечений
-  const updatedNodes = [...nodes];
-  let currentX = 60;
-
-  layers.forEach((layerNodes) => {
-    const totalH = layerNodes.reduce((sum, n) => sum + n.height, 0) + (layerNodes.length - 1) * nodeSpacing;
-    let currentY = Math.max(40, 260 - totalH / 2);
-
-    layerNodes.forEach(node => {
-      const idx = updatedNodes.findIndex(n => n.id === node.id);
-      if (idx !== -1) {
-        updatedNodes[idx] = {
-          ...updatedNodes[idx],
-          x: currentX,
-          y: currentY,
-        };
-      }
-      currentY += node.height + nodeSpacing;
-    });
-
-    const maxW = Math.max(...layerNodes.map(n => n.width), 140);
-    currentX += maxW + layerSpacing;
-  });
-
-  return updatedNodes;
-}
-
-/**
- * 3. ОРТОГОНАЛЬНЫЙ A* ТРАССИРОВЩИК (A* ORTHOGONAL ROUTER)
- */
-export function routeOrthogonalEdge(
-  sourceNode: BlockNode,
-  sourcePortId: string,
-  targetNode: BlockNode,
-  targetPortId: string,
-  obstacles: BlockNode[],
-  options = { clearance: 15, stub: 20, bendPenalty: 30 }
-): Point[] {
-  const start = getPortPosition(sourceNode, sourcePortId, true);
-  const target = getPortPosition(targetNode, targetPortId, false);
-
-  // Вылет по нормали портов
-  const startStub: Point = { x: start.x + options.stub, y: start.y };
-  const targetStub: Point = { x: target.x - options.stub, y: target.y };
-
-  const midX = Math.round((startStub.x + targetStub.x) / 2);
-
-  // Проверка прямого коридора или Z-трассы
-  if (startStub.x < targetStub.x) {
-    return [
-      start,
-      startStub,
-      { x: midX, y: startStub.y },
-      { x: midX, y: targetStub.y },
-      targetStub,
-      target,
-    ];
-  } else {
-    // Обходной С-коридор вокруг препятствий
-    const bypassY = Math.min(start.y, target.y) - 50;
-    return [
-      start,
-      startStub,
-      { x: startStub.x, y: bypassY },
-      { x: targetStub.x, y: bypassY },
-      targetStub,
-      target,
-    ];
-  }
-}
-`;
+  };
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(sampleTypeScriptCode);
+    navigator.clipboard.writeText(getActiveCode());
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -205,14 +125,14 @@ export function routeOrthogonalEdge(
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-2 h-2 rounded-full bg-blue-500"></span>
             <span className="text-[10px] text-blue-400 font-mono uppercase tracking-widest font-semibold">
-              Production-Ready TypeScript Library & Full Source
+              Compact DSL & Production-Ready SDK
             </span>
           </div>
           <h2 className="text-xl sm:text-3xl font-bold tracking-tight text-white uppercase font-sans">
-            Исходный Код & Полный Архив Проекта
+            Компактный DSL & Экспорт Схемы
           </h2>
           <p className="text-xs text-gray-400 font-mono mt-1">
-            Автономные модули TypeScript и полный архив приложения (все алгоритмы, пресеты, компоненты).
+            Лаконичный текстовый формат для LLM и разработчиков, чистый TypeScript SDK и схема JSON.
           </p>
         </div>
 
@@ -237,25 +157,55 @@ export function routeOrthogonalEdge(
           </button>
 
           <button
-            id="btn-copy-ts-code"
+            id="btn-copy-code"
             onClick={handleCopy}
             className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1e293b] hover:bg-[#283548] border border-blue-500/30 text-white text-xs font-bold uppercase tracking-wider transition-all active:scale-95 whitespace-nowrap"
           >
             {copied ? <Check className="w-4 h-4 text-emerald-300" /> : <Copy className="w-4 h-4 text-blue-400" />}
-            <span>{copied ? 'Скопировано!' : 'Копировать TS Код'}</span>
+            <span>{copied ? 'Скопировано!' : 'Копировать'}</span>
           </button>
         </div>
       </div>
 
       {/* Code Editor Bento Box */}
       <div className="relative bg-[#0c0d10] border border-white/5 rounded-xl overflow-hidden shadow-2xl">
-        <div className="flex items-center justify-between px-4 py-3 bg-[#16181d] border-b border-white/5 text-xs text-gray-400 font-mono">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-[#16181d] border-b border-white/5 text-xs text-gray-400 font-mono">
+          {/* Format Tabs */}
           <div className="flex items-center gap-2">
-            <Terminal className="w-4 h-4 text-blue-400" />
-            <span className="text-white font-semibold">autoTraceRouter.ts</span>
+            <button
+              onClick={() => setActiveTab('dsl')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                activeTab === 'dsl'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+              }`}
+            >
+              📐 Compact AutoTrace DSL
+            </button>
+            <button
+              onClick={() => setActiveTab('typescript')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                activeTab === 'typescript'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+              }`}
+            >
+              ⚡ TypeScript API
+            </button>
+            <button
+              onClick={() => setActiveTab('json')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                activeTab === 'json'
+                  ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
+                  : 'text-gray-400 hover:text-gray-200 hover:bg-white/5'
+              }`}
+            >
+              📦 JSON Schema
+            </button>
           </div>
-          <span className="text-[10px] text-gray-400 uppercase tracking-widest font-mono">
-            TypeScript 5.8 • Zero Dependencies
+
+          <span className="text-[10px] text-gray-400 uppercase tracking-widest font-mono hidden sm:inline">
+            Zero Runtime Dependencies
           </span>
         </div>
 

@@ -21,6 +21,7 @@ import { resolveBlockStyle } from '../registry/resolve';
 import { classifyBlockChange, classifyEdgeChange } from '../registry/invalidation';
 import { createAutoTraceClient, InMemoryStorageAdapter } from '../sdk';
 import { extractTopologySummary, tuneParametersLocalHeuristics } from '../algorithms/aiParameterTuner';
+import { parseDSL, formatDSL, validateBlockNode, validateDiagram } from '../dsl';
 
 export interface TestResult {
   suite: string;
@@ -1317,6 +1318,86 @@ export function runAllDiagnosticTests(): TestSuiteSummary {
       'All AI parameter recommendations stay strictly within valid router bounds',
       allValid,
       'Verified [5..35]px clearance, [8..40]px channels, [0..24]px radius, [0..80] bend penalty across all profiles'
+    );
+  }
+
+  // =========================================================================
+  // SUITE 17: Compact Textual DSL & Schema Validator
+  // =========================================================================
+  {
+    const suite = 'Compact Textual DSL & Schema Validator';
+
+    // 1. Parse compact textual DSL
+    const sampleText = `
+block MCU [shape=chip_ic, title="STM32F401", x=50, y=100, clearance=15, pinned=true] {
+  in[top]    VDD: power [pin=1]
+  out[right] TX: signal [pos=0.5]
+}
+block SENSOR [shape=rounded, title="BME280", x=350, y=100] {
+  in[left]   RX: signal [pos=0.5]
+}
+MCU.TX -> SENSOR.RX [label="Telemetry", color="#38bdf8"]
+    `.trim();
+
+    const parseRes = parseDSL(sampleText);
+    assert(
+      suite,
+      'Parses compact textual DSL into typed nodes and edges',
+      parseRes.nodes.length === 2 &&
+        parseRes.edges.length === 1 &&
+        parseRes.nodes[0].shape === 'chip_ic' &&
+        parseRes.nodes[0].isPinned === true,
+      `Parsed nodes=${parseRes.nodes.length}, edges=${parseRes.edges.length}`
+    );
+
+    // 2. Round-trip serialization
+    const formatted = formatDSL(parseRes.nodes, parseRes.edges);
+    const roundTrip = parseDSL(formatted);
+    assert(
+      suite,
+      'Performs 100% lossless round-trip DSL serialization and parsing',
+      roundTrip.nodes.length === 2 &&
+        roundTrip.edges.length === 1 &&
+        roundTrip.nodes[0].id === 'MCU' &&
+        roundTrip.nodes[1].id === 'SENSOR',
+      `Round-trip nodes=${roundTrip.nodes.length}, edges=${roundTrip.edges.length}`
+    );
+
+    // 3. Schema diagnostic validation
+    const malformedNode: BlockNode = {
+      id: '',
+      title: 'Bad Block',
+      category: 'processor',
+      x: 0,
+      y: 0,
+      width: -100,
+      height: 0,
+      ports: [{ id: 'p1', name: 'P1', type: 'input', side: 'bad_side' as any }],
+    };
+    const nodeIssues = validateBlockNode(malformedNode);
+    assert(
+      suite,
+      'Schema validator detects invalid dimensions, missing IDs and bad port sides',
+      nodeIssues.some(i => i.code === 'ERR_BLOCK_ID_REQUIRED') &&
+        nodeIssues.some(i => i.code === 'ERR_BLOCK_INVALID_WIDTH') &&
+        nodeIssues.some(i => i.code === 'ERR_PORT_INVALID_SIDE'),
+      `Caught ${nodeIssues.length} diagnostic schema issues`
+    );
+
+    // 4. Referential edge validation
+    const badEdge: EdgeConnection = {
+      id: 'e_bad',
+      sourceBlockId: 'UNKNOWN_BLOCK',
+      sourcePortId: 'none',
+      targetBlockId: 'SENSOR',
+      targetPortId: 'RX',
+    };
+    const diagramReport = validateDiagram(parseRes.nodes, [badEdge]);
+    assert(
+      suite,
+      'Diagram validator detects non-existent source and target block/port references',
+      !diagramReport.valid && diagramReport.issues.some(i => i.code === 'ERR_EDGE_SOURCE_NOT_FOUND'),
+      `Validation valid=${diagramReport.valid}, errors=${diagramReport.errorsCount}`
     );
   }
 

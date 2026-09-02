@@ -11,8 +11,11 @@ import { LayoutResultValue } from '../engine/types';
 import { RegistryStore } from '../registry/RegistryClient';
 import { AutoTraceSDKConfig, AutoTraceSession, StorageAdapter, TelemetryAdapter, SceneOpenInput } from './types';
 import { InMemoryStorageAdapter, LocalStorageAdapter } from './storage';
-import { SceneSession } from './SceneSession';
+import { SceneSession, getSceneBounds, renderEdgeToSvgPath } from './SceneSession';
+import { routeOrthogonalAStar } from '../algorithms/orthogonalAStarRouter';
 
+export * from '../types';
+export * from '../dsl';
 export * from './types';
 export * from './storage';
 export * from './SceneSession';
@@ -23,6 +26,31 @@ export * from '../domainPacks/lbc';
 export { EngineClient } from '../engine/EngineClient';
 export { RegistryStore } from '../registry/RegistryClient';
 export { generateOrthogonalPathWithBridges, renderG1ContinuousStraightPath } from '../algorithms/bridgeJumps';
+export {
+  routeOrthogonalAStar,
+  simplifyOrthogonalPath,
+  computeAdaptivePortStub,
+} from '../algorithms/orthogonalAStarRouter';
+export { getPortCoordinates, deriveBlockGeometry, calculateMinimumBlockSize, getAllNodePorts } from '../algorithms/blockGeometry';
+export { calculateBenchmarkMetrics } from '../algorithms/metrics';
+export { cleanOrthogonalArtifacts } from '../algorithms/wireArtifactCleaner';
+export { classifyBlockChange, classifyEdgeChange } from '../registry/invalidation';
+
+/**
+ * Pure synchronous orthogonal routing function with zero async/OOP overhead.
+ * Guaranteed: 90° port stubs, 0 px collinear overlaps, obstacle avoidance, G1-fillet support.
+ */
+export function routeOrthogonal(
+  nodes: BlockNode[],
+  edges: EdgeConnection[],
+  options?: Partial<RoutingOptions>
+): EdgeConnection[] {
+  const mergedOptions: RoutingOptions = {
+    ...DEFAULT_ROUTING_OPTIONS,
+    ...(options || {}),
+  };
+  return routeOrthogonalAStar(nodes, edges, mergedOptions);
+}
 
 export class AutoTraceClient {
   readonly engine: EngineClient;

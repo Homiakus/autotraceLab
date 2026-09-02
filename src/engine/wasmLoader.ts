@@ -17,11 +17,17 @@ declare global {
   }
 }
 
+export interface WasmLoaderOptions {
+  wasmUrl?: string;
+  wasmBinary?: ArrayBuffer | Uint8Array;
+  customRunner?: (jsonRequest: string) => string;
+}
+
 export class WasmLoader {
   private instance: WasmBridgeInstance | null = null;
   private loadPromise: Promise<WasmBridgeInstance> | null = null;
 
-  async load(wasmUrl = '/autotrace.wasm'): Promise<WasmBridgeInstance> {
+  async load(options: string | WasmLoaderOptions = '/autotrace.wasm'): Promise<WasmBridgeInstance> {
     if (this.instance && this.instance.isReady) {
       return this.instance;
     }
@@ -29,12 +35,22 @@ export class WasmLoader {
       return this.loadPromise;
     }
 
-    this.loadPromise = this.initWasm(wasmUrl);
+    const opts: WasmLoaderOptions = typeof options === 'string' ? { wasmUrl: options } : options;
+    this.loadPromise = this.initWasm(opts);
     return this.loadPromise;
   }
 
-  private async initWasm(wasmUrl: string): Promise<WasmBridgeInstance> {
-    // Check if global function already available
+  private async initWasm(options: WasmLoaderOptions): Promise<WasmBridgeInstance> {
+    // 1. Custom runner provided directly by embedder
+    if (options.customRunner) {
+      this.instance = {
+        isReady: true,
+        request: options.customRunner,
+      };
+      return this.instance;
+    }
+
+    // 2. Check if global function already available
     if (typeof globalThis !== 'undefined' && typeof (globalThis as any).businessOSAutoTraceRequest === 'function') {
       this.instance = {
         isReady: true,
@@ -49,32 +65,43 @@ export class WasmLoader {
         const go = new g.Go();
         let wasmModule: WebAssembly.WebAssemblyInstantiatedSource;
 
-        if (typeof fetch === 'function') {
+        if (options.wasmBinary) {
+          const bytes = options.wasmBinary instanceof Uint8Array ? options.wasmBinary.buffer : options.wasmBinary;
+          wasmModule = await WebAssembly.instantiate(bytes, go.importObject);
+        } else if (typeof fetch === 'function' && options.wasmUrl) {
           if (WebAssembly.instantiateStreaming) {
-            wasmModule = await WebAssembly.instantiateStreaming(fetch(wasmUrl), go.importObject);
+            try {
+              wasmModule = await WebAssembly.instantiateStreaming(fetch(options.wasmUrl), go.importObject);
+            } catch {
+              const response = await fetch(options.wasmUrl);
+              const bytes = await response.arrayBuffer();
+              wasmModule = await WebAssembly.instantiate(bytes, go.importObject);
+            }
           } else {
-            const response = await fetch(wasmUrl);
+            const response = await fetch(options.wasmUrl);
             const bytes = await response.arrayBuffer();
             wasmModule = await WebAssembly.instantiate(bytes, go.importObject);
           }
+        } else {
+          throw new Error('No WASM binary or valid URL provided');
+        }
 
-          // Run Go runtime in background
-          go.run(wasmModule.instance);
+        // Run Go runtime in background
+        go.run(wasmModule.instance);
 
-          if (g.businessOSAutoTraceRequest) {
-            this.instance = {
-              isReady: true,
-              request: (jsonStr: string) => g.businessOSAutoTraceRequest(jsonStr),
-            };
-            return this.instance;
-          }
+        if (g.businessOSAutoTraceRequest) {
+          this.instance = {
+            isReady: true,
+            request: (jsonStr: string) => g.businessOSAutoTraceRequest(jsonStr),
+          };
+          return this.instance;
         }
       }
     } catch (err) {
       console.warn('[WasmLoader] Go WASM instantiate skipped or unavailable in current env:', err);
     }
 
-    // Fallback instance (returns ready false if binary wasn't loaded)
+    // Fallback instance
     const isReady = typeof globalThis !== 'undefined' && typeof (globalThis as any).businessOSAutoTraceRequest === 'function';
     this.instance = {
       isReady,

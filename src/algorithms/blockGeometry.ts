@@ -20,6 +20,19 @@ export const HEADER_HEIGHT = 24;
 export const BODY_PADDING = 12;
 
 /**
+ * Gracefully extracts all ports from a BlockNode, supporting both unified `ports`
+ * and legacy `inputs`/`outputs` arrays without duplicate entries.
+ */
+export function getAllNodePorts(node: Pick<BlockNode, 'inputs' | 'outputs' | 'ports'>): Port[] {
+  if (node.ports && node.ports.length > 0) {
+    return node.ports;
+  }
+  const inPorts = node.inputs || [];
+  const outPorts = node.outputs || [];
+  return [...inPorts, ...outPorts];
+}
+
+/**
  * Calculates the strictly required minimum dimensions for a block based on:
  * 1. Port counts per side (with safe corner margins and port pitch)
  * 2. Title, subtitle, and text content length
@@ -27,11 +40,11 @@ export const BODY_PADDING = 12;
  * (rule/2.md §7, §8, §9, §102)
  */
 export function calculateMinimumBlockSize(
-  node: Pick<BlockNode, 'title' | 'subtitle' | 'inputs' | 'outputs' | 'shape'>,
+  node: Pick<BlockNode, 'title' | 'subtitle' | 'inputs' | 'outputs' | 'ports' | 'shape'>,
   cornerMargin = DEFAULT_CORNER_MARGIN,
   portPitch = DEFAULT_PORT_PITCH
 ): { minWidth: number; minHeight: number; wPorts: number; hPorts: number } {
-  const allPorts: Port[] = [...(node.inputs || []), ...(node.outputs || []), ...((node as any).ports || [])];
+  const allPorts: Port[] = getAllNodePorts(node);
 
   let nLeft = 0;
   let nRight = 0;
@@ -148,7 +161,7 @@ export function getPortCoordinatesAccurate(
   portId: string,
   isOutputHint = true
 ): PortCoordinates {
-  const allPorts: Port[] = [...(node.inputs || []), ...(node.outputs || []), ...((node as any).ports || [])];
+  const allPorts: Port[] = getAllNodePorts(node);
   let foundPort = allPorts.find((p) => p.id === portId);
 
   if (!foundPort) {
@@ -348,6 +361,8 @@ export const getPortCoordinates = getPortCoordinatesAccurate;
  * Builds the full DerivedBlockGeometry for a block
  * (rule/2.md §79, §102)
  */
+export const deriveBlockGeometry = buildDerivedBlockGeometry;
+
 export function buildDerivedBlockGeometry(
   node: BlockNode,
   clearance = 15
