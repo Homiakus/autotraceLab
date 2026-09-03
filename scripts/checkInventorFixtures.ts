@@ -25,4 +25,17 @@ assert.deepEqual(microscope.blocks[3].dependencies, ['b3']);
 assert.equal(microscope.metadata?.durationStatus, 'unknown');
 assert.equal(microscope.metadata?.evidenceRepository, 'Homiakus/ScannerPro');
 
+const componentRefsByBlock = microscope.metadata?.componentRefsByBlock as Record<string, string[]> | undefined;
+const stateRefsByBlock = microscope.metadata?.stateRefsByBlock as Record<string, string[]> | undefined;
+assert.deepEqual(componentRefsByBlock?.b1, [
+  'scanning-microscope.product.instance.instance-scanningmicroscope-sample-stage',
+]);
+assert.deepEqual(stateRefsByBlock?.b1, ['scanning-microscope.state.running']);
+assert.deepEqual(stateRefsByBlock?.b2, ['scanning-microscope.state.running']);
+assert.deepEqual(stateRefsByBlock?.b3, [
+  'scanning-microscope.state.running',
+  'scanning-microscope.state.capture-complete',
+]);
+assert.deepEqual(stateRefsByBlock?.b4, ['scanning-microscope.state.stitching']);
+
 console.log('Inventor integration fixtures OK: scanning microscope process scenario validated.');
