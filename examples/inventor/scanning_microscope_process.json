@@ -83,6 +83,12 @@
       "b3": [
         "scanning-microscope.product.instance.instance-scanningmicroscope-camera"
       ]
+    },
+    "stateRefsByBlock": {
+      "b1": ["scanning-microscope.state.running"],
+      "b2": ["scanning-microscope.state.running"],
+      "b3": ["scanning-microscope.state.running", "scanning-microscope.state.capture-complete"],
+      "b4": ["scanning-microscope.state.stitching"]
     }
   }
 }
