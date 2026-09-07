@@ -3,7 +3,7 @@
 Status: **single authoritative implementation plan**  
 Historical execution baseline: MP0–MP20 completed.  
 Active program baseline: `601befd3e2bfed1decf776922f473119576f5205`.  
-Target: a deterministic, validated, high-performance, reusable AutoTrace Core in Go with semantic graph understanding, adaptive ports, human-readability optimization, perceptual composition, incremental stability, portable registries and production-grade embedding.
+Target: a deterministic, validated, high-performance, reusable AutoTrace Core in Go with semantic graph understanding, adaptive ports, human-readability optimization, perceptual composition, incremental stability, portable registries, production-grade embedding and a unified visual-semantic HMI that turns analytical state into human-readable linked views.
 
 ---
 
@@ -21,6 +21,9 @@ Detailed normative contracts are split by responsibility:
 - `ADAPTIVE_PORT_PLACEMENT.md` — movable-port semantics and constraints;
 - `HUMAN_READABILITY_METRICS.md` — readability/stability/composition metric definitions;
 - `SEMANTIC_LAYOUT_IMPLEMENTATION_PLAN.md` — detailed MP21–MP40 implementation specification;
+- `UI_VISUAL_AUDIT.md` — current-state AutoTraceLab visual/HMI audit and migration baseline;
+- `VISUAL_SEMANTICS_HMI_CONTRACT.md` — normative visual-semantic, linked-view, focus, comparison, uncertainty, explanation and playback contract;
+- `VISUAL_SEMANTICS_IMPLEMENTATION_PLAN.md` — detailed WS-L / MP41–MP50 implementation specification;
 - `rule/4.md` — non-negotiable semantic-layout implementation invariants.
 
 The central architecture rule remains:
@@ -28,6 +31,8 @@ The central architecture rule remains:
 > **Go Core is the canonical production mathematical engine. New semantic layout/composition mathematics must be implemented canonically in Go and exposed through the existing native/WASM/SDK boundary.**
 
 The new semantic-layout program does not reopen the TS-to-Go migration. Existing TS algorithms remain historical/reference fixtures where useful, while new production math is Go-first with native/WASM conformance.
+
+The HMI program is a separate presentation layer. It consumes canonical facts, metrics and diagnostics; it does not redefine them. Visual lenses, linked selection, comparison and playback are presentation semantics and MUST NOT silently mutate canonical graph/process state.
 
 ---
 
@@ -50,6 +55,9 @@ AutoTrace Renderer / Adapters
 
 AutoTraceLab
   reference editor + benchmark laboratory + customization/admin UI
+  + visual semantics compiler
+  + linked analytical views
+  + focus/compare/playback/explanation HMI
 ```
 
 Target architecture:
@@ -88,6 +96,27 @@ AutoTrace Headless Core
   |-- Bounded Joint Refinement
   |-- Incremental SceneEngine
   `-- Versioned Contracts + Diagnostics
+        |
+        v
+Analysis facts / simulation results / diagnostics / provenance
+        |
+        v
+Visual Semantics Compiler
+  |-- VisualAnnotationSet
+  |-- LinkedViewState
+  |-- ScenarioDeltaSet
+  |-- InsightSet
+  `-- PlaybackSemanticState
+        |
+        v
+LabTrace HMI
+  |-- TopologyView
+  |-- TimelineView
+  |-- ResourceLaneView
+  |-- DistributionView
+  |-- CompareView
+  |-- Inspector / InsightRail
+  `-- PlaybackControls
 ```
 
 ---
@@ -107,12 +136,18 @@ AutoTrace Headless Core
 11. Existing validated algorithms remain fallback/reference until replacements pass explicit gates.
 12. No one composite score is the release truth.
 13. Art serves comprehension; decorative composition never outranks semantic readability.
+14. Visual emphasis that may affect an engineering decision must be traceable to a semantic fact, diagnostic, interaction state or explicit presentation mode.
+15. Focus/lens changes MUST NOT re-layout or mutate canonical geometry merely to change emphasis.
+16. Critical meaning MUST NOT rely on hue alone.
+17. Presentation state is versioned separately from canonical domain/process state.
+18. Motion represents change/event/flow; persistent decorative motion is not a semantic channel.
+19. A migrated UI MUST preserve canonical math/simulation outputs unless the same change explicitly modifies the corresponding domain contract and tests.
 
 ---
 
 # 3. Consolidated workstreams
 
-The program has eleven coordinated workstreams.
+The program has twelve coordinated workstreams.
 
 ## WS-A — Mathematical contract and historical oracle [FOUNDATION COMPLETE]
 
@@ -167,15 +202,15 @@ AutoTraceLab consumes Core/SDK rather than owning production mathematics.
 
 ## WS-H — Benchmarking, verification and observability [ACTIVE EXTENSION]
 
-Existing route/performance corpus is extended with semantic-layout, composition, accessibility, human-readability and incremental mental-map families.
+Existing route/performance corpus is extended with semantic-layout, composition, accessibility, human-readability, incremental mental-map and HMI task-comprehension families.
 
 ## WS-I — Security, CI and release engineering [ACTIVE EXTENSION]
 
-Existing native/WASM/registry/security gates are extended with semantic-layout contract, deterministic corpus and quality-vector regression gates.
+Existing native/WASM/registry/security gates are extended with semantic-layout contract, deterministic corpus, quality-vector regression and visual-semantic/accessibility gates.
 
 ## WS-J — Documentation and adoption [ACTIVE EXTENSION]
 
-Documentation must track new semantic layout/composition APIs and domain migration.
+Documentation must track new semantic layout/composition APIs, Visual Semantics/HMI contracts and domain migration.
 
 ## WS-K — Semantic Layout & Perceptual Composition [ACTIVE]
 
@@ -204,6 +239,34 @@ K17 Readability/stability/composition metrics
 K18 Diagnostics/explainability
 K19 Human/automated benchmark program
 K20 Shadow rollout/default switch
+```
+
+## WS-L — Visual Semantics & Human-Machine Interface [ACTIVE PLANNED]
+
+Purpose: make AutoTraceLab visually encode system state, flow, risk, uncertainty, change and explanation across one coherent workspace.
+
+Subareas:
+
+```text
+L1  Current UI/task baseline
+L2  Canonical LabTrace shell
+L3  Shared design/visualization primitives
+L4  Visual-semantic fact/annotation contract
+L5  Visual encoding grammar and legends
+L6  Focus/lens system
+L7  Semantic Canvas overlays
+L8  Linked topology/timeline/resource views
+L9  Distribution/uncertainty visualization
+L10 Baseline/what-if comparison and semantic diff
+L11 Insight Rail and provenance
+L12 Digital Twin playback and motion semantics
+L13 Engineering HUD progressive disclosure
+L14 Accessibility/CVD/grayscale semantics
+L15 Responsive/mobile workspace
+L16 Large-scene/timeline visualization performance
+L17 Process-screen migration from local visual languages
+L18 Human task/visual regression program
+L19 Staged rollout/default switch
 ```
 
 ---
@@ -282,6 +345,18 @@ Default policy:
 readability > stability > composition > compactness
 ```
 
+HMI decisions use an analogous priority:
+
+```text
+truth/correctness
+  > task comprehension
+  > accessibility
+  > cross-view consistency
+  > mental-context preservation
+  > information density
+  > aesthetic preference
+```
+
 ---
 
 # 5. Perceptual/artistic principles
@@ -325,6 +400,8 @@ phi = 1.61803398875...
 
 No block or canvas is required to be a golden rectangle. A golden/thirds improvement never justifies a hard violation or ordinary crossing regression in default profiles.
 
+For HMI surfaces, decorative effects such as blur, glow, gradients or animation have no independent priority. They are permitted only when they support hierarchy, interaction state, event/state change or a coherent theme without reducing comprehension.
+
 ---
 
 # 6. Completed foundation MP0–MP20
@@ -359,7 +436,9 @@ Existing Sugiyama, force-directed and orthogonal-grid behavior remains available
 
 ---
 
-# 7. Active dependency graph MP21–MP40
+# 7. Active dependency graph MP21–MP50
+
+WS-K semantic layout remains:
 
 ```text
 MP21 Contract/baseline
@@ -384,12 +463,35 @@ MP21 Contract/baseline
   -> MP40 Shadow rollout/default gate
 ```
 
+WS-L HMI runs partly in parallel:
+
+```text
+MP21 schema discipline
+  -> MP41 HMI contract/baseline
+     -> MP42 Unified LabTrace shell
+     -> MP43 Visual Semantics compiler
+        -> MP44 Canvas lenses/overlays
+        -> MP45 Linked topology/timeline/resource
+        -> MP46 Distribution + scenario compare
+        -> MP47 Insight Rail/provenance
+        -> MP48 Digital Twin playback
+     -> MP49 Migration/accessibility/performance/regression
+     -> MP50 HMI rollout/default gate
+
+MP25 importance ------------------+
+MP37 metrics ---------------------+--> enrich MP43/44/46
+MP38 diagnostics/explainability --+--> enrich MP47/Engineering HUD
+```
+
 Permitted parallelism:
 
 - MP27/MP28 may proceed after MP23/MP24 contracts stabilize;
 - MP30/MP31 may prototype after MP23, but production integration waits for MP29;
-- UI/benchmark visualization can proceed in parallel after schemas freeze;
-- no branch/module may define a second formula for the same semantic/layout decision.
+- WS-L contract/shell work may proceed after MP21 schema discipline without waiting for MP40;
+- MP43 may start using existing canonical process/simulation facts and gain richer annotations as MP25/37/38 stabilize;
+- MP44–MP48 may proceed on isolated vertical slices after MP42/43 contracts stabilize;
+- migration/default rollout must not remove fallback/reference UI paths before MP49/50 gates;
+- no branch/module may define a second formula for the same semantic/layout/process decision.
 
 ---
 
@@ -951,7 +1053,167 @@ Default gate requires:
 
 ---
 
-# 28. Atomic waves M–R
+# 27A. WS-L — Visual Semantics & HMI milestones MP41–MP50
+
+Detailed tasks and atomic waves are normative in `VISUAL_SEMANTICS_IMPLEMENTATION_PLAN.md`. The master plan fixes execution order and release gates.
+
+## MP41 — HMI contract and measurable baseline [BLOCKING]
+
+- [ ] approve `VISUAL_SEMANTICS_HMI_CONTRACT.md`;
+- [ ] freeze current visual/task baseline from `UI_VISUAL_AUDIT.md`;
+- [ ] version `VisualSemanticFact`, `VisualAnnotation`, `LinkedViewState`, `ScenarioDelta`, `InsightItem`, `PlaybackSemanticState`;
+- [ ] inventory current process shells/local CSS;
+- [ ] capture desktop/tablet/mobile and accessibility baseline fixtures;
+- [ ] define human-task timing/error protocol.
+
+Exit: presentation/domain ownership is unambiguous and current behavior is reproducible.
+
+## MP42 — Unified LabTrace shell and shared primitives [BLOCKING]
+
+- [ ] make `LabTraceWorkbench` canonical analytical shell;
+- [ ] stabilize header/sidebar/command/workspace/secondary/inspector/insight/overlay zones;
+- [ ] centralize spacing/type/radius/elevation/status/chart tokens;
+- [ ] extract shared metric/status/legend/loading/error/EngineeringHUD primitives;
+- [ ] add responsive drawer/sheet behavior and keyboard/touch baseline.
+
+Exit: at least one representative process vertical slice has no independent top-level shell/visual language.
+
+## MP43 — Visual Semantics compiler and encoding grammar [BLOCKING]
+
+- [ ] compile canonical facts into renderer-neutral role/importance/severity/confidence/activity/trend annotations;
+- [ ] preserve reason/evidence/provenance IDs;
+- [ ] define deterministic precedence/normalization/scale semantics;
+- [ ] define hue/saturation/contrast/stroke/opacity/pattern/icon/motion channel ownership;
+- [ ] guarantee non-color redundancy for critical states;
+- [ ] cache/index by semantic revision/entity relationships.
+
+Exit: same facts deterministically produce accessible annotations without DOM dependence.
+
+## MP44 — Canvas semantic overlays and focus lenses
+
+Required lenses:
+
+```text
+CriticalPath
+Bottlenecks
+Risk
+Queues
+Failures
+Rework
+ResourcePressure
+Uncertainty
+Changes
+```
+
+- [ ] add overlay layer and lens registry;
+- [ ] preserve geometry/selection across lenses;
+- [ ] add context de-emphasis + legends + provenance drill-down;
+- [ ] move algorithmic diagnostics behind `EngineeringHUD` by default.
+
+Exit: target state can be located faster without hiding critical context or re-laying out the scene.
+
+## MP45 — Linked topology/timeline/resource views
+
+- [ ] shared `LinkedViewState` controller;
+- [ ] stable entity identity across graph/runs/resources;
+- [ ] shared TimelineView and ResourceLaneView;
+- [ ] selection/hover/time-window/scenario/lens synchronization;
+- [ ] virtualization/indexing for long data.
+
+Exit: one selection drives all relevant views and inspector state.
+
+## MP46 — Uncertainty/distribution and scenario comparison
+
+- [ ] DistributionView with percentile/threshold/violation probability;
+- [ ] explicit deterministic vs stochastic vs estimated vs hypothetical state;
+- [ ] CompareView with absolute/relative/objective-aware deltas;
+- [ ] semantic topology/resource diff and bottleneck migration;
+- [ ] scale compatibility/normalization labeling.
+
+Exit: stochastic and what-if decisions no longer require comparing flat KPI cards manually.
+
+## MP47 — Insight Rail and provenance
+
+- [ ] structured evidence-linked insight model;
+- [ ] bottleneck/risk/opportunity/SLA/failure/rework/queue/uncertainty/change families;
+- [ ] dedup/ranking;
+- [ ] insight -> entity/metric/evidence focus;
+- [ ] computed/diagnostic/heuristic distinction;
+- [ ] confidence display where material;
+- [ ] no unsupported causal wording.
+
+Exit: major visual emphasis can answer “what/where/why/evidence/confidence”.
+
+## MP48 — Digital Twin playback and motion semantics
+
+- [ ] playback clock, play/pause/reset/step/speed/scrub;
+- [ ] synchronized topology + timeline;
+- [ ] queue/resource/failure/rework/batch event states;
+- [ ] active path/flow motion;
+- [ ] reduced-motion semantic parity;
+- [ ] bounded deterministic playback updates.
+
+Exit: temporal questions can be answered by inspecting synchronized event history, not only final reports.
+
+## MP49 — Migration, accessibility, responsive, performance and regression
+
+Migration order:
+
+```text
+Universal Process Lab
+Process Math
+Simulation
+Risk / Monte Carlo
+Batch
+Digital Twin
+Reliability
+Optimizer
+LBC/domain workbenches
+legacy/reference cleanup
+```
+
+- [ ] remove duplicated shell-level visual languages as screens migrate;
+- [ ] preserve canonical model/simulation parity;
+- [ ] keyboard/focus/reduced-motion/CVD/grayscale/high-contrast/text-scaling/touch gates;
+- [ ] desktop/tablet/mobile fixtures;
+- [ ] large graph/timeline/distribution/playback performance gates;
+- [ ] screenshot + semantic regression corpus;
+- [ ] human task comparison against MP41 baseline.
+
+Exit: active analytical screens feel like one product and pass comprehension/accessibility/performance gates.
+
+## MP50 — HMI rollout/default gate
+
+Stages:
+
+```text
+H0 hidden/internal primitives
+H1 developer opt-in LabTrace shell
+H2 selected process screen migration
+H3 semantic overlays + linked views opt-in
+H4 new HMI default for selected workflows
+H5 default for active process applications
+H6 obsolete duplicate shell/style cleanup after release history
+```
+
+Default requires:
+
+1. MP41 baseline/contracts complete;
+2. shared LabTrace shell stable across viewport classes;
+3. deterministic/evidence-linked visual annotations;
+4. non-color/CVD/grayscale accessibility gates green;
+5. linked-view consistency green;
+6. uncertainty/comparison semantics green;
+7. Insight Rail provenance distinction green;
+8. playback/reduced-motion parity green;
+9. canonical model/simulation parity for migrated screens;
+10. performance and visual regression budgets green;
+11. human-task evaluation demonstrates no material comprehension regression and target gains;
+12. release history contains no blocker navigation/accessibility regressions.
+
+---
+
+# 28. Atomic waves M–V
 
 Historical Waves A–L correspond to completed foundation work. Active semantic-layout work continues:
 
@@ -1033,6 +1295,60 @@ R08 developer opt-in.
 R09 workflow opt-in.  
 R10 production default gate.
 
+WS-L adds four atomic waves; detailed acceptance is in `VISUAL_SEMANTICS_IMPLEMENTATION_PLAN.md`.
+
+## Wave S — HMI contracts and shell
+
+S01 UI inventory/baseline.  
+S02 VisualSemanticFact/VisualAnnotation.  
+S03 LinkedViewState/presentation versioning.  
+S04 LabTrace stable zones.  
+S05 shared token scales.  
+S06 shared metric/status primitives.  
+S07 responsive zones.  
+S08 keyboard/touch baseline.  
+S09 Engineering HUD separation.  
+S10 first migrated vertical slice.
+
+## Wave T — semantic Canvas and linked analytics
+
+T01 annotation compiler.  
+T02 visual channel grammar/legends.  
+T03 Canvas overlay layer.  
+T04 focus lens registry.  
+T05 critical/bottleneck lenses.  
+T06 risk/queue/uncertainty/change lenses.  
+T07 shared TimelineView.  
+T08 shared ResourceLaneView.  
+T09 linked selection.  
+T10 time-window/scenario synchronization.
+
+## Wave U — uncertainty, compare, explain, playback
+
+U01 DistributionView.  
+U02 percentile/SLA/violation semantics.  
+U03 ScenarioDelta.  
+U04 CompareView.  
+U05 semantic topology diff.  
+U06 InsightItem/InsightRail.  
+U07 provenance drill-down.  
+U08 playback controller.  
+U09 event/motion semantics.  
+U10 reduced-motion parity.
+
+## Wave V — migration and rollout
+
+V01 Universal Process Lab migration.  
+V02 Process Math migration.  
+V03 Simulation migration.  
+V04 Risk/Batch migration.  
+V05 Digital Twin migration.  
+V06 Reliability/Optimizer/LBC migration.  
+V07 accessibility/CVD/mobile gates.  
+V08 performance/visual regression.  
+V09 human task evaluation.  
+V10 HMI default switch + legacy cleanup gate.
+
 Each atomic behavioral commit updates tests and metric/benchmark evidence in the same change whenever practical.
 
 ---
@@ -1050,6 +1366,18 @@ A PR touching semantic layout/composition must state:
 - incremental stability delta when relevant;
 - runtime/allocation delta when performance-sensitive;
 - diagnostics impact for significant new decisions.
+
+A PR touching Visual Semantics/HMI should additionally state, where relevant:
+
+- affected visual-semantic/presentation contract;
+- canonical domain/math impact (`none` expected for most HMI changes);
+- linked-view state impact;
+- accessibility/non-color impact;
+- responsive/mobile impact;
+- visual regression impact;
+- performance impact for heavy visualization/playback changes;
+- evidence/provenance behavior;
+- human-task baseline impact for major UX changes.
 
 Required CI gates after each milestone becomes implemented:
 
@@ -1069,6 +1397,13 @@ Required CI gates after each milestone becomes implemented:
 | stability regression | gated |
 | composition expansion | gated |
 | benchmark regression | statistically gated |
+| visual-semantic contract fixtures | required for WS-L changes |
+| linked-view consistency | required after MP45 |
+| screenshot/semantic visual regression | required for affected WS-L views |
+| grayscale/CVD/non-color critical semantics | required after MP43 |
+| keyboard/reduced-motion/responsive fixtures | required after MP42/49 |
+| canonical process-result parity during UI migration | required |
+| visualization/playback performance | statistically gated after MP45/48 |
 
 ---
 
@@ -1095,6 +1430,8 @@ Wall-clock p95 targets are benchmark hypotheses and may evolve by ADR evidence. 
 
 No quality profile may bypass Tier-0 validation.
 
+HMI performance must preserve existing virtualization and avoid introducing pointer-time global scans, unbounded playback updates or DOM measurement loops. Visual annotation compilation, linked-view indexing, long timelines and dense distributions require explicit benchmark budgets.
+
 ---
 
 # 31. LBC/domain migration policy
@@ -1112,6 +1449,8 @@ Migration order:
 7. enable new default only after domain-specific regression review.
 
 Domain builders must not reimplement semantic layout locally.
+
+Domain HMI must likewise migrate through shared LabTrace primitives rather than forking shell/theme/visual semantics. Domain-specific visual extensions may add vocabulary or specialized views only when they preserve shared status, selection, accessibility and provenance contracts.
 
 ---
 
@@ -1140,9 +1479,20 @@ Do not:
 - rely on hue alone for semantics;
 - use unseeded randomness or Go map iteration for visible decisions;
 - hide quality regressions inside one composite score;
-- publish unchecked fallback geometry.
+- publish unchecked fallback geometry;
+- use blur/glow/gradients/animation as a substitute for semantic hierarchy;
+- give every KPI equal visual weight when the decision hierarchy is known;
+- hide a stochastic distribution behind one percentile when distribution shape matters;
+- call correlation or heuristic contribution a causal explanation;
+- remove all context in focus mode or change canonical geometry only to emphasize a lens;
+- place engineering debug telemetry at the same hierarchy as the normal user task by default;
+- create new process screens with independent top-level shell/theme/status semantics;
+- let local CSS redefine shared semantic status meaning;
+- use animation without an event/state-change meaning;
+- persist derived VisualAnnotations as authoritative domain truth;
+- allow UI migration to change canonical process/simulation outputs silently.
 
-See `rule/4.md` for the condensed invariant list.
+See `rule/4.md` for the condensed semantic-layout invariant list and `VISUAL_SEMANTICS_HMI_CONTRACT.md` for HMI anti-patterns.
 
 ---
 
@@ -1183,6 +1533,35 @@ WS-K is complete only when all statements are true:
 
 ---
 
+# 33A. Definition of Done — WS-L / Visual Semantics & HMI
+
+WS-L is complete only when all statements are true:
+
+1. `VISUAL_SEMANTICS_HMI_CONTRACT.md` is implemented, not aspirational only.
+2. LabTrace is the canonical shell for active analytical workbenches.
+3. Shared design/visualization primitives replace duplicated shell-level implementations.
+4. Visual semantic annotations are renderer-neutral, deterministic and evidence-linked.
+5. Critical meaning has non-color redundancy.
+6. Canvas supports critical path, bottleneck, risk, queue, failure, rework, resource-pressure, uncertainty and change lenses.
+7. Lens changes preserve canonical geometry and the mental map.
+8. Topology, timeline and resource lanes share linked selection/time/scenario state.
+9. Stochastic results expose distribution and threshold/SLA probability where applicable.
+10. Baseline/what-if comparison is first-class and objective-aware.
+11. Insight Rail distinguishes computed/diagnostic/heuristic claims and links to evidence.
+12. Digital Twin supports synchronized playback.
+13. Motion represents event/state change and has reduced-motion parity.
+14. Engineering HUD diagnostics do not compete with normal operational hierarchy by default.
+15. Major active process screens share one visual language and theme/status semantics.
+16. Presentation state is versioned separately from domain state.
+17. Accessibility/CVD/grayscale/keyboard/mobile gates pass.
+18. Large-scene/long-history/distribution/playback performance stays inside approved budgets.
+19. Visual regression and semantic assertions are maintained.
+20. Human task evaluation shows no material comprehension regression and measurable gains on target tasks.
+21. UI migration changes no canonical mathematical/simulation result unless separately approved as a domain change.
+22. New HMI becomes default only through MP50 gates.
+
+---
+
 # 34. Immediate execution queue
 
 The next implementation commits after this documentation wave should be executed in this order unless a blocking defect requires an ADR:
@@ -1208,10 +1587,28 @@ The next implementation commits after this documentation wave should be executed
 19. MP39 full verification/human protocol.
 20. MP40 shadow rollout/default decision.
 
+WS-L proceeds in parallel without blocking canonical semantic-layout implementation:
+
+1. MP41 freeze current UI screenshots/tasks and visual-semantic contracts.
+2. Promote `LabTraceWorkbench` zones and presentation-state contract.
+3. Extract shared metric/status/legend primitives and Engineering HUD.
+4. Implement VisualAnnotation compiler over existing canonical process metrics.
+5. Add Canvas critical/bottleneck/risk focus lenses without geometry changes.
+6. Extract existing timeline behavior into shared `TimelineView`.
+7. Add shared `ResourceLaneView` and linked entity selection.
+8. Add `DistributionView` for stochastic/risk outputs.
+9. Add objective-aware baseline/what-if `CompareView`.
+10. Add structured `InsightRail` and provenance drill-down.
+11. Add synchronized Digital Twin playback with reduced-motion parity.
+12. Migrate Universal Process Lab as the reference HMI vertical slice.
+13. Migrate Simulation/Risk/Batch/Digital Twin, then Reliability/Optimizer/LBC.
+14. Run MP49 accessibility/performance/visual/human-task gates.
+15. Switch default only through MP50.
+
 ---
 
 # 35. Final engineering rule
 
-> **Preserve correctness, understand semantics, minimize crossings, make the narrative obvious, preserve the mental map, then refine composition; only after that optimize compactness.**
+> **Preserve correctness, understand semantics, minimize crossings, make the narrative obvious, preserve the mental map, encode operational meaning with accessible visual semantics, coordinate the views, explain uncertainty and change, then refine composition and decoration; only after that optimize compactness.**
 
-The intended end state is not a prettier rectangle packer. It is an AutoTrace engine that automatically constructs a clear visual explanation of a technical/process graph while preserving deterministic engineering constraints.
+The intended end state is not a prettier rectangle packer or a collection of dashboards. It is an AutoTrace system that automatically constructs a clear visual explanation of a technical/process graph and its changing state while preserving deterministic engineering constraints.
