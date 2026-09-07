@@ -1,104 +1,108 @@
 # AutoTraceLab — MASTER IMPLEMENTATION PLAN
 
-Status: **single authoritative implementation plan**  
-Historical execution baseline: MP0–MP20 completed.  
-Active program baseline: `601befd3e2bfed1decf776922f473119576f5205`.  
-Target: a deterministic, validated, high-performance, reusable AutoTrace Core in Go with semantic graph understanding, adaptive ports, human-readability optimization, perceptual composition, incremental stability, portable registries, production-grade embedding and a unified visual-semantic HMI that turns analytical state into human-readable linked views.
+Status: **single authoritative orchestration plan**  
+Historical foundation: **MP0–MP20 completed**.  
+Active programs: **MP21–MP60 / WS-K + WS-L + WS-M**.  
+Target: deterministic reusable AutoTrace Core in Go with semantic graph understanding, human-readability optimization, stable multidomain entity identity, semantic projection algebra, accessible visual semantics and a coherent 2D/2.5D LabTrace reasoning environment.
 
 ---
 
-# 0. Authority and execution rule
+# 0. Authority and documentation topology
 
-This document is the only normative execution order for the project.
+This document is authoritative for:
 
-Historical plans remain useful audit/reference material, but when ordering, acceptance criteria or architecture wording conflicts, this master plan wins.
+- program boundaries;
+- milestone ordering/dependencies;
+- rollout/default gates;
+- cross-workstream invariants;
+- global Definition of Done.
 
-Detailed normative contracts are split by responsibility:
+Detailed task lists are delegated to responsibility-specific normative documents. If wording conflicts, this master plan wins on ordering/boundaries/gates; the detailed contract wins inside its owned semantic responsibility unless that would violate a master invariant.
 
-- `MATHEMATICAL_CONTRACT.md` — canonical mathematical semantics;
-- `ROUTING_CONTRACT.md` — route validity and routing semantics;
-- `VISUAL_COMPOSITION_CONTRACT.md` — semantic layout, perception, composition and mental-map invariants;
-- `ADAPTIVE_PORT_PLACEMENT.md` — movable-port semantics and constraints;
-- `HUMAN_READABILITY_METRICS.md` — readability/stability/composition metric definitions;
-- `SEMANTIC_LAYOUT_IMPLEMENTATION_PLAN.md` — detailed MP21–MP40 implementation specification;
-- `UI_VISUAL_AUDIT.md` — current-state AutoTraceLab visual/HMI audit and migration baseline;
-- `VISUAL_SEMANTICS_HMI_CONTRACT.md` — normative visual-semantic, linked-view, focus, comparison, uncertainty, explanation and playback contract;
-- `VISUAL_SEMANTICS_IMPLEMENTATION_PLAN.md` — detailed WS-L / MP41–MP50 implementation specification;
-- `rule/4.md` — non-negotiable semantic-layout implementation invariants.
+Normative documents:
 
-The central architecture rule remains:
+```text
+MATHEMATICAL_CONTRACT.md
+  canonical mathematical semantics
 
-> **Go Core is the canonical production mathematical engine. New semantic layout/composition mathematics must be implemented canonically in Go and exposed through the existing native/WASM/SDK boundary.**
+ROUTING_CONTRACT.md
+  route validity and routing semantics
 
-The new semantic-layout program does not reopen the TS-to-Go migration. Existing TS algorithms remain historical/reference fixtures where useful, while new production math is Go-first with native/WASM conformance.
+VISUAL_COMPOSITION_CONTRACT.md
+  semantic layout, perception, composition, mental-map invariants
 
-The HMI program is a separate presentation layer. It consumes canonical facts, metrics and diagnostics; it does not redefine them. Visual lenses, linked selection, comparison and playback are presentation semantics and MUST NOT silently mutate canonical graph/process state.
+ADAPTIVE_PORT_PLACEMENT.md
+  movable-port semantics and constraints
+
+HUMAN_READABILITY_METRICS.md
+  readability/stability/composition metrics
+
+SEMANTIC_LAYOUT_IMPLEMENTATION_PLAN.md
+  detailed WS-K / MP21–MP40 execution
+
+UI_VISUAL_AUDIT.md
+  current-state HMI audit/baseline
+
+VISUAL_SEMANTICS_HMI_CONTRACT.md
+  visual semantics, linked views, lenses, comparison, playback, HMI
+
+VISUAL_SEMANTICS_IMPLEMENTATION_PLAN.md
+  detailed WS-L / MP41–MP50 execution
+
+SEMANTIC_PROJECTION_SPACE_CONTRACT.md
+  entity/facet/dimension identity, projection algebra, 2D/2.5D semantics
+
+SEMANTIC_PROJECTION_SPACE_IMPLEMENTATION_PLAN.md
+  detailed WS-M / MP51–MP60 execution
+
+rule/4.md
+  condensed semantic-layout implementation invariants
+```
+
+The architectural rule remains:
+
+> **Canonical engineering mathematics and deterministic semantic decisions belong in reusable Core/SDK contracts, not in React screens.**
+
+Go is the canonical production mathematical engine for layout/routing and for multidomain projection/coupling calculations that become authoritative engineering decisions. React/renderer owns concrete presentation and 2D/2.5D interaction, never authoritative identity or projection algebra.
 
 ---
 
 # 1. Product end state
 
-AutoTrace consists of five separated products/layers:
-
-```text
-AutoTrace Core
-  deterministic headless mathematics + scene/layout/routing engine
-
-AutoTrace Contract / SDK
-  stable scene, registry, protocol, layout and capability contracts
-
-AutoTrace Registry
-  portable domain vocabulary and semantic/layout hints
-
-AutoTrace Renderer / Adapters
-  React today; other renderers/hosts later
-
-AutoTraceLab
-  reference editor + benchmark laboratory + customization/admin UI
-  + visual semantics compiler
-  + linked analytical views
-  + focus/compare/playback/explanation HMI
-```
-
-Target architecture:
+AutoTrace is one system with separated responsibilities:
 
 ```text
 Host application
   |
-  | HostAdapter: persistence/assets/auth/telemetry/IDs/text metrics
   v
-AutoTrace SDK
-  |-- EngineClient
-  |-- RegistryClient
-  |-- Theme API
-  |-- layout API
-  |-- scene/patch types
-  |-- capability negotiation
+AutoTrace Contract / SDK
+  |-- scene/model contracts
+  |-- registry/domain vocabulary
+  |-- entity/facet/dimension contracts
+  |-- projection contracts
+  |-- layout/routing contracts
+  |-- capability/version negotiation
   v
-Runtime adapter
-  |-- native Go
-  |-- Go/WASM Dedicated Worker
-  `-- future RPC/service adapter
-  v
-AutoTrace Headless Core
+Canonical Runtime
   |-- Model + Semantic Validation
+  |-- Semantic Entity / Facet / Relation model
   |-- Semantic Graph Analyzer
+  |-- Semantic Projection Engine
+  |     |-- slicing/filtering
+  |     |-- projection algebra
+  |     |-- cross-domain coupling analytics
+  |     `-- projection diagnostics
   |-- Layout Constraint Resolver
-  |-- Semantic Hierarchical Layout
-  |-- Compound / Partition Layout
+  |-- Semantic Hierarchical / Compound / Partition Layout
   |-- Adaptive Port Planner
+  |-- Routing / Route Validation
   |-- Perceptual Composition
-  |-- Scene / Spatial Index
-  |-- Routing
-  |-- Route Validation / Postprocess
-  |-- Labels
   |-- Readability / Stability / Composition Metrics
-  |-- Bounded Joint Refinement
   |-- Incremental SceneEngine
-  `-- Versioned Contracts + Diagnostics
+  `-- Versioned Diagnostics + Provenance
         |
         v
-Analysis facts / simulation results / diagnostics / provenance
+ProjectionResult / Analysis Facts / Simulation Results
         |
         v
 Visual Semantics Compiler
@@ -111,90 +115,82 @@ Visual Semantics Compiler
         v
 LabTrace HMI
   |-- TopologyView
+  |-- ProjectionExplorer
   |-- TimelineView
   |-- ResourceLaneView
   |-- DistributionView
   |-- CompareView
   |-- Inspector / InsightRail
   `-- PlaybackControls
+        |
+        v
+2D / 2.5D Renderer + Theme
 ```
+
+One physical/logical entity may own multiple domain facets. A rendered facet copy is never a second authoritative entity.
 
 ---
 
 # 2. Non-negotiable architectural boundaries
 
 1. Core imports no React, DOM or browser UI package.
-2. A block/edge/port type is data, not a React component or switch branch.
+2. A block/edge/port/entity/facet type is data, not a React component or switch branch.
 3. Visual style is not routing/layout geometry.
-4. Semantic importance may produce renderer-neutral hints; renderer decides concrete color/font/stroke/icon presentation.
-5. Host persistence/auth/assets/text measurement are adapters, not core logic.
-6. Browser main thread never performs production full layout/routing after Go/WASM cutover.
-7. Every successful production route is validated.
-8. Every externally visible deterministic decision has stable tie-breaking.
-9. Native Go and WASM execute the same canonical mathematics.
-10. Hard constraints are feasibility conditions, never low scalar penalties.
-11. Existing validated algorithms remain fallback/reference until replacements pass explicit gates.
-12. No one composite score is the release truth.
-13. Art serves comprehension; decorative composition never outranks semantic readability.
-14. Visual emphasis that may affect an engineering decision must be traceable to a semantic fact, diagnostic, interaction state or explicit presentation mode.
-15. Focus/lens changes MUST NOT re-layout or mutate canonical geometry merely to change emphasis.
-16. Critical meaning MUST NOT rely on hue alone.
-17. Presentation state is versioned separately from canonical domain/process state.
-18. Motion represents change/event/flow; persistent decorative motion is not a semantic channel.
-19. A migrated UI MUST preserve canonical math/simulation outputs unless the same change explicitly modifies the corresponding domain contract and tests.
+4. Renderer does not define authoritative semantic identity.
+5. One entity may own multiple facets; facet duplication in views does not duplicate identity.
+6. Identity merge/split is a canonical model operation, never a view action.
+7. Projection decides membership/slice; lens decides emphasis. They remain separate contracts.
+8. Projection/lens/camera changes MUST NOT silently mutate canonical model state.
+9. Camera changes MUST NOT silently mutate canonical graph geometry.
+10. Canonical projection algebra is deterministic and versioned.
+11. Cross-domain causal semantics require explicit model/evidence; correlation/centrality does not become causality automatically.
+12. High domain degree/coupling does not automatically mean high risk.
+13. Semantic importance may produce renderer-neutral hints; renderer chooses concrete style.
+14. Critical meaning MUST NOT rely on hue, animation or z-depth alone.
+15. Every successful production route is validated.
+16. Every externally visible deterministic decision has stable tie-breaking.
+17. Native Go and WASM execute the same canonical mathematics where the feature is implemented canonically in Go.
+18. Hard constraints are feasibility conditions, never weak scalar penalties.
+19. Existing validated algorithms remain fallback/reference until replacements pass explicit gates.
+20. No one composite score is release truth.
+21. Art serves comprehension; decorative composition never outranks semantic readability.
+22. Presentation state is versioned separately from canonical domain/process state.
+23. Motion represents event/flow/state change; persistent decorative motion is not a semantic channel.
+24. A migrated UI preserves canonical model/simulation output unless a separately approved domain change says otherwise.
+25. Ambiguous multidomain identity is reported as ambiguous; migration must not guess silently.
+26. Arbitrary free 3D camera is not the default analytical navigation model.
+27. Every 2.5D analytical view has a usable Flat/non-depth equivalent.
+28. Pointer movement/camera motion must not trigger global semantic recomputation.
 
 ---
 
 # 3. Consolidated workstreams
 
-The program has twelve coordinated workstreams.
+The program has thirteen coordinated workstreams.
 
 ## WS-A — Mathematical contract and historical oracle [FOUNDATION COMPLETE]
 
-- canonical mathematical contract;
-- parity fixtures/history;
-- deterministic numeric/JSON semantics;
-- invariant/property tests.
+Canonical math, deterministic serialization/numeric semantics, parity fixtures and invariant/property tests.
 
 ## WS-B — Canonical Go mathematical core [FOUNDATION COMPLETE]
 
-- block/port geometry;
-- canonical routers;
-- label solver;
-- metrics;
-- existing layouts;
-- cleaner;
-- co-optimization primitives.
+Geometry, routing, labels, metrics, existing layouts and optimization primitives.
 
 ## WS-C — Incremental scene engine and performance [FOUNDATION COMPLETE]
 
-- revisioned scenes;
-- dependency-local invalidation;
-- route reuse;
-- spatial/occupancy indices;
-- bounded search;
-- congestion/rip-up/nudging;
-- allocation control.
+Revisioned scenes, local invalidation, spatial/occupancy indexes, bounded search and allocation control.
 
 ## WS-D — Reusable headless boundary and SDK [FOUNDATION COMPLETE]
 
-Embedding modes:
-
-- router-only;
-- layout+router;
-- headless SceneEngine;
-- viewer/editor;
-- native batch/server;
-- WASM Worker;
-- future RPC/service adapter.
+Native/WASM/headless/viewer/editor/batch embedding and capability negotiation.
 
 ## WS-E — Declarative registry and customization [FOUNDATION COMPLETE]
 
-Domain types, shapes, icons, themes, routing profiles and portable packages remain data-driven and versioned.
+Portable domain vocabulary, shapes, themes, routing profiles and packages.
 
 ## WS-F — Customization/admin UX [FOUNDATION COMPLETE]
 
-Non-developers can edit appearance/domain types without source-code changes.
+Non-developer customization without source-code changes.
 
 ## WS-G — Renderer and frontend execution [FOUNDATION COMPLETE]
 
@@ -202,150 +198,123 @@ AutoTraceLab consumes Core/SDK rather than owning production mathematics.
 
 ## WS-H — Benchmarking, verification and observability [ACTIVE EXTENSION]
 
-Existing route/performance corpus is extended with semantic-layout, composition, accessibility, human-readability, incremental mental-map and HMI task-comprehension families.
+Route, semantic-layout, composition, accessibility, HMI comprehension, projection algebra, multidomain identity and 2.5D regression families.
 
 ## WS-I — Security, CI and release engineering [ACTIVE EXTENSION]
 
-Existing native/WASM/registry/security gates are extended with semantic-layout contract, deterministic corpus, quality-vector regression and visual-semantic/accessibility gates.
+Native/WASM/security/release gates extended with semantic-layout, HMI and projection invariants.
 
 ## WS-J — Documentation and adoption [ACTIVE EXTENSION]
 
-Documentation must track new semantic layout/composition APIs, Visual Semantics/HMI contracts and domain migration.
+Contracts, migration guides, example packs and domain adoption.
 
 ## WS-K — Semantic Layout & Perceptual Composition [ACTIVE]
 
-Purpose: make AutoTrace optimize the visual explanation of a graph rather than rectangle packing.
-
-Subareas:
+Purpose: automatically construct a readable visual explanation of a graph.
 
 ```text
-K1  Semantic analysis
-K2  Typed constraint model
-K3  Narrative backbone
-K4  Hierarchical layering/order
-K5  Branch/merge geometry
-K6  Compound graphs/subcircuits
-K7  Partitions/swimlanes
-K8  Feedback/SCC/self-loop geometry
-K9  Adaptive port assignment
-K10 Port order/capacity/grouping
-K11 Label-aware sizing/typography
-K12 Canonical routing integration
-K13 Perceptual composition
-K14 Accessibility visual semantics
-K15 Mental-map stabilization
-K16 Bounded joint refinement
-K17 Readability/stability/composition metrics
-K18 Diagnostics/explainability
-K19 Human/automated benchmark program
-K20 Shadow rollout/default switch
+K1 semantic analysis
+K2 typed constraints
+K3 narrative backbone
+K4 hierarchical layering/order
+K5 branch/merge geometry
+K6 compound graphs
+K7 partitions/swimlanes
+K8 SCC/feedback/self-loop/parallel geometry
+K9 adaptive ports
+K10 port order/capacity/grouping
+K11 label-aware geometry
+K12 routing integration
+K13 perceptual composition
+K14 accessibility visual semantics
+K15 mental-map stabilization
+K16 bounded joint refinement
+K17 quality metrics
+K18 diagnostics/explainability
+K19 benchmark/human evaluation
+K20 rollout/default switch
 ```
 
-## WS-L — Visual Semantics & Human-Machine Interface [ACTIVE PLANNED]
+Detailed plan: `SEMANTIC_LAYOUT_IMPLEMENTATION_PLAN.md`.
 
-Purpose: make AutoTraceLab visually encode system state, flow, risk, uncertainty, change and explanation across one coherent workspace.
+## WS-L — Visual Semantics & HMI [ACTIVE PLANNED]
 
-Subareas:
+Purpose: turn analytical state into coordinated, accessible visual reasoning.
 
 ```text
-L1  Current UI/task baseline
-L2  Canonical LabTrace shell
-L3  Shared design/visualization primitives
-L4  Visual-semantic fact/annotation contract
-L5  Visual encoding grammar and legends
-L6  Focus/lens system
-L7  Semantic Canvas overlays
-L8  Linked topology/timeline/resource views
-L9  Distribution/uncertainty visualization
-L10 Baseline/what-if comparison and semantic diff
-L11 Insight Rail and provenance
-L12 Digital Twin playback and motion semantics
-L13 Engineering HUD progressive disclosure
-L14 Accessibility/CVD/grayscale semantics
-L15 Responsive/mobile workspace
-L16 Large-scene/timeline visualization performance
-L17 Process-screen migration from local visual languages
-L18 Human task/visual regression program
-L19 Staged rollout/default switch
+L1 current UI/task baseline
+L2 LabTrace shell
+L3 shared visual primitives
+L4 VisualSemanticFact/Annotation
+L5 encoding grammar
+L6 focus/lens system
+L7 Canvas overlays
+L8 linked topology/timeline/resource/projection state
+L9 uncertainty/distribution
+L10 comparison/diff
+L11 Insight Rail/provenance
+L12 Digital Twin playback
+L13 Engineering HUD disclosure
+L14 accessibility/CVD/grayscale/non-depth semantics
+L15 responsive/mobile
+L16 visualization performance
+L17 process-screen migration
+L18 human task/visual regression
+L19 rollout/default switch
 ```
+
+Detailed plan: `VISUAL_SEMANTICS_IMPLEMENTATION_PLAN.md`.
+
+## WS-M — Multidomain Semantic Projection Space [ACTIVE PLANNED]
+
+Purpose: model one system once and expose disciplined multidimensional 2D/2.5D projections without duplicating entity identity.
+
+```text
+M1 authoritative SemanticEntity identity
+M2 EntityFacet model
+M3 generic SemanticDimension model
+M4 typed intra/cross-domain relations
+M5 ProjectionSpec/ProjectionResult
+M6 slice/projection algebra
+M7 coupling/bridge analytics
+M8 projection diagnostics/provenance
+M9 projection-stable layout
+M10 identity columns / facet stacks
+M11 constrained 2.5D camera/viewpoints
+M12 projection/lens orthogonality
+M13 multidomain/lifecycle/scenario diff
+M14 cross-domain Digital Twin propagation
+M15 accessibility Flat fallback
+M16 projection indexes/caching/performance
+M17 domain migration
+M18 human task evaluation
+M19 rollout/default switch
+```
+
+Detailed plan: `SEMANTIC_PROJECTION_SPACE_IMPLEMENTATION_PLAN.md`.
 
 ---
 
-# 4. Canonical quality order
+# 4. Global quality priorities
 
-Layout comparison is lexicographic/Pareto by tier.
+## 4.1 Layout quality order
 
-## Tier 0 — hard validity
+```text
+Tier 0 hard validity
+  > Tier 1 topological readability
+  > Tier 2 cognitive simplicity
+  > Tier 3 mental-map stability
+  > Tier 4 perceptual composition
+  > Tier 5 economy/performance
+```
 
-Examples:
-
-- finite coordinates;
-- legal containment;
-- fixed-node/port invariance;
-- allowed port sides;
-- capacity/min spacing;
-- valid endpoint normals;
-- no forbidden node/wire intersection;
-- no invalid route;
-- no unchecked fallback.
-
-A Tier-0-invalid result cannot beat a valid result.
-
-## Tier 1 — topological readability
-
-- crossings;
-- ambiguous shared paths;
-- junction ambiguity;
-- backward non-feedback flow;
-- main-backbone discontinuity;
-- port-order inversions;
-- label ambiguity/collisions.
-
-## Tier 2 — cognitive simplicity
-
-- main-backbone bends/straightness;
-- branch coherence;
-- merge/junction clarity;
-- feedback clarity;
-- parallel-flow coherence;
-- unnecessary detours/congestion.
-
-## Tier 3 — mental-map stability
-
-- node movement;
-- rank/order changes;
-- group/lane movement;
-- branch-side changes;
-- port side/order changes;
-- route/label churn.
-
-## Tier 4 — perceptual composition
-
-- hierarchy;
-- continuity/proximity/common region;
-- alignment;
-- negative space;
-- balance;
-- rhythm;
-- semantically justified symmetry;
-- focal guides;
-- thirds/golden-ratio soft priors.
-
-## Tier 5 — economy/performance
-
-- wire length;
-- area/compactness;
-- aspect-frame fit;
-- runtime;
-- allocations.
-
-Default policy:
+Default:
 
 ```text
 readability > stability > composition > compactness
 ```
 
-HMI decisions use an analogous priority:
+## 4.2 HMI quality order
 
 ```text
 truth/correctness
@@ -357,56 +326,47 @@ truth/correctness
   > aesthetic preference
 ```
 
----
-
-# 5. Perceptual/artistic principles
-
-AutoTrace intentionally borrows composition principles from art/design, but gives them explicit engineering priority.
-
-## High priority
-
-- visual hierarchy;
-- continuity;
-- proximity;
-- common region;
-- alignment;
-- negative space;
-- visual movement / eye path;
-- figure-ground separation.
-
-## Medium / conditional
-
-- balance;
-- rhythm;
-- repetition;
-- scale;
-- unity/variety;
-- symmetry only for semantically equivalent structures;
-- closure where it improves grouping.
-
-## Weak/profile-dependent
-
-- rule of thirds;
-- golden-ratio focal guides;
-- Fibonacci/modular spacing ratios.
-
-Golden ratio is a **soft composition prior**, not a readability law:
+## 4.3 Projection quality order
 
 ```text
-phi = 1.61803398875...
-0.61803398875...
-0.38196601125...
+identity correctness
+  > projection/set correctness
+  > causal/type correctness
+  > selected-entity continuity
+  > flat/2.5D semantic equivalence
+  > cross-projection mental-map stability
+  > visual depth/composition
+  > visual novelty
 ```
 
-No block or canvas is required to be a golden rectangle. A golden/thirds improvement never justifies a hard violation or ordinary crossing regression in default profiles.
-
-For HMI surfaces, decorative effects such as blur, glow, gradients or animation have no independent priority. They are permitted only when they support hierarchy, interaction state, event/state change or a coherent theme without reducing comprehension.
+A more visually impressive 2.5D result never justifies identity ambiguity, wrong membership or inaccessible critical meaning.
 
 ---
 
-# 6. Completed foundation MP0–MP20
+# 5. Perceptual and 2.5D principles
 
-MP0–MP20 are historical completed foundation milestones. Their detailed implementation remains represented by the existing code/contracts/tests and Git history.
+High priority: hierarchy, continuity, proximity, common region, alignment, negative space, visual movement and figure-ground separation.
+
+Conditional: balance, rhythm, scale, unity, semantically justified symmetry.
+
+Weak/profile-dependent: thirds/golden-ratio/Fibonacci guides.
+
+2.5D adds:
+
+```text
+semantic planes, not arbitrary depth
+identity columns, not fake flow edges
+one canonical depth dimension at a time
+Flat / Shallow / Layered / CrossDomain viewpoints
+one-action return to Flat
+no critical state encoded only by perspective
+```
+
+Free 3D camera, if ever added, remains exploratory/secondary.
+
+---
+
+# 6. Historical foundation MP0–MP20
 
 | Milestone | Result | Status |
 |---|---|---|
@@ -420,25 +380,27 @@ MP0–MP20 are historical completed foundation milestones. Their detailed implem
 | MP7 | existing layout parity | COMPLETED |
 | MP8 | labels + canonical metrics | COMPLETED |
 | MP9 | NLP objective parity | COMPLETED |
-| MP10 | unified co-optimization/bridge geometry | COMPLETED |
-| MP11 | incremental mathematics integration | COMPLETED |
+| MP10 | co-optimization/bridge geometry | COMPLETED |
+| MP11 | incremental mathematics | COMPLETED |
 | MP12 | Worker/SDK shadow integration | COMPLETED |
 | MP13 | declarative registry | COMPLETED |
-| MP14 | invalidation/customization vertical slices | COMPLETED |
+| MP14 | invalidation/customization slices | COMPLETED |
 | MP15 | Go routing/performance optimization | COMPLETED |
-| MP16 | full customization/admin workspace | COMPLETED |
+| MP16 | customization/admin workspace | COMPLETED |
 | MP17 | embedding SDK/host adapters | COMPLETED |
 | MP18 | Go production cutover | COMPLETED |
 | MP19 | CI/security/release hardening | COMPLETED |
 | MP20 | documentation/cleanup/final Go architecture | COMPLETED |
 
-Existing Sugiyama, force-directed and orthogonal-grid behavior remains available as baseline/reference/fallback. MP21+ is a quality evolution, not a rewrite of MP0–MP20 history.
+Existing layouts remain reference/fallback. Active programs evolve quality/contracts rather than rewrite history.
 
 ---
 
-# 7. Active dependency graph MP21–MP50
+# 7. Active dependency graph MP21–MP60
 
-WS-K semantic layout remains:
+The milestone numbers group programs; they do **not** require a naïve global MP21→MP60 serial execution.
+
+## 7.1 WS-K
 
 ```text
 MP21 Contract/baseline
@@ -460,926 +422,311 @@ MP21 Contract/baseline
   -> MP37 Quality/readability metrics
   -> MP38 Diagnostics/explainability
   -> MP39 Verification/human evaluation
-  -> MP40 Shadow rollout/default gate
+  -> MP40 Semantic-layout rollout/default gate
 ```
 
-WS-L HMI runs partly in parallel:
+## 7.2 WS-L
 
 ```text
 MP21 schema discipline
-  -> MP41 HMI contract/baseline
-     -> MP42 Unified LabTrace shell
+  -> MP41 HMI baseline/contracts
+     -> MP42 LabTrace shell
      -> MP43 Visual Semantics compiler
-        -> MP44 Canvas lenses/overlays
-        -> MP45 Linked topology/timeline/resource
-        -> MP46 Distribution + scenario compare
-        -> MP47 Insight Rail/provenance
-        -> MP48 Digital Twin playback
-     -> MP49 Migration/accessibility/performance/regression
-     -> MP50 HMI rollout/default gate
-
-MP25 importance ------------------+
-MP37 metrics ---------------------+--> enrich MP43/44/46
-MP38 diagnostics/explainability --+--> enrich MP47/Engineering HUD
+        -> MP44 lenses/overlays
+        -> MP46 uncertainty/compare
+        -> MP47 Insight Rail
+        -> MP48 playback
+     -> MP49 migration/hardening
+     -> MP50 HMI default gate
 ```
 
-Permitted parallelism:
-
-- MP27/MP28 may proceed after MP23/MP24 contracts stabilize;
-- MP30/MP31 may prototype after MP23, but production integration waits for MP29;
-- WS-L contract/shell work may proceed after MP21 schema discipline without waiting for MP40;
-- MP43 may start using existing canonical process/simulation facts and gain richer annotations as MP25/37/38 stabilize;
-- MP44–MP48 may proceed on isolated vertical slices after MP42/43 contracts stabilize;
-- migration/default rollout must not remove fallback/reference UI paths before MP49/50 gates;
-- no branch/module may define a second formula for the same semantic/layout/process decision.
-
----
-
-# 8. MP21 — Contract and baseline [BLOCKING]
-
-- [ ] approve `VISUAL_COMPOSITION_CONTRACT.md` as normative;
-- [ ] approve `ADAPTIVE_PORT_PLACEMENT.md`;
-- [ ] approve `HUMAN_READABILITY_METRICS.md`;
-- [ ] add `semantic_hierarchical_v1` algorithm/version constants;
-- [ ] define `LayoutRequest`/`LayoutResult` extensions;
-- [ ] define `LayoutSnapshot`;
-- [ ] define `CompositionProfile` and `CompositionFrame`;
-- [ ] define Readability/Stability/Composition vectors;
-- [ ] freeze current Sugiyama/Grid/manual semantic-layout baseline corpus;
-- [ ] record benchmark/quality baseline;
-- [ ] add ADR for perceptual-prior priority and golden-ratio status.
-
-Exit:
-
-- contracts native/WASM/TS round-trip;
-- explicit zero/false semantics preserved;
-- existing production output unchanged by schema-only work;
-- baseline is reproducible.
-
----
-
-# 9. MP22 — Semantic graph analyzer [BLOCKING]
-
-- [ ] connected components;
-- [ ] explicit source/sink semantics;
-- [ ] degree-based fallback only;
-- [ ] hierarchy depth;
-- [ ] lane membership;
-- [ ] semantic edge classes;
-- [ ] fan-in/fan-out;
-- [ ] articulation importance;
-- [ ] bounded centrality/betweenness mode;
-- [ ] deterministic semantic metadata.
-
-Exit:
-
-- chain/fan/diamond/multi-source/multi-sink/disconnected/nested fixtures green;
-- explicit semantics outrank heuristics;
-- deterministic under input permutations.
-
----
-
-# 10. MP23 — Typed layout constraints [BLOCKING]
-
-Required v1 constraints:
+## 7.3 WS-M
 
 ```text
-FixedPosition
-SoftPosition
-FirstLayer
-LastLayer
-SameLayer
-Before
-After
-AlignX
-AlignY
-KeepTogether
-KeepApart
-InsideRegion
-OutsideRegion
-MinDistance
-PreserveOrder
-LaneMembership
-GroupContainment
+MP21 schema discipline
+  -> MP51 projection contract/baseline
+  -> MP52 Entity/Facet/Dimension model
+  -> MP53 relation/identity/coupling semantics
+  -> MP54 projection algebra/query engine
+  -> MP55 coupling analytics
+  -> MP56 projection-stable layout
+  -> MP57 2D/2.5D renderer/viewpoints
+  -> MP58 slice explorer + multidomain diff
+  -> MP59 cross-domain Twin + hardening
+  -> MP60 multidomain rollout/default gate
 ```
 
-Strength:
+## 7.4 Critical cross-program dependencies
 
 ```text
-HARD
-STRONG
-MEDIUM
-WEAK
+MP52 stable identity --------------------> MP45 final linked-view ID contract
+MP35 mental-map stability --------------> MP56 projection stability
+MP43 visual semantics ------------------> MP57/58 renderer semantics
+MP45 LinkedViewState -------------------> MP58 projection interaction
+MP46 CompareView -----------------------> MP58 lifecycle/scenario diff
+MP48 playback --------------------------> MP59 cross-domain playback
+MP53 causal relation semantics ---------> MP59 causal propagation
+MP54 projection algebra ---------------> MP58 slice/diff
+MP55 coupling facts --------------------> MP44 coupling lens + MP47 insights
 ```
 
-- [ ] typed contract;
-- [ ] deterministic conflict resolution;
-- [ ] conflict diagnostics;
-- [ ] `isPinned` compatibility mapping;
-- [ ] registry/scene/API adapters.
+Strong rule:
 
-Exit:
+> **Do not freeze MP45 on temporary screen-local IDs if MP52 can provide stable SemanticEntity/EntityFacet identity.**
 
-- fixed nodes invariant;
-- hard-hard conflicts fail explicitly;
-- weak preferences cannot invalidate feasible hard solutions.
+If MP45 prototypes earlier, use an isolated compatibility adapter and remove it before MP49 completion.
 
 ---
 
-# 11. MP24 — Components, SCC, feedback, self/parallel edges
+# 8. WS-K milestone summary MP21–MP40
 
-- [ ] deterministic SCC decomposition;
-- [ ] condensation DAG;
-- [ ] feedback-edge classification;
-- [ ] dedicated feedback corridor metadata;
-- [ ] self-loop classification;
-- [ ] parallel-edge grouping metadata;
-- [ ] disconnected-component local boundaries.
+Detailed acceptance: `SEMANTIC_LAYOUT_IMPLEMENTATION_PLAN.md`.
 
-Exit:
+| MP | Result | Blocking intent |
+|---|---|---|
+| 21 | contracts/version/baseline | foundation |
+| 22 | semantic graph analyzer | semantic facts |
+| 23 | typed hard/soft constraints | feasibility |
+| 24 | components/SCC/feedback/self/parallel | topology classes |
+| 25 | narrative backbone/importance | visual narrative |
+| 26 | semantic layering/order | topology readability |
+| 27 | compound/subcircuit layout | hierarchy |
+| 28 | swimlanes/partitions | responsibility/location grouping |
+| 29 | label-aware geometry | text correctness |
+| 30 | adaptive port candidates | endpoint freedom |
+| 31 | port order/group/capacity | port validity/readability |
+| 32 | canonical routing integration | validated routes |
+| 33 | perceptual composition | bounded visual refinement |
+| 34 | accessibility semantics | non-color readability |
+| 35 | mental-map stability | incremental continuity |
+| 36 | bounded joint refinement | coupled local optimization |
+| 37 | quality vectors | measurable readability/stability/composition |
+| 38 | diagnostics/explainability | decision reasons |
+| 39 | verification/human evaluation | evidence |
+| 40 | rollout/default gate | production switch |
 
-- SCC deterministic;
-- condensation acyclic;
-- self-loops bypass ordinary inter-node side planning;
-- unrelated components can be independently recomputed.
+MP40 requires zero Tier-0 release violations, deterministic native/WASM conformance, constrained-port invariants, acceptable readability/stability/performance and release-history review.
 
 ---
 
-# 12. MP25 — Narrative backbone and semantic importance
+# 9. WS-L milestone summary MP41–MP50
 
-The backbone may be:
+Detailed acceptance: `VISUAL_SEMANTICS_IMPLEMENTATION_PLAN.md`.
+
+| MP | Result | Key dependency |
+|---|---|---|
+| 41 | HMI contract/task baseline | MP21 |
+| 42 | unified LabTrace shell | MP41 |
+| 43 | Visual Semantics compiler | MP41 + canonical facts |
+| 44 | Canvas lenses/overlays | MP42/43; MP55 enriches coupling lens |
+| 45 | linked views/state | MP42/43; MP52 before final ID freeze |
+| 46 | uncertainty/distribution/compare | MP42/43 |
+| 47 | Insight Rail/provenance | MP43; MP55 enrichment |
+| 48 | Digital Twin playback | MP45/event history |
+| 49 | migration/accessibility/perf/regression | MP42–48 |
+| 50 | HMI rollout/default gate | MP49 |
+
+MP50 can roll out the new shared HMI without enabling 2.5D by default. Multidomain projection default remains MP60-controlled.
+
+---
+
+# 10. WS-M milestone summary MP51–MP60
+
+Detailed acceptance: `SEMANTIC_PROJECTION_SPACE_IMPLEMENTATION_PLAN.md`.
+
+## MP51 — Projection contract and multidomain baseline [BLOCKING]
+
+Freeze fixtures, identity migration rules, projection task baseline and ADR for constrained 2.5D vs arbitrary 3D.
+
+## MP52 — Canonical Entity/Facet/Dimension model [BLOCKING]
+
+Version `SemanticEntity`, `EntityFacet`, `SemanticDimension`, dimension bindings, external identity/provenance and scenario/lifecycle attachment without identity duplication.
+
+Core invariants:
 
 ```text
-single primary path
-multiple co-primary paths
-primary tree
-critical subgraph
-explicit user-selected subgraph
+facet -> exactly one entity
+entity ID stable across projections
+projection copy != canonical entity
+unknown != default
+view action != identity edit
 ```
 
-- [ ] backbone extraction;
-- [ ] critical-path hook when process duration exists;
-- [ ] normalized importance features;
-- [ ] junction scoring;
-- [ ] branch mass;
-- [ ] renderer-neutral importance hints.
+## MP53 — Relation taxonomy + identity/coupling semantics [BLOCKING]
 
-Exit:
+Canonical classes include intra-domain, cross-domain coupling, cross-domain causal, traceability, dependency and derived identity-visualization.
 
-- no single-main-path assumption;
-- explicit semantic priority beats centrality;
-- metrics normalized/capped and diagnostic.
+Identity link is not flow. Cross-domain causal link requires explicit evidence/model semantics.
 
----
+## MP54 — Projection algebra/query engine [BLOCKING]
 
-# 13. MP26 — Semantic layering and crossing ordering
-
-- [ ] constrained ranks;
-- [ ] source-first/sink-last;
-- [ ] same-layer/before/after;
-- [ ] deterministic long-edge handling;
-- [ ] port-aware crossing reduction;
-- [ ] stable forward/backward sweeps;
-- [ ] auto LTR/TB orientation when unspecified;
-- [ ] previous-order stability bias.
-
-Exit:
-
-- zero hard rank violations;
-- crossings <= approved baseline or explicit Pareto evidence;
-- permutation determinism;
-- prior order wins quality ties.
-
----
-
-# 14. MP27 — Compound graphs/subcircuits
-
-- [ ] recursive child layout;
-- [ ] group padding/header footprint;
-- [ ] group ports;
-- [ ] expanded/collapsed contract;
-- [ ] cross-hierarchy edges;
-- [ ] stable outer frames;
-- [ ] local collapse/expand re-layout.
-
-Exit:
-
-- children remain contained;
-- cross-hierarchy routes validate;
-- unrelated scene movement bounded under collapse/expand;
-- nested-depth stress deterministic.
-
----
-
-# 15. MP28 — Swimlanes/partitions
-
-- [ ] ordered lane model;
-- [ ] lane headers;
-- [ ] hard/soft membership;
-- [ ] cross-lane costs;
-- [ ] lane-aware ranks/coordinates;
-- [ ] groups inside lanes;
-- [ ] incremental lane stability.
-
-Exit:
-
-- hard membership/order preserved;
-- cross-lane routing validates;
-- local lane edits have bounded external movement.
-
----
-
-# 16. MP29 — Label-aware sizing and typography
-
-Labels are effective layout geometry.
-
-- [ ] renderer-neutral text measurement contract;
-- [ ] title/subtitle/body footprints;
-- [ ] port label footprints;
-- [ ] edge/group/lane label reservation;
-- [ ] long/multiline/Unicode/CJK fixtures;
-- [ ] RTL-ready geometry contract;
-- [ ] content-change invalidation mapping.
-
-Exit:
-
-- no measured clipping in supported fixtures;
-- conservative deterministic fallback without host metrics;
-- Go Core remains DOM-independent.
-
----
-
-# 17. MP30 — Adaptive port candidates
-
-Canonical modes:
+Implement deterministic `ProjectionSpec -> ProjectionResult` with Flat/Overlay/Stack/Exploded/CrossDomain membership, facet policies, context policies and set algebra:
 
 ```text
-FREE
-FIXED_SIDE
-FIXED_ORDER
-FIXED_RATIO
-FIXED_POSITION
+A ∪ B
+A ∩ B
+A − B
+A △ B
 ```
 
-- [ ] shape-aware candidate anchors;
-- [ ] `allowedSides` hard feasibility;
-- [ ] `preferredSide` preference;
-- [ ] previous-side hysteresis input;
-- [ ] route-cost estimate hook;
-- [ ] derived anchor snapshot.
+Metamorphic set identities are release tests.
 
-Exit:
+## MP55 — Cross-domain coupling analytics
 
-- fixed-port invariance 100%;
-- every adaptive anchor is on allowed geometry;
-- min spacing always satisfied;
-- deterministic candidates/ties.
+Version domain degree, cross-domain relation degree, interface density and optional typed centrality. Failure-propagation metrics require causal/FMEA semantics. Provide renderer-neutral VisualSemanticFact/Insight adapters.
 
----
+## MP56 — Projection-stable layout [BLOCKING FOR 2.5D DEFAULT]
 
-# 18. MP31 — Port ordering, grouping and capacity
+Extend mental-map snapshots with entity base-plane anchors, facet depth offsets, identity-column reservation, deterministic plane order and bounded projection-change movement.
 
-Port capacity:
+Slice changes do not globally re-layout by default.
+
+## MP57 — Canonical 2D/2.5D renderer
+
+Required viewpoints:
 
 ```text
-one
-many
-bounded(N)
+Flat
+Shallow
+Layered
+CrossDomain
 ```
 
-- [ ] capacity contract;
-- [ ] fixed/soft order;
-- [ ] contiguous port groups;
-- [ ] neighbor-order-aware inversion minimization;
-- [ ] shared anchor/stub policy;
-- [ ] bus/edge grouping metadata.
+Implement semantic planes, identity columns, depth-aware hit testing, readable labels, keyboard/touch controls and Flat fallback. Free camera is not a v1 requirement.
 
-Exit:
+## MP58 — Slice explorer + multidomain/lifecycle/scenario diff
 
-- no capacity overflow;
-- no hard-order violations;
-- order inversions <= baseline;
-- added side freedom cannot create a worse Tier-0 feasibility result.
-
----
-
-# 19. MP32 — Canonical routing integration
-
-- [ ] port planner resolves endpoint anchor/normal;
-- [ ] routers consume resolved endpoints;
-- [ ] endpoint escape remains shared/canonical;
-- [ ] feedback corridors;
-- [ ] self-loop primitive;
-- [ ] parallel-edge lanes;
-- [ ] permitted buses/shared trunks;
-- [ ] port decisions returned in result/diagnostics.
-
-Exit:
-
-- every successful route validates;
-- no router hides port-movement logic;
-- no unchecked fallback;
-- native/WASM equivalent.
-
----
-
-# 20. MP33 — Perceptual composition
-
-Pass order:
+Projection controls, saved projections, dimension/depth selection, facet collapse/expand, ghost context and workflows such as:
 
 ```text
-semantic continuity/grouping/alignment
-  -> whitespace
-  -> balance/rhythm
-  -> semantic symmetry
-  -> rule-of-thirds/golden weak tie-breaks
+Electrical ∩ Hydraulic
+Design △ AsBuilt
+Nominal △ FailureCase
+Baseline △ Candidate
 ```
 
-- [ ] provisional composition frame;
-- [ ] continuity/alignment guides;
-- [ ] bounded whitespace halos;
-- [ ] visual-mass balance;
-- [ ] semantic rhythm/modular spacing;
-- [ ] semantically conditional symmetry;
-- [ ] thirds guides;
-- [ ] golden-ratio focal guides;
-- [ ] bounded refinement movement;
-- [ ] `MaxCompositionExpansion`.
+Integrate with LinkedViewState, CompareView and lenses while preserving orthogonality.
 
-Exit:
+## MP59 — Cross-domain Digital Twin + hardening
 
-- Tier 0 never worsens;
-- default Tier-1 budget does not allow ordinary crossing regressions for artistic gain;
-- guide strength 0 has no optimization effect;
-- no golden-rectangle requirement;
-- max expansion respected;
-- idempotent after canonical rounding.
+Preserve entity/facet/event identity across time and slices. Show explicit cross-domain causal event chains and latency where known. Add Flat accessibility fallback, projection performance/caching, deterministic/metamorphic and human-task gates.
 
----
+## MP60 — Multidomain migration/rollout/default gate
 
-# 21. MP34 — Accessibility/visual semantic contract
-
-- [ ] renderer-neutral role/emphasis hints;
-- [ ] edge semantic classes;
-- [ ] junction-vs-crossing metadata;
-- [ ] non-color redundancy requirements;
-- [ ] high-contrast/grayscale regression profiles;
-- [ ] color-vision-deficiency review profiles.
-
-Exit:
-
-- connectivity/state never relies on hue alone;
-- junction semantics remain clear in supported renderers;
-- render-only accessibility changes trigger zero reroutes unless measured geometry changes.
-
----
-
-# 22. MP35 — Mental-map and incremental stability
-
-`LayoutSnapshot` preserves at least:
-
-```text
-node positions
-ranks
-sibling order
-port sides/order/offsets
-branch-side assignments
-group/component frames
-lane positions
-narrative backbone
-```
-
-- [ ] importance-weighted movement cost;
-- [ ] rank/order stability;
-- [ ] branch-side stability;
-- [ ] group/component stability;
-- [ ] port-side hysteresis;
-- [ ] local repair region;
-- [ ] full-vs-incremental quality policy.
-
-Exit:
-
-- one-leaf edits cause bounded unrelated movement;
-- tiny wire-length changes do not flap port sides;
-- pinned elements invariant;
-- collapse/expand local when feasible.
-
----
-
-# 23. MP36 — Bounded joint refinement
-
-Canonical search is staged/bounded, not an unbounded global optimum claim.
-
-- [ ] deterministic local node moves;
-- [ ] local port side/offset moves;
-- [ ] affected-edge rerouting;
-- [ ] affected-label replacement;
-- [ ] lexicographic comparator;
-- [ ] no-improvement stopping;
-- [ ] deterministic work/iteration budget;
-- [ ] cancellation;
-- [ ] interactive/normal/quality/offline profiles.
-
-Exit:
-
-- never accepts Tier-0 regression;
-- every accepted move has measurable vector delta;
-- deterministic under equal budget;
-- memory/work bounded.
-
----
-
-# 24. MP37 — Readability/Stability/Composition vectors
-
-Implement `HUMAN_READABILITY_METRICS.md`.
-
-Required families:
-
-```text
-ReadabilityVector
-  source/sink rank violations
-  backward flow
-  crossings absolute/normalized
-  main-backbone bends/straightness
-  branch/merge/junction clarity
-  port constraints/order/preferences
-  hierarchy/lane/feedback clarity
-  label ambiguity
-
-StabilityVector
-  node movement
-  rank/order changes
-  group/lane movement
-  branch-side change
-  port side/order change
-  route/label churn
-
-CompositionVector
-  balance
-  negative space
-  rhythm
-  alignment
-  semantic symmetry
-  Gestalt grouping
-  focal points
-  thirds/golden score
-  frame expansion
-```
-
-Exit:
-
-- raw + normalized metrics where scale matters;
-- deterministic metrics;
-- no metric computation mutation;
-- composite summary not used as sole release gate.
-
----
-
-# 25. MP38 — Diagnostics and explainability
-
-- [ ] constraint decisions;
-- [ ] importance breakdown;
-- [ ] branch-side decisions;
-- [ ] rank/order reasons;
-- [ ] port side/anchor reasons;
-- [ ] composition guide influence;
-- [ ] rejected-candidate tier reason;
-- [ ] fallback reason/status;
-- [ ] benchmark UI breakdown.
-
-Exit: representative fixtures can answer “why is this node/port/branch here?” deterministically without exposing internal heap/search implementation.
-
----
-
-# 26. MP39 — Verification and human evaluation
-
-New corpus roots:
-
-```text
-testdata/layout_semantic/
-testdata/layout_composition/
-testdata/layout_incremental/
-testdata/layout_accessibility/
-```
-
-Required families include:
-
-- chain/fan/diamond/multi-merge;
-- multi-source/multi-sink/co-primary;
-- SCC/feedback/self-loop;
-- parallel/bus;
-- nested hierarchy/collapse-expand/cross-hierarchy;
-- swimlanes/cross-lane;
-- mixed fixed/adaptive/many ports/capacity;
-- long/multiline/Unicode/CJK text;
-- disconnected components;
-- incremental edits;
-- finite page/infinite canvas.
-
-Metamorphic gates:
-
-- deterministic rerun;
-- permutation invariance;
-- fixed-node/port invariance;
-- adaptive allowed-side feasibility;
-- translation invariance where applicable;
-- unrelated-component locality;
-- small-edit movement budget;
-- disabled-guide neutrality;
-- native/WASM equivalence.
-
-Human evaluation separates comprehension from beauty preference.
-
-Comprehension tasks:
-
-- find source/sink;
-- trace primary path;
-- identify branch/merge;
-- identify feedback/exception;
-- identify lane/ownership;
-- identify connectivity.
-
-Measures:
-
-- completion time;
-- error rate;
-- confidence;
-- subjective comprehension;
-- separate aesthetic preference.
-
-Exit:
-
-- Tier-0 corpus zero;
-- no meaningful comprehension regression;
-- new default shows measurable readability gain without unacceptable trade-offs;
-- seeds/versions reproducible.
-
----
-
-# 27. MP40 — Shadow rollout and default gate
-
-Stages:
-
-```text
-S0 hidden benchmark
-S1 developer opt-in
-S2 experimental UI profile
-S3 selected process/workflow templates
-S4 default for eligible process/workflow scenes
-S5 broaden default after release history
-```
-
-Fallback ladder:
-
-```text
-semantic_hierarchical_v1
-  -> semantic fast
-  -> canonical Sugiyama
-  -> preserve-input-layout + canonical routing
-```
-
-Default gate requires:
-
-1. Tier-0 release corpus zero;
-2. deterministic/native/WASM green;
-3. fixed/constrained port invariants green;
-4. crossings/readability equal or Pareto-better than approved baseline;
-5. incremental movement inside approved budgets;
-6. bounded composition expansion;
-7. no DOM/render-pixel dependency in Core;
-8. diagnostics and metric vectors available;
-9. performance inside approved budget;
-10. opt-in/release-history review free of blocker regressions.
-
----
-
-# 27A. WS-L — Visual Semantics & HMI milestones MP41–MP50
-
-Detailed tasks and atomic waves are normative in `VISUAL_SEMANTICS_IMPLEMENTATION_PLAN.md`. The master plan fixes execution order and release gates.
-
-## MP41 — HMI contract and measurable baseline [BLOCKING]
-
-- [ ] approve `VISUAL_SEMANTICS_HMI_CONTRACT.md`;
-- [ ] freeze current visual/task baseline from `UI_VISUAL_AUDIT.md`;
-- [ ] version `VisualSemanticFact`, `VisualAnnotation`, `LinkedViewState`, `ScenarioDelta`, `InsightItem`, `PlaybackSemanticState`;
-- [ ] inventory current process shells/local CSS;
-- [ ] capture desktop/tablet/mobile and accessibility baseline fixtures;
-- [ ] define human-task timing/error protocol.
-
-Exit: presentation/domain ownership is unambiguous and current behavior is reproducible.
-
-## MP42 — Unified LabTrace shell and shared primitives [BLOCKING]
-
-- [ ] make `LabTraceWorkbench` canonical analytical shell;
-- [ ] stabilize header/sidebar/command/workspace/secondary/inspector/insight/overlay zones;
-- [ ] centralize spacing/type/radius/elevation/status/chart tokens;
-- [ ] extract shared metric/status/legend/loading/error/EngineeringHUD primitives;
-- [ ] add responsive drawer/sheet behavior and keyboard/touch baseline.
-
-Exit: at least one representative process vertical slice has no independent top-level shell/visual language.
-
-## MP43 — Visual Semantics compiler and encoding grammar [BLOCKING]
-
-- [ ] compile canonical facts into renderer-neutral role/importance/severity/confidence/activity/trend annotations;
-- [ ] preserve reason/evidence/provenance IDs;
-- [ ] define deterministic precedence/normalization/scale semantics;
-- [ ] define hue/saturation/contrast/stroke/opacity/pattern/icon/motion channel ownership;
-- [ ] guarantee non-color redundancy for critical states;
-- [ ] cache/index by semantic revision/entity relationships.
-
-Exit: same facts deterministically produce accessible annotations without DOM dependence.
-
-## MP44 — Canvas semantic overlays and focus lenses
-
-Required lenses:
-
-```text
-CriticalPath
-Bottlenecks
-Risk
-Queues
-Failures
-Rework
-ResourcePressure
-Uncertainty
-Changes
-```
-
-- [ ] add overlay layer and lens registry;
-- [ ] preserve geometry/selection across lenses;
-- [ ] add context de-emphasis + legends + provenance drill-down;
-- [ ] move algorithmic diagnostics behind `EngineeringHUD` by default.
-
-Exit: target state can be located faster without hiding critical context or re-laying out the scene.
-
-## MP45 — Linked topology/timeline/resource views
-
-- [ ] shared `LinkedViewState` controller;
-- [ ] stable entity identity across graph/runs/resources;
-- [ ] shared TimelineView and ResourceLaneView;
-- [ ] selection/hover/time-window/scenario/lens synchronization;
-- [ ] virtualization/indexing for long data.
-
-Exit: one selection drives all relevant views and inspector state.
-
-## MP46 — Uncertainty/distribution and scenario comparison
-
-- [ ] DistributionView with percentile/threshold/violation probability;
-- [ ] explicit deterministic vs stochastic vs estimated vs hypothetical state;
-- [ ] CompareView with absolute/relative/objective-aware deltas;
-- [ ] semantic topology/resource diff and bottleneck migration;
-- [ ] scale compatibility/normalization labeling.
-
-Exit: stochastic and what-if decisions no longer require comparing flat KPI cards manually.
-
-## MP47 — Insight Rail and provenance
-
-- [ ] structured evidence-linked insight model;
-- [ ] bottleneck/risk/opportunity/SLA/failure/rework/queue/uncertainty/change families;
-- [ ] dedup/ranking;
-- [ ] insight -> entity/metric/evidence focus;
-- [ ] computed/diagnostic/heuristic distinction;
-- [ ] confidence display where material;
-- [ ] no unsupported causal wording.
-
-Exit: major visual emphasis can answer “what/where/why/evidence/confidence”.
-
-## MP48 — Digital Twin playback and motion semantics
-
-- [ ] playback clock, play/pause/reset/step/speed/scrub;
-- [ ] synchronized topology + timeline;
-- [ ] queue/resource/failure/rework/batch event states;
-- [ ] active path/flow motion;
-- [ ] reduced-motion semantic parity;
-- [ ] bounded deterministic playback updates.
-
-Exit: temporal questions can be answered by inspecting synchronized event history, not only final reports.
-
-## MP49 — Migration, accessibility, responsive, performance and regression
-
-Migration order:
-
-```text
-Universal Process Lab
-Process Math
-Simulation
-Risk / Monte Carlo
-Batch
-Digital Twin
-Reliability
-Optimizer
-LBC/domain workbenches
-legacy/reference cleanup
-```
-
-- [ ] remove duplicated shell-level visual languages as screens migrate;
-- [ ] preserve canonical model/simulation parity;
-- [ ] keyboard/focus/reduced-motion/CVD/grayscale/high-contrast/text-scaling/touch gates;
-- [ ] desktop/tablet/mobile fixtures;
-- [ ] large graph/timeline/distribution/playback performance gates;
-- [ ] screenshot + semantic regression corpus;
-- [ ] human task comparison against MP41 baseline.
-
-Exit: active analytical screens feel like one product and pass comprehension/accessibility/performance gates.
-
-## MP50 — HMI rollout/default gate
-
-Stages:
-
-```text
-H0 hidden/internal primitives
-H1 developer opt-in LabTrace shell
-H2 selected process screen migration
-H3 semantic overlays + linked views opt-in
-H4 new HMI default for selected workflows
-H5 default for active process applications
-H6 obsolete duplicate shell/style cleanup after release history
-```
+Migrate only identities proven by evidence. Ambiguous duplicates remain separate/flagged until resolved.
 
 Default requires:
 
-1. MP41 baseline/contracts complete;
-2. shared LabTrace shell stable across viewport classes;
-3. deterministic/evidence-linked visual annotations;
-4. non-color/CVD/grayscale accessibility gates green;
-5. linked-view consistency green;
-6. uncertainty/comparison semantics green;
-7. Insight Rail provenance distinction green;
-8. playback/reduced-motion parity green;
-9. canonical model/simulation parity for migrated screens;
-10. performance and visual regression budgets green;
-11. human-task evaluation demonstrates no material comprehension regression and target gains;
-12. release history contains no blocker navigation/accessibility regressions.
+1. identity invariants green;
+2. deterministic/metamorphic projection algebra green;
+3. projection state cannot mutate canonical model;
+4. projection-stable movement inside budget;
+5. canonical viewpoints reproducible;
+6. Flat/non-depth equivalence for critical meaning;
+7. coupling analytics explainable/versioned;
+8. diffs handle identity merge/split explicitly;
+9. cross-domain Twin identity/event synchronization green;
+10. accessibility/CVD/grayscale/reduced-motion green;
+11. performance/caching green;
+12. migrated fixtures preserve engineering facts;
+13. human-task benefit demonstrated;
+14. release history free of blocker identity/navigation defects.
 
 ---
 
-# 28. Atomic waves M–V
+# 11. Atomic waves M–Z
 
-Historical Waves A–L correspond to completed foundation work. Active semantic-layout work continues:
+Historical Waves A–L cover the completed foundation.
 
-## Wave M — contracts and semantics
+## WS-K
 
-M01 composition contract.  
-M02 semantic-layout schemas.  
-M03 layout snapshot.  
-M04 quality-vector extensions.  
-M05 baseline corpus.  
-M06 connected components/source/sink.  
-M07 hierarchy/lanes.  
-M08 SCC/feedback.  
-M09 importance.  
-M10 narrative backbone.
+```text
+Wave M contracts/semantics
+Wave N constraints/hierarchical geometry
+Wave O labels/adaptive ports/routing
+Wave P perceptual composition
+Wave Q stability/co-refinement/metrics
+Wave R verification/rollout
+```
 
-## Wave N — constraints/hierarchical geometry
+See `SEMANTIC_LAYOUT_IMPLEMENTATION_PLAN.md` for atomics.
 
-N01 typed constraints.  
-N02 conflict resolver.  
-N03 constrained rank assignment.  
-N04 crossing ordering.  
-N05 branch allocation.  
-N06 merge placement.  
-N07 component composition.  
-N08 compound graphs.  
-N09 collapse/expand stability.  
-N10 swimlanes.
+## WS-L
 
-## Wave O — labels/adaptive ports/routing
+```text
+Wave S HMI contracts/shell
+Wave T semantic Canvas/linked analytics
+Wave U uncertainty/compare/explain/playback
+Wave V migration/rollout
+```
 
-O01 text measurement.  
-O02 label-aware footprint.  
-O03 port constraint modes.  
-O04 side candidates.  
-O05 capacity.  
-O06 order/group solver.  
-O07 hysteresis.  
-O08 self-loop/parallel/bus ports.  
-O09 endpoint integration.  
-O10 routing integration.
+See `VISUAL_SEMANTICS_IMPLEMENTATION_PLAN.md`.
 
-## Wave P — perceptual composition
+## WS-M
 
-P01 frame.  
-P02 continuity/alignment.  
-P03 whitespace.  
-P04 balance.  
-P05 rhythm/modular spacing.  
-P06 semantic symmetry.  
-P07 thirds.  
-P08 golden focal guides.  
-P09 bounded move set.  
-P10 max-expansion enforcement.
+```text
+Wave W semantics/projection core
+  W01 contract/ADR
+  W02 SemanticEntity
+  W03 EntityFacet
+  W04 SemanticDimension
+  W05 bindings
+  W06 relation taxonomy
+  W07 identity-visualization
+  W08 ProjectionSpec
+  W09 ProjectionResult
+  W10 diagnostics
 
-## Wave Q — stability/co-refinement/metrics
+Wave X algebra/coupling
+  X01 union/intersection
+  X02 difference/symmetric difference
+  X03 entity/facet/relation algebra levels
+  X04 indexes/cache
+  X05 local invalidation
+  X06 domain degree
+  X07 cross-domain degree
+  X08 interface density
+  X09 typed centrality
+  X10 failure-propagation hook/provenance
 
-Q01 snapshot restoration.  
-Q02 movement costs.  
-Q03 branch/port hysteresis.  
-Q04 local dirty-region refinement.  
-Q05 lexicographic comparator.  
-Q06 bounded work budgets.  
-Q07 readability metrics.  
-Q08 stability metrics.  
-Q09 composition metrics.  
-Q10 diagnostics.
+Wave Y stable geometry/2.5D HMI
+  Y01 projection anchors
+  Y02 plane ordering
+  Y03 identity columns
+  Y04 facet expand/collapse stability
+  Y05 Flat/Shallow
+  Y06 Layered/CrossDomain
+  Y07 hit testing/selection identity
+  Y08 projection controls
+  Y09 saved projections
+  Y10 multidomain diff
 
-## Wave R — verification/rollout
+Wave Z Twin/hardening/rollout
+  Z01 playback facet state
+  Z02 cross-domain causal path
+  Z03 freeze time + slice switching
+  Z04 Flat accessibility
+  Z05 keyboard/screen-reader projection navigation
+  Z06 performance
+  Z07 metamorphic/semantic regression
+  Z08 human evaluation
+  Z09 domain migration pack
+  Z10 default gate
+```
 
-R01 semantic corpus.  
-R02 metamorphic corpus.  
-R03 native/WASM conformance.  
-R04 accessibility profiles.  
-R05 visual benchmark artifacts.  
-R06 human A/B protocol.  
-R07 benchmark dashboard.  
-R08 developer opt-in.  
-R09 workflow opt-in.  
-R10 production default gate.
-
-WS-L adds four atomic waves; detailed acceptance is in `VISUAL_SEMANTICS_IMPLEMENTATION_PLAN.md`.
-
-## Wave S — HMI contracts and shell
-
-S01 UI inventory/baseline.  
-S02 VisualSemanticFact/VisualAnnotation.  
-S03 LinkedViewState/presentation versioning.  
-S04 LabTrace stable zones.  
-S05 shared token scales.  
-S06 shared metric/status primitives.  
-S07 responsive zones.  
-S08 keyboard/touch baseline.  
-S09 Engineering HUD separation.  
-S10 first migrated vertical slice.
-
-## Wave T — semantic Canvas and linked analytics
-
-T01 annotation compiler.  
-T02 visual channel grammar/legends.  
-T03 Canvas overlay layer.  
-T04 focus lens registry.  
-T05 critical/bottleneck lenses.  
-T06 risk/queue/uncertainty/change lenses.  
-T07 shared TimelineView.  
-T08 shared ResourceLaneView.  
-T09 linked selection.  
-T10 time-window/scenario synchronization.
-
-## Wave U — uncertainty, compare, explain, playback
-
-U01 DistributionView.  
-U02 percentile/SLA/violation semantics.  
-U03 ScenarioDelta.  
-U04 CompareView.  
-U05 semantic topology diff.  
-U06 InsightItem/InsightRail.  
-U07 provenance drill-down.  
-U08 playback controller.  
-U09 event/motion semantics.  
-U10 reduced-motion parity.
-
-## Wave V — migration and rollout
-
-V01 Universal Process Lab migration.  
-V02 Process Math migration.  
-V03 Simulation migration.  
-V04 Risk/Batch migration.  
-V05 Digital Twin migration.  
-V06 Reliability/Optimizer/LBC migration.  
-V07 accessibility/CVD/mobile gates.  
-V08 performance/visual regression.  
-V09 human task evaluation.  
-V10 HMI default switch + legacy cleanup gate.
-
-Each atomic behavioral commit updates tests and metric/benchmark evidence in the same change whenever practical.
+Atomic behavioral changes update tests/benchmark evidence in the same change whenever practical.
 
 ---
 
-# 29. CI/release acceptance policy
+# 12. CI/release acceptance policy
 
-A PR touching semantic layout/composition must state:
+A PR touching WS-K states affected contract, constraint semantics, deterministic fixtures, quality-vector delta, native/WASM conformance, stability/performance and diagnostics impact.
 
-- affected contract/version;
-- constraint semantics impact;
-- deterministic fixture impact;
-- Readability/Stability/Composition vector delta;
-- existing QualityVector delta;
-- native/WASM conformance result;
-- incremental stability delta when relevant;
-- runtime/allocation delta when performance-sensitive;
-- diagnostics impact for significant new decisions.
+A PR touching WS-L states visual-semantic contract, entity/facet ID impact, projection state impact, canonical math impact, accessibility/non-color/non-depth impact, responsive/visual regression/performance and provenance/human-task impact.
 
-A PR touching Visual Semantics/HMI should additionally state, where relevant:
+A PR touching WS-M states entity/facet/dimension impact, identity migration, relation taxonomy, projection algebra, canonical math, projection stability, flat/2.5D equivalence, cache/performance, Twin event identity and human-task impact.
 
-- affected visual-semantic/presentation contract;
-- canonical domain/math impact (`none` expected for most HMI changes);
-- linked-view state impact;
-- accessibility/non-color impact;
-- responsive/mobile impact;
-- visual regression impact;
-- performance impact for heavy visualization/playback changes;
-- evidence/provenance behavior;
-- human-task baseline impact for major UX changes.
-
-Required CI gates after each milestone becomes implemented:
+Required gate families as milestones become implemented:
 
 | Gate | Policy |
 |---|---|
@@ -1390,34 +737,33 @@ Required CI gates after each milestone becomes implemented:
 | deterministic corpus | required |
 | metamorphic corpus | required |
 | Tier-0 layout violations | zero |
-| fixed-node/port invariance | required |
-| allowed-side/capacity invariance | required |
-| native/WASM layout conformance | required |
-| readability regression | gated |
-| stability regression | gated |
-| composition expansion | gated |
-| benchmark regression | statistically gated |
-| visual-semantic contract fixtures | required for WS-L changes |
-| linked-view consistency | required after MP45 |
-| screenshot/semantic visual regression | required for affected WS-L views |
-| grayscale/CVD/non-color critical semantics | required after MP43 |
-| keyboard/reduced-motion/responsive fixtures | required after MP42/49 |
+| native/WASM canonical math conformance | required where applicable |
+| fixed/allowed-side/capacity invariants | required |
+| readability/stability/composition regressions | gated |
+| visual-semantic fixtures | required for WS-L |
+| linked-view entity/facet consistency | required after MP45 |
+| screenshot/semantic visual regression | required for affected HMI |
+| grayscale/CVD/non-color semantics | required |
+| Flat/non-depth critical equivalence | required for 2.5D |
+| keyboard/reduced-motion/responsive | required |
 | canonical process-result parity during UI migration | required |
-| visualization/playback performance | statistically gated after MP45/48 |
+| entity/facet reference validity | zero invalid after MP52 |
+| deterministic projection | required after MP54 |
+| projection algebra set identities | required after MP54 |
+| projection does not mutate canonical model | required |
+| lens/projection orthogonality | required after MP54 integration |
+| projection mental-map stability | gated after MP56 |
+| canonical viewpoint screenshot regression | required after MP57 |
+| projection/cache/camera performance | gated after MP57 |
+| Digital Twin entity/event identity | required after MP59 |
 
 ---
 
-# 30. Performance and bounded-search policy
+# 13. Performance and bounded-work policy
 
-Do not make wall-clock-dependent nondeterminism canonical.
+Canonical output must not depend on wall-clock race timing where deterministic work budgets can be used.
 
-Preferred control:
-
-```text
-iteration/work-unit budgets
-```
-
-Profiles:
+Profiles remain:
 
 ```text
 interactive
@@ -1426,189 +772,199 @@ quality
 offline
 ```
 
-Wall-clock p95 targets are benchmark hypotheses and may evolve by ADR evidence. Canonical output must remain deterministic for the same deterministic work budget where practical.
+New multidomain requirements:
 
-No quality profile may bypass Tier-0 validation.
+- dimension inverted indexes;
+- entity/facet/relation indexes;
+- ProjectionResult caching by model/projection revision;
+- local invalidation;
+- culling/aggregation of dense cross-domain relations;
+- bounded active semantic planes;
+- no semantic recomputation on ordinary camera motion;
+- bounded identity-column rendering;
+- long-history playback + slice-switch benchmark;
+- memory retention/leak tests for saved projections/scenario switching.
 
-HMI performance must preserve existing virtualization and avoid introducing pointer-time global scans, unbounded playback updates or DOM measurement loops. Visual annotation compilation, linked-view indexing, long timelines and dense distributions require explicit benchmark budgets.
-
----
-
-# 31. LBC/domain migration policy
-
-Current domain scene builders that manually calculate matrix rows/columns or hard-code non-physical left/right port geometry should migrate to semantic intent gradually.
-
-Migration order:
-
-1. preserve current scene output as fixture;
-2. classify which positions/ports are physical vs merely visual;
-3. replace non-physical fixed ports with adaptive constraints;
-4. replace row/column placement with semantic group/order/lane hints;
-5. compare semantic layout with baseline vectors;
-6. keep manual/fixed overrides for domain exceptions;
-7. enable new default only after domain-specific regression review.
-
-Domain builders must not reimplement semantic layout locally.
-
-Domain HMI must likewise migrate through shared LabTrace primitives rather than forking shell/theme/visual semantics. Domain-specific visual extensions may add vocabulary or specialized views only when they preserve shared status, selection, accessibility and provenance contracts.
+No profile bypasses Tier-0 or identity/projection validity.
 
 ---
 
-# 32. Anti-regression rules
+# 14. Domain migration policy
+
+## 14.1 Layout migration
+
+Existing domain builders migrate manual matrix/left-right visual assumptions to semantic intent gradually while preserving physical/manual constraints and baseline fixtures.
+
+## 14.2 HMI migration
+
+Domain workbenches migrate through LabTrace shell/primitives rather than forking theme/status/selection semantics.
+
+## 14.3 Multidomain identity migration
+
+For every candidate duplicated entity across domain models:
+
+```text
+1. collect stable IDs / evidence
+2. determine same-entity vs related-but-distinct
+3. map proven same identity to one SemanticEntity + multiple facets
+4. preserve facet-specific ports/properties/relations
+5. retain unresolved ambiguity explicitly
+6. validate domain-local legacy view
+7. validate Flat multidomain view
+8. validate projection algebra
+9. validate FMEA/Twin/provenance references
+10. only then enable stack/2.5D presentation
+```
+
+Never merge entities solely because names or geometry are similar.
+
+---
+
+# 15. Anti-regression rules
 
 Do not:
 
-- weaken validity to improve aesthetic scores;
-- trade a crossing for golden-ratio alignment in default profiles;
-- force golden rectangles;
+- weaken validity for aesthetics;
+- trade crossings for decorative ratios in default profiles;
 - use degree heuristics over explicit semantics;
-- assume every graph has one main path;
-- choose adaptive ports independently when ordering matters;
-- let routers secretly move port anchors;
-- overload capacity for geometry convenience;
+- assume one main path;
+- let routers secretly move planned endpoints;
 - treat labels as post-render-only geometry;
-- read DOM/SVG pixels from Core;
-- flatten compound graphs to simplify solving;
-- treat swimlanes as decorative backgrounds only;
-- treat self-loops as ordinary source-target routing;
-- infer bus grouping from similar geometry alone;
-- force symmetry across semantically unequal branches;
-- allow unbounded whitespace expansion;
-- continuously move the composition frame while deriving golden guides from it;
-- globally rearrange a scene for a small edit without objective evidence;
-- rely on hue alone for semantics;
-- use unseeded randomness or Go map iteration for visible decisions;
-- hide quality regressions inside one composite score;
-- publish unchecked fallback geometry;
-- use blur/glow/gradients/animation as a substitute for semantic hierarchy;
-- give every KPI equal visual weight when the decision hierarchy is known;
-- hide a stochastic distribution behind one percentile when distribution shape matters;
-- call correlation or heuristic contribution a causal explanation;
-- remove all context in focus mode or change canonical geometry only to emphasize a lens;
-- place engineering debug telemetry at the same hierarchy as the normal user task by default;
-- create new process screens with independent top-level shell/theme/status semantics;
-- let local CSS redefine shared semantic status meaning;
-- use animation without an event/state-change meaning;
-- persist derived VisualAnnotations as authoritative domain truth;
-- allow UI migration to change canonical process/simulation outputs silently.
-
-See `rule/4.md` for the condensed semantic-layout invariant list and `VISUAL_SEMANTICS_HMI_CONTRACT.md` for HMI anti-patterns.
-
----
-
-# 33. Definition of Done — WS-K / semantic layout program
-
-WS-K is complete only when all statements are true:
-
-1. `semantic_hierarchical_v1` exists canonically in Go Core.
-2. Native Go/WASM semantic layout is deterministic and conformant.
-3. Semantic graph analysis covers source/sink/components/SCC/hierarchy/lanes.
-4. Narrative backbone supports one or multiple co-primary structures.
-5. Typed hard/strong/medium/weak layout constraints are public/versioned.
-6. Hard conflicts fail explicitly with diagnostics.
-7. Compound graphs/subcircuits are first-class.
-8. Swimlanes/partitions are first-class.
-9. Feedback/SCC/self-loop/parallel-edge geometry has explicit policy.
-10. Labels/typography contribute to layout footprint.
-11. Fixed ports never move.
-12. Adaptive ports choose only permitted sides/anchors.
-13. Port capacity/order/groups are validated.
-14. Routers consume planner-resolved endpoints instead of moving ports independently.
-15. Main narrative readability outranks compact rectangle packing.
-16. Composition supports hierarchy/continuity/proximity/alignment/whitespace/balance/rhythm.
-17. Symmetry is semantic/conditional.
-18. Golden ratio and thirds are optional weak priors.
-19. Composition cannot introduce Tier-0 regression.
-20. Mental-map snapshots and hysteresis prevent avoidable layout flapping.
-21. Joint refinement is bounded and deterministic.
-22. Readability/Stability/Composition vectors are versioned and visible.
-23. Raw + normalized metrics exist where scale matters.
-24. One composite score is not release truth.
-25. Decision diagnostics explain meaningful layout/port/composition choices.
-26. Semantic/incremental/accessibility/composition corpora pass.
-27. Human evaluation separates comprehension from beauty preference.
-28. Existing layouts remain available as reference/fallback.
-29. LBC/domain builders can migrate from matrix coordinates to semantic intent without losing physical/manual constraints.
-30. Production default is switched only through MP40 gates.
+- read DOM/SVG pixels from canonical Core;
+- flatten compound semantics to simplify implementation;
+- rely on hue alone;
+- hide regressions in one composite score;
+- use decoration/motion as substitute for hierarchy;
+- give every KPI equal visual weight when hierarchy is known;
+- hide material uncertainty behind one percentile;
+- call correlation/centrality/heuristic contribution causal;
+- let a lens change canonical geometry or projection membership;
+- let a camera change canonical geometry/model state;
+- put engineering debug telemetry in primary user hierarchy by default;
+- create process screens with independent shell/theme/status semantics;
+- persist VisualAnnotations as authoritative truth;
+- duplicate a physical/logical entity per domain without an identity model;
+- infer same identity from proximity/name alone;
+- use identity columns as physical flow edges;
+- hard-code Domain as the only semantic dimension;
+- persist 2.5D facet copies as canonical entities;
+- globally re-layout on every slice change without necessity;
+- encode critical meaning only in depth/perspective/transparency;
+- make arbitrary 3D rotation the default;
+- compute causality from timing/correlation alone;
+- call high domain degree a risk score;
+- let projection filters delete canonical data;
+- treat entity-level XOR as proof every property differs;
+- recompute projection semantics on pointer/camera motion;
+- silently merge ambiguous legacy domain nodes;
+- allow UI/projection migration to change canonical simulation results accidentally.
 
 ---
 
-# 33A. Definition of Done — WS-L / Visual Semantics & HMI
+# 16. Definition of Done — WS-K
 
-WS-L is complete only when all statements are true:
+WS-K is complete when canonical semantic layout exists in Go; constraints, hierarchy, lanes, feedback/self/parallel geometry, labels, adaptive ports, routing, perceptual composition, mental-map stability, bounded refinement, quality vectors, diagnostics, verification and MP40 rollout gates all pass.
 
-1. `VISUAL_SEMANTICS_HMI_CONTRACT.md` is implemented, not aspirational only.
-2. LabTrace is the canonical shell for active analytical workbenches.
-3. Shared design/visualization primitives replace duplicated shell-level implementations.
-4. Visual semantic annotations are renderer-neutral, deterministic and evidence-linked.
-5. Critical meaning has non-color redundancy.
-6. Canvas supports critical path, bottleneck, risk, queue, failure, rework, resource-pressure, uncertainty and change lenses.
-7. Lens changes preserve canonical geometry and the mental map.
-8. Topology, timeline and resource lanes share linked selection/time/scenario state.
-9. Stochastic results expose distribution and threshold/SLA probability where applicable.
-10. Baseline/what-if comparison is first-class and objective-aware.
-11. Insight Rail distinguishes computed/diagnostic/heuristic claims and links to evidence.
-12. Digital Twin supports synchronized playback.
-13. Motion represents event/state change and has reduced-motion parity.
-14. Engineering HUD diagnostics do not compete with normal operational hierarchy by default.
-15. Major active process screens share one visual language and theme/status semantics.
-16. Presentation state is versioned separately from domain state.
-17. Accessibility/CVD/grayscale/keyboard/mobile gates pass.
-18. Large-scene/long-history/distribution/playback performance stays inside approved budgets.
-19. Visual regression and semantic assertions are maintained.
-20. Human task evaluation shows no material comprehension regression and measurable gains on target tasks.
-21. UI migration changes no canonical mathematical/simulation result unless separately approved as a domain change.
-22. New HMI becomes default only through MP50 gates.
+See detailed 30-point acceptance in `SEMANTIC_LAYOUT_IMPLEMENTATION_PLAN.md` / `VISUAL_COMPOSITION_CONTRACT.md`.
 
 ---
 
-# 34. Immediate execution queue
+# 17. Definition of Done — WS-L
 
-The next implementation commits after this documentation wave should be executed in this order unless a blocking defect requires an ADR:
+WS-L is complete when:
 
-1. MP21 schemas/version constants for `semantic_hierarchical_v1`.
-2. `LayoutSnapshot`, `CompositionFrame`, `CompositionProfile` types.
-3. Readability/Stability/Composition vector types.
-4. semantic-layout baseline corpus exporter.
-5. MP22 connected components/source/sink/hierarchy analyzer.
-6. MP23 typed constraint contract and hard-conflict resolver.
-7. MP24 SCC/feedback/self-loop/parallel classification.
-8. MP25 narrative backbone/importance features.
-9. MP26 constrained layering/crossing ordering.
-10. MP27 compound layout.
-11. MP28 swimlane support.
-12. MP29 text-measurement/label-aware geometry contract.
-13. MP30–31 adaptive port planner/order/capacity.
-14. MP32 canonical router integration.
-15. MP33 perceptual composition.
-16. MP35 incremental mental-map stabilization.
-17. MP36 bounded joint refinement.
-18. MP37 metrics and MP38 diagnostics.
-19. MP39 full verification/human protocol.
-20. MP40 shadow rollout/default decision.
-
-WS-L proceeds in parallel without blocking canonical semantic-layout implementation:
-
-1. MP41 freeze current UI screenshots/tasks and visual-semantic contracts.
-2. Promote `LabTraceWorkbench` zones and presentation-state contract.
-3. Extract shared metric/status/legend primitives and Engineering HUD.
-4. Implement VisualAnnotation compiler over existing canonical process metrics.
-5. Add Canvas critical/bottleneck/risk focus lenses without geometry changes.
-6. Extract existing timeline behavior into shared `TimelineView`.
-7. Add shared `ResourceLaneView` and linked entity selection.
-8. Add `DistributionView` for stochastic/risk outputs.
-9. Add objective-aware baseline/what-if `CompareView`.
-10. Add structured `InsightRail` and provenance drill-down.
-11. Add synchronized Digital Twin playback with reduced-motion parity.
-12. Migrate Universal Process Lab as the reference HMI vertical slice.
-13. Migrate Simulation/Risk/Batch/Digital Twin, then Reliability/Optimizer/LBC.
-14. Run MP49 accessibility/performance/visual/human-task gates.
-15. Switch default only through MP50.
+1. LabTrace is canonical shell;
+2. shared visual primitives replace shell-level duplication;
+3. annotations are renderer-neutral/evidence-linked;
+4. lenses preserve geometry and projection membership;
+5. linked views operate on stable entity IDs;
+6. facet selection works where needed;
+7. distributions/thresholds expose stochastic meaning;
+8. comparison is objective-aware and projection-diff-ready;
+9. Insight Rail preserves provenance/causal discipline;
+10. playback is synchronized and reduced-motion equivalent;
+11. Engineering HUD is secondary;
+12. active screens share one visual language;
+13. accessibility/CVD/grayscale/mobile gates pass;
+14. Flat fallback exists for any 2.5D integrations;
+15. performance/visual regression gates pass;
+16. human tasks show no material regression and target gains;
+17. migration preserves canonical outputs;
+18. MP50 passes before legacy shell cleanup.
 
 ---
 
-# 35. Final engineering rule
+# 18. Definition of Done — WS-M
 
-> **Preserve correctness, understand semantics, minimize crossings, make the narrative obvious, preserve the mental map, encode operational meaning with accessible visual semantics, coordinate the views, explain uncertainty and change, then refine composition and decoration; only after that optimize compactness.**
+WS-M is complete when:
 
-The intended end state is not a prettier rectangle packer or a collection of dashboards. It is an AutoTrace system that automatically constructs a clear visual explanation of a technical/process graph and its changing state while preserving deterministic engineering constraints.
+1. one authoritative entity can own multiple domain facets;
+2. entity/facet/dimension contracts are versioned/validated;
+3. dimensions are generic rather than Domain-only;
+4. relation classes distinguish identity/coupling/causal semantics;
+5. projection algebra is deterministic/metamorphically tested;
+6. projection/view actions cannot mutate canonical model;
+7. coupling analytics are explainable/versioned;
+8. projection changes preserve mental map inside budgets;
+9. identity columns preserve one-entity selection;
+10. Flat/Overlay/Stack/Exploded/CrossDomain semantics are defined;
+11. canonical viewpoints avoid arbitrary 3D default;
+12. critical meaning has non-depth equivalent;
+13. multidomain/lifecycle/scenario diff works;
+14. identity merge/split is specially reported;
+15. Digital Twin preserves entity/facet/event identity across slices;
+16. accessibility/reduced-motion gates pass;
+17. large projection performance passes;
+18. migration never guesses ambiguous identity silently;
+19. human-task evaluation demonstrates benefit;
+20. MP60 passes before broad default rollout.
+
+---
+
+# 19. Immediate integrated execution queue
+
+Avoid treating MP numbers as one serial queue. Execute highest-leverage dependency cuts:
+
+## Foundation cut
+
+1. MP21 schema/version discipline and semantic-layout contract baseline.
+2. MP41 HMI baseline/contracts **in parallel with** MP51 projection baseline/ADR.
+3. MP52 `SemanticEntity` / `EntityFacet` / `SemanticDimension` contract early, before final MP45 ID freeze.
+4. Continue MP22–MP25 semantic graph/importance while MP42 LabTrace shell proceeds.
+5. MP53 typed multidomain relation taxonomy and provenance.
+
+## First coherent vertical slice
+
+6. MP43 VisualAnnotation compiler using stable entity ID + optional facet ID.
+7. MP54 deterministic Flat Projection Engine + set algebra/metamorphic tests.
+8. MP44 critical/bottleneck/risk lenses; projection membership remains untouched.
+9. MP45 linked topology/timeline/resource views bound to SemanticEntity IDs.
+10. MP55 coupling facts feed `CrossDomainCoupling` lens + Insight Rail.
+11. MP46 CompareView accepts both scenario deltas and projection-algebra diff adapters.
+
+## Stable multidomain geometry
+
+12. Progress WS-K through MP26–MP35, especially mental-map stability.
+13. MP56 projection anchors / identity-column reservation on top of MP35.
+14. MP57 Flat + Stack first; then Shallow/Layered/CrossDomain presets.
+15. MP58 ProjectionExplorer + Electrical∩Hydraulic / Design△AsBuilt workflows.
+
+## Temporal and rollout cut
+
+16. MP47 provenance/Insight Rail.
+17. MP48 Digital Twin playback with stable entity/facet/event IDs.
+18. MP59 cross-domain causal playback + accessibility/performance/metamorphic hardening.
+19. MP49 HMI migration/hardening can complete independently of 2.5D default.
+20. MP39/40 semantic-layout verification/rollout as WS-K reaches gates.
+21. MP50 shared HMI default when its own gates pass.
+22. MP60 multidomain/2.5D default only after identity/projection/task gates pass.
+
+This order minimizes rework by establishing stable identity before linked-view and multidomain interaction contracts harden.
+
+---
+
+# 20. Final engineering rule
+
+> **Preserve correctness; preserve identity; understand semantics; choose the projection; minimize ambiguity and crossings; preserve the mental map; encode operational meaning; coordinate time, domain and scenario views; explain evidence and uncertainty; only then refine composition and visual depth.**
+
+The intended end state is not a prettier graph and not a freely rotating 3D node cloud. It is one canonical engineering model that can be explored as several disciplined, stable and evidence-linked views of the same system.
