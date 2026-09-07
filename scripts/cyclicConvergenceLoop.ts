@@ -88,16 +88,25 @@ export async function runCyclicConvergenceLoop(
 
     // Step A: Route with current parameters
     const routed = routeOrthogonalAStar(laidOut.nodes, initialEdges, currentOpts);
-    const labeled = computeOptimizedLabels(laidOut.nodes, routed);
-    finalRoutedEdges = labeled;
+    const labeledPositions = computeOptimizedLabels(laidOut.nodes, routed);
+    finalRoutedEdges = routed;
+
+    const execTimeMs = performance.now() - t0;
 
     // Step B: Evaluate metrics
-    const metrics = calculateBenchmarkMetrics(laidOut.nodes, labeled, currentOpts);
-    const overlaps = detectCollinearOverlaps(labeled);
+    const metrics = calculateBenchmarkMetrics(
+      laidOut.nodes,
+      routed,
+      execTimeMs,
+      'sugiyama',
+      'orthogonal-a-star',
+      currentOpts
+    );
+    const overlaps = detectCollinearOverlaps(routed);
 
     // Obstacle hard check
     let hardViolations = 0;
-    for (const edge of labeled) {
+    for (const edge of routed) {
       if (!edge.path || edge.path.length < 2) continue;
       for (let i = 0; i < edge.path.length - 1; i++) {
         const p1 = edge.path[i];
@@ -117,6 +126,13 @@ export async function runCyclicConvergenceLoop(
             hardViolations++;
           }
         }
+      }
+    }
+
+    let labelCollisions = 0;
+    for (const pos of labeledPositions.values()) {
+      if (!pos.isOnArrow || !pos.isCollisionFree) {
+        labelCollisions++;
       }
     }
 
@@ -140,7 +156,7 @@ export async function runCyclicConvergenceLoop(
       hardViolations,
       collinearOverlapLength: collinearLen,
       portNormalCompliance: 100,
-      labelCollisions: 0,
+      labelCollisions,
       compositeScore: +score.toFixed(1),
       deltaCost: delta,
       status: isIdeal ? 'converged_ideal' : 'optimizing',

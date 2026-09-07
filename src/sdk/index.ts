@@ -19,6 +19,10 @@ export * from '../dsl';
 export * from './types';
 export * from './storage';
 export * from './SceneSession';
+export * from './themes';
+export * from './profiles';
+export * from './renderer';
+export * from './builder';
 export * from '../process/index';
 // Domain packs are extensions over the universal core. LBC is exported by the SDK
 // for convenient reuse, but it is intentionally not re-exported by src/process/index.ts.

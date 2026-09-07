@@ -141,6 +141,54 @@ async function runSDKVerificationTest() {
   console.log('  ✓ Session closed cleanly');
 
   await client.destroy();
+
+  // 6. Test DiagramBuilder fluent API & SVG rendering
+  console.log('  ✓ Testing DiagramBuilder fluent API...');
+  const { DiagramBuilder, routeSimpleGraph, renderDiagramSvg, THEME_DARK, THEME_BLUEPRINT } = await import('../sdk');
+
+  const builder = new DiagramBuilder('presentation', 'blueprint')
+    .setTitle('Circuit 101')
+    .addNode({ id: 'sensor', title: 'Pressure Sensor', x: 50, y: 50, shape: 'circle' })
+    .addNode({ id: 'mcu', title: 'STM32F4', x: 280, y: 50, shape: 'chip_ic' })
+    .connect('sensor', 'mcu', { label: 'SPI Bus', color: '#38bdf8' });
+
+  const builderResult = builder.route();
+  if (builderResult.nodes.length !== 2 || builderResult.edges.length !== 1) {
+    throw new Error('DiagramBuilder route returned unexpected counts');
+  }
+  const svgOutput = builderResult.toSvg();
+  if (!svgOutput.includes('<svg') || !svgOutput.includes('SPI Bus') || !svgOutput.includes('Pressure Sensor')) {
+    throw new Error('DiagramBuilder toSvg failed to produce valid SVG markup');
+  }
+  console.log('  ✓ DiagramBuilder produced valid styled SVG with custom theme');
+
+  // 7. Test routeSimpleGraph shortcut
+  console.log('  ✓ Testing routeSimpleGraph shortcut...');
+  const simpleResult = routeSimpleGraph({
+    title: 'Pipeline',
+    nodes: [
+      { id: 'input', title: 'Input Stream' },
+      { id: 'filter', title: 'Kalman Filter' },
+      { id: 'output', title: 'Display' },
+    ],
+    edges: [
+      { from: 'input', to: 'filter', label: 'Raw' },
+      { from: 'filter', to: 'output', label: 'Filtered' },
+    ],
+    options: 'workflow',
+    theme: 'dark',
+    autoLayout: 'sugiyama',
+  });
+
+  if (simpleResult.nodes.length !== 3 || simpleResult.edges.length !== 2) {
+    throw new Error('routeSimpleGraph returned invalid nodes or edges');
+  }
+  const simpleSvg = simpleResult.toSvg();
+  if (!simpleSvg.includes('Kalman Filter') || !simpleSvg.includes('Filtered')) {
+    throw new Error('routeSimpleGraph toSvg missing nodes or labels');
+  }
+  console.log('  ✓ routeSimpleGraph shortcut with autoLayout verified');
+
   console.log('🎉 SDK verification passed completely!');
 }
 

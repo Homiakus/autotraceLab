@@ -22,6 +22,11 @@
       "import": "./dist/lib/index.js",
       "require": "./dist/lib/index.cjs"
     },
+    "./themes": {
+      "types": "./dist/lib/sdk/themes.d.ts",
+      "import": "./dist/lib/index.js",
+      "require": "./dist/lib/index.cjs"
+    },
     "./labtrace-ui": {
       "types": "./dist/labtrace-ui/labtrace/index.d.ts",
       "import": "./dist/labtrace-ui/index.js",
@@ -30,6 +35,22 @@
     "./labtrace-ui/style.css": "./dist/labtrace-ui/style.css",
     "./schemas/process-scenario.json": "./schemas/process-scenario.schema.json",
     "./schemas/process-domain-pack.json": "./schemas/process-domain-pack.schema.json"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0 || >=19.0.0",
+    "react-dom": ">=18.0.0 || >=19.0.0",
+    "lucide-react": ">=0.400.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "lucide-react": {
+      "optional": true
+    }
   },
   "files": [
     "dist/lib",
